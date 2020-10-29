@@ -6,4 +6,4 @@ Group Members:
 - (201611004) Mustafa Kayhan Arıcan ([@mkayhan8](https://github.com/mkayhan8))
 - (201611048) Oğuzhan Saltık ([@ogzhnsaltik](https://github.com/ogzhnsaltik))
 
-See the wiki for more info. (To be updated)
+See the wiki for more info.
