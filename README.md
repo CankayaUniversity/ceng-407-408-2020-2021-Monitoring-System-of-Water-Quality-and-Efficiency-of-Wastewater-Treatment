@@ -6,6 +6,4 @@ Group Members:
 - (201611004) Mustafa Kayhan Arıcan ([@mkayhan8](https://github.com/mkayhan8))
 - (201611048) Oğuzhan Saltık ([@ogzhnsaltik](https://github.com/ogzhnsaltik))
 
-Documents in the wiki:
-- [Project work plan](https://github.com/CankayaUniversity/ceng-407-408-2020-2021-Monitoring-System-of-Water-Quality-and-Efficiency-of-Wastewater-Treatment/wiki/Project-Work-Plan)
-- [Literature Review](https://github.com/CankayaUniversity/ceng-407-408-2020-2021-Monitoring-System-of-Water-Quality-and-Efficiency-of-Wastewater-Treatment/wiki/Literature-Review)
+See the [wiki](https://github.com/CankayaUniversity/ceng-407-408-2020-2021-Monitoring-System-of-Water-Quality-and-Efficiency-of-Wastewater-Treatment/wiki) for available documents.
