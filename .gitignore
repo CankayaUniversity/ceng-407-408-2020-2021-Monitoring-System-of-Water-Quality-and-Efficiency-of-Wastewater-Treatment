@@ -22,6 +22,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-
+# Backend stuff 
 *.sqlite3
 *.csv
+
+# Data Pipeline
+/source/data pipeline/AccessReader/.vs
+/source/data pipeline/AccessReader/.vscode
+/source/data pipeline/AccessReader/AccessReader/obj
+/source/data pipeline/AccessReader/AccessReader/bin
+*.mdb
+*.txt
