@@ -25,8 +25,9 @@ yarn-error.log*
 # Backend stuff 
 *.sqlite3
 *.csv
-/source/backend/backend/base/__pycache__
-/source/backend/backend/__pycache__
+source/backend/backend/__pycache__/*.pyc
+source/backend/base/__pycache__/*.pyc
+source/backend/base/migrations/__pycache__/*.pyc
 
 # Data Pipeline
 /source/data pipeline/AccessReader/.vs
@@ -35,3 +36,4 @@ yarn-error.log*
 /source/data pipeline/AccessReader/AccessReader/bin
 *.mdb
 *.txt
+
