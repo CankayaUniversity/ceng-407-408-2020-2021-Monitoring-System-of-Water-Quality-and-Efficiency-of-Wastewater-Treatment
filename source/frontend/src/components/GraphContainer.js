@@ -1,11 +1,12 @@
 import React, { useEffect,useState } from "react";
 import LineGraph from "./LineGraph";
 import BarGraph from "./BarGraph";
-import { Row, Col, Card, Spinner,Container} from "react-bootstrap";
+import { Row, Col, Card, Spinner,Container, Button} from "react-bootstrap";
 import axios from "axios";
 import Table from './Table'
 import AllYears from "./AllYears";
 import domToPdf from 'dom-to-pdf';
+import MapView from './MapView'
 
 const GraphContainer = (props) => {
   // path('api/reading/<str:bolge>/<str:yer>/<str:parametre>/<str:yil>/',views.getSpecificReading,name="spesific"),
@@ -112,10 +113,17 @@ const GraphContainer = (props) => {
                            <LineGraph data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
                            </Card>
                       ) : queries[0] == "Bar" ? (
-                         
-                          <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
+                        <>
+                          <Col sm={12} md={12} lg={12} xl={12}>
+                           <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
                              <BarGraph data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
                           </Card>
+                          </Col>
+                          <Col sm={12} md={12} lg={12} xl={12}>
+                              <MapView specificLocation={ {"bolgeAdi":"Göcek", "yeradi":"Sarısu Deresi", "position": [38.9232,28.0518]}}/>
+                          </Col>
+                         </>
+                         
                       ) : (
                         <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
                                <Table queries={queries} data={data} />
@@ -124,7 +132,7 @@ const GraphContainer = (props) => {
                         )
                       
                    }
-                   <button onClick={generatePdf}>Ayhh</button>
+                   <Button variant="info" onClick={generatePdf}>Export JPG</Button>
               
              </Col>
          }
