@@ -1,6 +1,7 @@
 
 import Header from './components/Header'
 import VisualizeMainScreen from './screens/VisualizeMainScreen'
+import DataEntryMainScreen  from './screens/DataEntryMainScreen'
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import Visualize from './components/Visualize'
@@ -15,6 +16,8 @@ function App() {
               <Route path='/deniz' component={Visualize} exact/>
               <Route path='/aritma' component={Visualize} exact/>
               <Route path='/gol' component={Visualize} exact/>
+              
+              <Route path='/data' component={DataEntryMainScreen} exact/>
         </main>
       
     </Router>
