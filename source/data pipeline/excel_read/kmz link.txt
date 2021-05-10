@@ -1,0 +1,3 @@
+Python example to read the files:
+
+https://dmuhs.blog/2018/09/14/parsing-kmz-track-data-in-python/

@@ -35,5 +35,7 @@ source/backend/base/migrations/__pycache__/*.pyc
 /source/data pipeline/AccessReader/AccessReader/obj
 /source/data pipeline/AccessReader/AccessReader/bin
 *.mdb
-*.txt
-
+*.data.txt
+*.xlsx
+*.xlsm
+*.kmz
