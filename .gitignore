@@ -39,3 +39,5 @@ source/backend/base/migrations/__pycache__/*.pyc
 *.xlsx
 *.xlsm
 *.kmz
+*.pickle
+/source/data pipeline/excel_read/__pycache__

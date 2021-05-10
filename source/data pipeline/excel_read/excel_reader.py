@@ -5,87 +5,13 @@
 import glob
 from openpyxl import Workbook, load_workbook
 
-import pprint # for debugging
 import pickle
+from static_data import possible_row_names_2020, rows_with_data_2020
 
-pp = pprint.PrettyPrinter(indent=4)
+import pprint # for debugging
+pp = pprint.PrettyPrinter(indent=4) # for debug
 
-excel_files = glob.glob("*.xlsm") # Get all .xlsm files in cwd.
-
-reading_types = [
-    'NUMUNE KODU:',
-    'BÖLGE ADI:',
-    'YER:',
-    'GPS KOORDİNATLARI:',
-    'TABLO:',
-    'NUMUNE ALMA TARİHİ',
-    'PARAMETRE', # This is kind of useless since we have 'NUMUNE ALMA TARİHİ' anyway.
-    'Amonyak (mg/ L)',
-    'Amonyum Azotu (mg/ L)',
-    'Askıda Katı Madde (mg/ L)',
-    'Biyokimyasal Oksijen İhtiyacı (mg/ L)',
-    'Debi (m3/ sn)',
-    'Elektriksel İletkenlik (µS/ cm)',
-    'Fekal  Koliform  (CFU/ 100 mL)',
-    'Fekal Koliform (CFU/ 100 mL)',
-    'Fekal Streptekok (CFU/ 100 mL)',
-    'Işık Geçirgenliği (M)',
-    'Kimyasal Oksijen İhtiyacı (mg/ L)',
-    'Klorofil-A (µg/ L)',
-    'Koku (TON)',
-    'Nitrat Azotu (mg/ L)',
-    'Nitrit Azotu (mg/ L)',
-    'O2 (%)',
-    'Orta Fosfat (mg/ L)',
-    'Renk (Pt-Co)',
-    'Sıcaklık (0C)',
-    'Toplam Azot (mg/ L)',
-    'Toplam Fenol (mg/ L)',
-    'Toplam Fosfor (mg/ L)',
-    'Toplam Kjeldahl Azotu (mg/ L)',
-    'Toplam Koliform  (CFU/ 100 mL)',
-    'Toplam Pestisid (mg/ L)',
-    'Tuzluluk (‰)',
-    'Yağ-Gres (mg/ L)',
-    'pH',
-    'Çözünmüş Oksijen (mg/ L)',
-    'İletkenlik (µS/ cm)'
-]
-
-data_col_count = [
-    'NUMUNE ALMA TARİHİ',
-    'PARAMETRE',
-    'Amonyak (mg/ L)',
-    'Amonyum Azotu (mg/ L)',
-    'Askıda Katı Madde (mg/ L)',
-    'Biyokimyasal Oksijen İhtiyacı (mg/ L)',
-    'Debi (m3/ sn)',
-    'Elektriksel İletkenlik (µS/ cm)',
-    'Fekal  Koliform  (CFU/ 100 mL)',
-    'Fekal Koliform (CFU/ 100 mL)',
-    'Fekal Streptekok (CFU/ 100 mL)',
-    'Işık Geçirgenliği (M)',
-    'Kimyasal Oksijen İhtiyacı (mg/ L)',
-    'Klorofil-A (µg/ L)',
-    'Koku (TON)',
-    'Nitrat Azotu (mg/ L)',
-    'Nitrit Azotu (mg/ L)',
-    'O2 (%)',
-    'Orta Fosfat (mg/ L)',
-    'Renk (Pt-Co)',
-    'Sıcaklık (0C)',
-    'Toplam Azot (mg/ L)',
-    'Toplam Fenol (mg/ L)',
-    'Toplam Fosfor (mg/ L)',
-    'Toplam Kjeldahl Azotu (mg/ L)',
-    'Toplam Koliform  (CFU/ 100 mL)',
-    'Toplam Pestisid (mg/ L)',
-    'Tuzluluk (‰)',
-    'Yağ-Gres (mg/ L)',
-    'pH',
-    'Çözünmüş Oksijen (mg/ L)',
-    'İletkenlik (µS/ cm):'
-]
+excel_files = glob.glob("./data/2020/*.xlsm") # Get all .xlsm files in cwd.
 
 def get_row_names(ws, rowcount):
     row_names = []
@@ -93,7 +19,7 @@ def get_row_names(ws, rowcount):
         val = ws.cell(row = row_idx, column = 2) # val1 = ws["A1"].value
         value = val.value
         if value is not None:
-            if value not in reading_types:
+            if value not in possible_row_names_2020:
                 print(value)
             else:
                 row_names.append(value)
@@ -111,7 +37,7 @@ def get_row_data(ws, row_idx: int, data_table: dict):
         data_table["NUMUNE KODU"] = data_temp
         return 1 # Started
 
-    if column_name not in reading_types:
+    if column_name not in possible_row_names_2020:
         data_temp = ws.cell(row = row_idx, column = 2).value
         if data_temp is not None:
             data_table["Açıklama"] = data_temp
@@ -134,7 +60,7 @@ def get_row_data(ws, row_idx: int, data_table: dict):
         assert(data_temp == None)
         # data_table["TABLO"] = data_temp
 
-    if column_name in data_col_count:
+    if column_name in rows_with_data_2020:
         data = {}
         data[column_name] = []
         for i in range(1, 6):
