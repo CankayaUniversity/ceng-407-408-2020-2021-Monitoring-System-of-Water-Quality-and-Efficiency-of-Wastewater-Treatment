@@ -83,11 +83,10 @@ class ExcelDataReader(object):
 
             if val is not None:
                 row_names.append(val)
-                if val not in possible_row_names_2018:
-                    print("Row not in possible list:", val)
 
         return row_names
 
+    # TODO make this compatible with type 2018 files.
     def read_row_into_table(self, row_idx, data_table):
         top_left_column = self.worksheet_dimensions[0][0]
         column_name = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
@@ -181,7 +180,7 @@ def analyze_2018_data_format():
             all_row_names += edr.get_row_names()
 
     print("All row names:")
-    print(set(all_row_names))
+    print(sorted(set(all_row_names)))
 
 def main():
     # read_and_pickle_2020_data()
