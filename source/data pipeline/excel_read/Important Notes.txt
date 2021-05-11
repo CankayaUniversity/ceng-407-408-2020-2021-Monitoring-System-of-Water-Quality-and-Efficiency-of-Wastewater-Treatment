@@ -1,0 +1,5 @@
+- Python example to read the kmz location files: https://dmuhs.blog/2018/09/14/parsing-kmz-track-data-in-python/
+- Changes made in 2018 dataset:
+	- "Belek Koordinatlar.xlsx" file is useless. Deleted that.
+	- "Belek Akarsu Grafik.xlsx" file has a problematic cell in it. Cell B177 is supposed to be "Parametre" instead of "8.12". Edited it.
+	- "Göksu Deltası Akarsu Grafik_2401_son.xlsx" file also has a problematic cell. Cell A250 is supposed to be empty. Deleted the "7" in that cell.
