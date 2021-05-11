@@ -30,12 +30,20 @@ def dump_to_pickle(data, name):
 class ExcelDataReader(object):
     def __init__(self, filepath):
         self.filepath = filepath
-        self.filename = os.path.basename(filepath)
+        filename = os.path.basename(filepath)
+        self.filename, file_extension = os.path.splitext(filename)
         self.workbook = load_workbook(filepath, keep_vba = True, read_only = True)
         self.data_tables = []
         self.current_worksheet    = None
         self.worksheet_dimensions = None # ( Top-left (row, col), bottom-right (row, col) )
         self.current_data_table   = {}
+
+        if file_extension == ".xlsm":
+            self.file_year = 2020
+        elif file_extension == ".xlsx":
+            self.file_year = 2018
+        else:
+            assert False, ("unexpected file_extension:" + file_extension)
 
     def __del__(self):
         # This is only here because I'm curious whether Python objects get cleaned up deterministically. (in CPython)
@@ -79,7 +87,6 @@ class ExcelDataReader(object):
 
         for row_idx in range(1, row_count + 1):
             val = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
-            
 
             if val is not None:
                 row_names.append(val)
@@ -91,41 +98,41 @@ class ExcelDataReader(object):
         top_left_column = self.worksheet_dimensions[0][0]
         column_name = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
     
-        if column_name == 'NUMUNE KODU:': # table start
+        if column_name in headers["numune"]: # 2020 table start
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
-            data_table["NUMUNE KODU"] = data_temp
-            return 1 # Started
+            data_table["Numune Kodu"] = data_temp
+
+            if self.file_year == 2020:
+                return 1 # Started
     
-        if column_name not in possible_row_names_2020:
+        if column_name in headers["bolge"]: # 2018 table start TODO
+            data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
+            data_table["Bölge Adı"] = data_temp
+
+            if self.file_year == 2018:
+                return 1 # Started
+
+        if column_name not in possible_row_names:
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
             if data_temp is not None:
                 data_table["Açıklama"] = data_temp
             return -1 # Ended
     
-        if column_name == 'BÖLGE ADI:':
+        if column_name in headers["yer"]:
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
-            data_table["BÖLGE ADI"] = data_temp
+            data_table["Yer"] = data_temp
     
-        if column_name == 'YER:':
-            data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
-            data_table["YER"] = data_temp
-    
-        if column_name == 'GPS KOORDİNATLARI:':
+        if column_name in headers["koord"]: # todo
             data_temp = ((self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value), (self.current_worksheet.cell(row = row_idx, column = top_left_column + 2).value))
-            data_table["GPS KOORDİNATLARI"] = data_temp
+            data_table["GPS Koordinatları"] = data_temp
     
-        if column_name == 'TABLO:':
-            data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
-            assert(data_temp == None)
-            # data_table["TABLO"] = data_temp
-    
-        if column_name in rows_with_data_2020:
+        if column_name in reading_types:
             data = {}
             data[column_name] = []
-            for i in range(1, 6):
+            for i in range(1, 6): # range probably wrong for 2018 TODO
                 data[column_name].append(self.current_worksheet.cell(row = row_idx, column = top_left_column + i).value)
             data_table[column_name] = data[column_name]
-    
+
         return 0 # Neither ended nor started
 
     def read_tables(self, log_completion = True):
@@ -147,13 +154,29 @@ class ExcelDataReader(object):
 
             last = state
 
+    def get_all_data(filepath_list):
+        data_tables = []
+
+        for filepath in filepath_list:
+            edr = ExcelDataReader(filepath)
+
+            print("Current file:", edr.filename)
+
+            intersections = edr.check_worksheet_names()
+            for ws_name in intersections:
+                print("Worksheet:", ws_name)
+                edr.open_worksheet(ws_name)
+
+                edr.read_tables()
+                data_tables += edr.data_tables
+
+        return data_tables
+
 # file_path table_name (row_index) param_name System.String value
 def read_and_pickle_2020_data():
-    total_rowcount = 0
-
     data_tables = []
     for filepath in excel_files_2020:
-        if "Tüm Bölgeler.xlsm" in filepath: break # IMPORTANT: This file includes all the other files' data.
+        # if "Tüm Bölgeler.xlsm" in filepath: break # IMPORTANT: This file includes all the other files' data.
 
         edr = ExcelDataReader(filepath)
         edr.open_worksheet("RAPOR") # 2020 data only uses this worksheet name.
@@ -182,9 +205,16 @@ def analyze_2018_data_format():
     print("All row names:")
     print(sorted(set(all_row_names)))
 
+def read_2020():
+    data_tables = ExcelDataReader.get_all_data(excel_files_2020)
+    print("Total number of tables:", len(data_tables))
+    dump_to_pickle(data_tables, "tables2020-2")
+    print("Pickled the data. Everything done.")
+
 def main():
     # read_and_pickle_2020_data()
-    analyze_2018_data_format()
+    # analyze_2018_data_format()
+    read_2020()
 
 if __name__ == '__main__':
     main()
