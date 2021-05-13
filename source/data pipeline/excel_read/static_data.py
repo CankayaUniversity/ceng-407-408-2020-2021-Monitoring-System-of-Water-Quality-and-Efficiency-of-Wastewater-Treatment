@@ -36,7 +36,7 @@ possible_row_names = [
     'Yağ-Gres (mg/ L)',
     'pH',
     'Çözünmüş Oksijen (mg/ L)',
-    'İletkenlik (µS/ cm)'
+    'İletkenlik (µS/ cm)',
     # 2018 -----
     'ÖÇKB Adı',
     'Yer',
@@ -82,7 +82,7 @@ possible_row_names = [
     'Yağ-Gres (mg/L)',
     'pH',
     'Çözünmüş Oksijen (mg/L)',
-    'İletkenlik (μs/cm)'
+    'İletkenlik (μs/cm)',
 ]
 
 headers = {
