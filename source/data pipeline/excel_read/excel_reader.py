@@ -37,6 +37,7 @@ class ExcelDataReader(object):
         self.current_worksheet    = None
         self.worksheet_dimensions = None # ( Top-left (row, col), bottom-right (row, col) )
         self.current_data_table   = {}
+        self.month_count = 0
 
         if file_extension == ".xlsm":
             self.file_year = 2020
@@ -52,7 +53,8 @@ class ExcelDataReader(object):
         self.close()
 
     def close(self):
-        self.workbook.close()
+        if self.workbook is not None:
+            self.workbook.close()
 
     def check_worksheet_names(self):
         possible_sheetnames = ['Akarsu', 'Göl', 'Deniz', 'Atıksu', 'Sayfa1', 'Sayfa2', 'Sayfa3', 'RAPOR'] # "RAPOR" is only in 2020 files.
@@ -61,7 +63,7 @@ class ExcelDataReader(object):
 
     def open_worksheet(self, ws_name):
         self.current_worksheet = self.workbook[ws_name]
-        
+
         # Dimension stuff...
         dimensions = self.current_worksheet.calculate_dimension()
         dims = dimensions.split(":")
@@ -71,7 +73,7 @@ class ExcelDataReader(object):
 
         top_left_row     = int(top_left[1:]) # row count
         bottom_right_row = int(bottom_right[1:]) # row count
-        
+
         top_left_col     = ord(top_left[0])     - ord('A') + 1
         bottom_right_col = ord(bottom_right[0]) - ord('A') + 1
 
@@ -97,14 +99,14 @@ class ExcelDataReader(object):
     def read_row_into_table(self, row_idx, data_table):
         top_left_column = self.worksheet_dimensions[0][0]
         column_name = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
-    
+
         if column_name in headers["numune"]: # 2020 table start
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
             data_table["Numune Kodu"] = data_temp
 
             if self.file_year == 2020:
                 return 1 # Started
-    
+
         if column_name in headers["bolge"]: # 2018 table start TODO
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
             data_table["Bölge Adı"] = data_temp
@@ -114,18 +116,43 @@ class ExcelDataReader(object):
 
         if column_name not in possible_row_names:
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
+            # print("End column_name:", column_name, "data_temp:", data_temp) # TODO(ag) This is for debugging, delete later.
             if data_temp is not None:
                 data_table["Açıklama"] = data_temp
+            elif (self.file_year == 2018) and (len(data_table.keys()) < 5): # 5 is just a guess, it should be enough.
+                return 0 # Sometimes one row is merged with the row below, so it seems like bottom row is None. Table does not actually end in that case.
             return -1 # Ended
-    
+
         if column_name in headers["yer"]:
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
             data_table["Yer"] = data_temp
-    
+
+        if column_name in headers["tarih"]:
+            if self.file_year == 2020:
+                self.month_count = 5
+            else: # self.file_year == 2018:
+                count = 0
+                for idx in range(1, 25):
+                    date_val = self.current_worksheet.cell(row = row_idx, column = top_left_column + idx).value
+                    if date_val in rightmost_cells:
+                        count = idx - 1
+                        break
+
+                self.month_count = count
+
+            assert (self.month_count > 1), ("month_count must be greater than 1, weird data. -- " + self.filename)
+            dates = []
+            for i in range(1, self.month_count + 1):
+                col_data = self.current_worksheet.cell(row = row_idx, column = top_left_column + i).value
+                if col_data == "-":
+                    col_data = None
+                dates.append(col_data)
+            data_table["Numune Alma Tarihi"] = dates
+
         if column_name in headers["koord"]: # todo
             data_temp = ((self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value), (self.current_worksheet.cell(row = row_idx, column = top_left_column + 2).value))
             data_table["GPS Koordinatları"] = data_temp
-    
+
         if column_name in reading_types:
             data = {}
             data[column_name] = []
@@ -139,7 +166,7 @@ class ExcelDataReader(object):
         last = -1
         table_count = 0
         row_count = self.worksheet_dimensions[1][1]
-        
+
         data_table = {}
         for row_idx in range(1, row_count + 1):
             state = self.read_row_into_table(row_idx, data_table)
@@ -147,12 +174,16 @@ class ExcelDataReader(object):
             if state == 1: # New table started.
                 table_count += 1
             elif state == -1 and last != -1: # Table ended.
+                # print("Table ended, row:", row_idx)
+                # pp.pprint(data_table) # TODO(ag) This is for debugging, delete later.
                 if log_completion:
                     print("--- Table {:2} done. ---".format(table_count))
+
                 self.data_tables.append(data_table)
                 data_table = {}
 
             last = state
+
 
     def get_all_data(filepath_list):
         data_tables = []
@@ -163,6 +194,7 @@ class ExcelDataReader(object):
             print("Current file:", edr.filename)
 
             intersections = edr.check_worksheet_names()
+
             for ws_name in intersections:
                 print("Worksheet:", ws_name)
                 edr.open_worksheet(ws_name)
@@ -205,16 +237,39 @@ def analyze_2018_data_format():
     print("All row names:")
     print(sorted(set(all_row_names)))
 
-def read_2020():
-    data_tables = ExcelDataReader.get_all_data(excel_files_2020)
-    print("Total number of tables:", len(data_tables))
-    dump_to_pickle(data_tables, "tables2020-2")
-    print("Pickled the data. Everything done.")
+def analyze_2018_dates():
+    all_string_dates = []
+    for filepath in excel_files_2018:
+        edr = ExcelDataReader(filepath)
+        intersections = edr.check_worksheet_names()
+
+        for ws_name in intersections:
+            print("Worksheet:", ws_name)
+            edr.open_worksheet(ws_name)
+
+            row_count = edr.worksheet_dimensions[1][1]
+            for row_idx in range(1, row_count + 1):
+                top_left_column = edr.worksheet_dimensions[0][0]
+                column_name = edr.current_worksheet.cell(row = row_idx, column = top_left_column).value
+
+                if column_name in headers["tarih"]:
+                    for i in range(1, 20):
+                        date_val = edr.current_worksheet.cell(row = row_idx, column = top_left_column + i).value
+                        if date_val != None and type(date_val) == str:
+                            print("Date -- ", date_val, "--")
+                            all_string_dates.append(date_val)
+
+    print((set(all_string_dates)))
+
 
 def main():
     # read_and_pickle_2020_data()
     # analyze_2018_data_format()
-    read_2020()
+    # analyze_2018_dates()
+    data_tables = ExcelDataReader.get_all_data(excel_files_2018)
+    print("Total number of tables:", len(data_tables))
+    dump_to_pickle(data_tables, "tables2018")
+    print("Pickled the data. Everything done.")
 
 if __name__ == '__main__':
     main()

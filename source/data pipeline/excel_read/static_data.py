@@ -165,3 +165,5 @@ reading_types = [
     'Çözünmüş Oksijen (mg/L)',
     'İletkenlik (μs/cm)'
 ]
+
+rightmost_cells = ['YSKY Ek-5 Tablo.2\n(Su Kalite Sınıfları)', 'DLS-4374', 'Y.S.K.Y.-Ek1', 'KAAY-EK IV', 'YSKY Ek-6 Tablo.9']
