@@ -95,7 +95,6 @@ class ExcelDataReader(object):
 
         return row_names
 
-    # TODO make this compatible with type 2018 files.
     def read_row_into_table(self, row_idx, data_table):
         top_left_column = self.worksheet_dimensions[0][0]
         column_name = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
@@ -150,14 +149,27 @@ class ExcelDataReader(object):
             data_table["Numune Alma Tarihi"] = dates
 
         if column_name in headers["koord"]: # todo
-            data_temp = ((self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value), (self.current_worksheet.cell(row = row_idx, column = top_left_column + 2).value))
+            left_col = (self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value)
+            right_col = (self.current_worksheet.cell(row = row_idx, column = top_left_column + 2).value)
+
+            data_temp = None
+            if right_col == None:
+                data_temp = left_col
+            else:
+                data_temp = left_col + "\n" + right_col
+
             data_table["GPS Koordinatları"] = data_temp
 
         if column_name in reading_types:
+            assert (self.month_count > 1), "Month count is not set!"
             data = {}
             data[column_name] = []
-            for i in range(1, 6): # range probably wrong for 2018 TODO
-                data[column_name].append(self.current_worksheet.cell(row = row_idx, column = top_left_column + i).value)
+            for i in range(1, self.month_count + 1):
+                data_in_cell = self.current_worksheet.cell(row = row_idx, column = top_left_column + i).value
+                if data_in_cell == "-":
+                    data_in_cell = None
+
+                data[column_name].append(data_in_cell)
             data_table[column_name] = data[column_name]
 
         return 0 # Neither ended nor started
@@ -181,9 +193,27 @@ class ExcelDataReader(object):
 
                 self.data_tables.append(data_table)
                 data_table = {}
+                self.month_count = 0
 
             last = state
 
+    def generate_tsv_from_table(self, table):
+        reading_count = len(table['Numune Alma Tarihi'])
+
+        line = "{}\t{}\t({})\t{}\t{}\t{}".format(file_path, table_name, row_idx, column_name, "System.String", value) # todo System.String?
+
+        keys_with_single_value = []
+        keys_with_multiple_values = []
+
+        for key, value in table.items():
+            if type(value) == list:
+                keys_with_multiple_values.append(key)
+            else:
+                keys_with_single_value.append(key)
+
+        # TODO:
+        # - Generate TSV data from ExcelDateReader instance directly.
+        # - Also pickle the EDR instances, no need to only use dictionaries.
 
     def get_all_data(filepath_list):
         data_tables = []
@@ -204,73 +234,26 @@ class ExcelDataReader(object):
 
         return data_tables
 
-# file_path table_name (row_index) param_name System.String value
-def read_and_pickle_2020_data():
-    data_tables = []
-    for filepath in excel_files_2020:
-        # if "Tüm Bölgeler.xlsm" in filepath: break # IMPORTANT: This file includes all the other files' data.
+def get_all_data_and_pickle(year):
+    assert ((year == 2020) or (year == 2018)), "Year not valid."
 
-        edr = ExcelDataReader(filepath)
-        edr.open_worksheet("RAPOR") # 2020 data only uses this worksheet name.
-        print("Current filename:", edr.filename)
-        edr.read_tables()
-        data_tables += edr.data_tables
-        edr.close()
+    print("Year is", year)
 
+    file_list = excel_files_2020
+    pickle_name = "tables_2020"
+    if year == 2018:
+        file_list = excel_files_2018
+        pickle_name = "tables_2018"
+
+    data_tables = ExcelDataReader.get_all_data(file_list)
     print("Total number of tables:", len(data_tables))
+    dump_to_pickle(data_tables, pickle_name)
+    print("Pickled the data")
 
-    dump_to_pickle(data_tables, "tables2020")
-    print("Pickled the data. Everything done.")
-
-def analyze_2018_data_format():
-    all_row_names = []
-    for filepath in excel_files_2018:
-        edr = ExcelDataReader(filepath)
-        intersections = edr.check_worksheet_names()
-        print("{:60}-> Usable sheets: {}".format(edr.filename, intersections)) # TODO Python's .format() justifying is broken when used with UTF-8 chars. Not that it is important here.
-
-        for ws_name in intersections:
-            print("Worksheet:", ws_name)
-            edr.open_worksheet(ws_name)
-            all_row_names += edr.get_row_names()
-
-    print("All row names:")
-    print(sorted(set(all_row_names)))
-
-def analyze_2018_dates():
-    all_string_dates = []
-    for filepath in excel_files_2018:
-        edr = ExcelDataReader(filepath)
-        intersections = edr.check_worksheet_names()
-
-        for ws_name in intersections:
-            print("Worksheet:", ws_name)
-            edr.open_worksheet(ws_name)
-
-            row_count = edr.worksheet_dimensions[1][1]
-            for row_idx in range(1, row_count + 1):
-                top_left_column = edr.worksheet_dimensions[0][0]
-                column_name = edr.current_worksheet.cell(row = row_idx, column = top_left_column).value
-
-                if column_name in headers["tarih"]:
-                    for i in range(1, 20):
-                        date_val = edr.current_worksheet.cell(row = row_idx, column = top_left_column + i).value
-                        if date_val != None and type(date_val) == str:
-                            print("Date -- ", date_val, "--")
-                            all_string_dates.append(date_val)
-
-    print((set(all_string_dates)))
-
+    return data_tables
 
 def main():
-    # read_and_pickle_2020_data()
-    # analyze_2018_data_format()
-    # analyze_2018_dates()
-    data_tables = ExcelDataReader.get_all_data(excel_files_2018)
-    print("Total number of tables:", len(data_tables))
-    dump_to_pickle(data_tables, "tables2018")
-    print("Pickled the data. Everything done.")
+    all_data = get_all_data_and_pickle(2018) + get_all_data_and_pickle(2020)
 
 if __name__ == '__main__':
     main()
-
