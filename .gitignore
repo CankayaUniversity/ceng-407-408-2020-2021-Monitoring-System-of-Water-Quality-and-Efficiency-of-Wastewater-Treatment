@@ -41,3 +41,4 @@ source/backend/base/migrations/__pycache__/*.pyc
 *.kmz
 *.pickle
 /source/data pipeline/excel_read/__pycache__
+*.tsv

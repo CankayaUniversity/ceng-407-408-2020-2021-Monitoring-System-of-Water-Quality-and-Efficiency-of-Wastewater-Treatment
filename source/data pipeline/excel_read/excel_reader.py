@@ -2,6 +2,8 @@
 # Part of the WQPMS Project.
 # Reads Excel .xlsm and .xlsx files provided by the Ministry and converts them into a format which we can use.
 
+import multiprocessing # Gotta use them cores
+
 import glob, pickle, os
 from openpyxl import Workbook, load_workbook
 
@@ -36,8 +38,8 @@ class ExcelDataReader(object):
         self.data_tables = []
         self.current_worksheet      = None
         self.current_worksheet_name = None
-        self.worksheet_dimensions = None # ( Top-left (row, col), bottom-right (row, col) )
-        self.current_data_table   = {}
+        self.worksheet_dimensions   = None # ( Top-left (row, col), bottom-right (row, col) )
+        self.current_data_table     = {}
         self.month_count = 0
 
         if file_extension == ".xlsm":
@@ -50,14 +52,18 @@ class ExcelDataReader(object):
     def __del__(self):
         # This is only here because I'm curious whether Python objects get cleaned up deterministically. (in CPython)
         # As far as I can tell, objects that go out of scope are deleted immediately. Maybe RC is used?
-        print("Destructor called for", self.filename)
+        # print("Destructor called for", self.filename)
         self.close()
+
+    def __str__(self):
+        string = "ExcelDataReader object: Table Count {} and Filename {}".format(len(self.data_tables), self.filename)
+        return string
 
     def close(self):
         if self.workbook is not None:
             self.workbook.close()
+            self.workbook               = None
             self.current_worksheet      = None
-            self.current_worksheet_name = None
             self.worksheet_dimensions   = None
 
 
@@ -227,13 +233,9 @@ class ExcelDataReader(object):
             else:
                 keys_with_single_value.append(key)
 
-        # TODO delete debug
-        # print("single_value:", keys_with_single_value)
-        # print("multiple_values:", keys_with_multiple_values)
-
         result = ""
 
-        for row_idx in range(0, reading_count):
+        for row_idx in range(reading_count):
             for key in keys_with_single_value:
                 line = "{}\t{}\t({})\t{}\t{}\t{}\n".format(file_path, table_name, row_idx, key, "System.String", table[key])
                 result += line
@@ -244,33 +246,74 @@ class ExcelDataReader(object):
         return result
 
 
-    def get_all_data(filepath_list, log_completion = True):
-        readers = []
+def get_all_data(filepath_list, log_completion = True):
+    readers = []
 
-        count = 0
-        total = len(filepath_list)
-        for filepath in filepath_list:
-            count += 1
+    count = 0
+    total = len(filepath_list)
+    for filepath in filepath_list:
+        count += 1
 
-            edr = ExcelDataReader(filepath)
+        edr = ExcelDataReader(filepath)
 
+        if log_completion:
             print("Current file: {}, ({} out of {})".format(edr.filename, count, total))
 
-            intersections = edr.check_worksheet_names()
+        intersections = edr.check_worksheet_names()
 
-            for ws_name in intersections:
+        for ws_name in intersections:
+
+            if log_completion:
                 print("Worksheet:", ws_name)
-                edr.open_worksheet(ws_name)
 
-                edr.read_tables(log_completion)
+            edr.open_worksheet(ws_name)
+            edr.read_tables(log_completion)
+            readers.append(edr)
 
-                readers.append(edr)
+        edr.close()
 
-            edr.close()
+    return readers
 
-        return readers
+# ------------- Multiprocessing stuff
 
-def get_all_data_and_pickle(year):
+def worker_edr(filepath, log_completion, worker_id):
+    edr = ExcelDataReader(filepath)
+
+    intersections = edr.check_worksheet_names()
+
+    for ws_name in intersections:
+        if log_completion:
+            print("Worksheet:", ws_name)
+
+        edr.open_worksheet(ws_name)
+        edr.read_tables(log_completion)
+
+    edr.close()
+    print(worker_id, "done!")
+
+    return edr
+
+def get_all_data_multiprocess(filepath_list, log_completion = True):
+    async_results = []
+
+    count = 0
+    total = len(filepath_list)
+
+    params = []
+    for filepath in filepath_list:
+        param = (filepath, log_completion, count)
+        params.append(param)
+        count += 1
+
+    edr_results = []
+    with multiprocessing.Pool(processes = 16) as pool:
+        edr_results = pool.starmap(worker_edr, params)
+
+    return edr_results
+
+# ------------- Multiprocessing stuff
+
+def get_all_data_and_pickle(year, multiprocess = False):
     assert ((year == 2020) or (year == 2018)), "Year not valid."
 
     print("Year is", year)
@@ -281,7 +324,13 @@ def get_all_data_and_pickle(year):
         file_list = excel_files_2018
         pickle_name = "tables_2018"
 
-    readers = ExcelDataReader.get_all_data(file_list)
+    readers = None
+    if multiprocess:
+        pickle_name = pickle_name + "_mp"
+        readers = get_all_data_multiprocess(file_list)
+    else:
+        readers = get_all_data(file_list)
+
     print("Total number of files:", len(readers))
     dump_to_pickle(readers, pickle_name)
     print("Pickled the data")
@@ -289,10 +338,14 @@ def get_all_data_and_pickle(year):
     return readers
 
 def main():
-    all_edrs = get_all_data_and_pickle(2018) + get_all_data_and_pickle(2020)
+    mp = True
+    # all_edrs = get_all_data_and_pickle(2018, mp) + get_all_data_and_pickle(2020, mp)
 
-    for edr in all_edrs:
-        with open("stuff.tsv", "w") as fd:
+    all_edrs = load_from_pickle("tables_2018_mp") + load_from_pickle("tables_2020_mp")
+
+    with open("stuff.tsv", "w") as fd:
+        for edr in all_edrs:
+            print("Writing", str(edr))
             fd.write(edr.generate_tsv() + "\n\n")
 
     print("Everthing done! Yay!")
