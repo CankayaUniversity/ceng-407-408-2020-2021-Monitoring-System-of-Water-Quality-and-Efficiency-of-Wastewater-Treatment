@@ -34,7 +34,8 @@ class ExcelDataReader(object):
         self.filename, file_extension = os.path.splitext(filename)
         self.workbook = load_workbook(filepath, keep_vba = True, read_only = True)
         self.data_tables = []
-        self.current_worksheet    = None
+        self.current_worksheet      = None
+        self.current_worksheet_name = None
         self.worksheet_dimensions = None # ( Top-left (row, col), bottom-right (row, col) )
         self.current_data_table   = {}
         self.month_count = 0
@@ -55,6 +56,10 @@ class ExcelDataReader(object):
     def close(self):
         if self.workbook is not None:
             self.workbook.close()
+            self.current_worksheet      = None
+            self.current_worksheet_name = None
+            self.worksheet_dimensions   = None
+
 
     def check_worksheet_names(self):
         possible_sheetnames = ['Akarsu', 'Göl', 'Deniz', 'Atıksu', 'Sayfa1', 'Sayfa2', 'Sayfa3', 'RAPOR'] # "RAPOR" is only in 2020 files.
@@ -63,6 +68,7 @@ class ExcelDataReader(object):
 
     def open_worksheet(self, ws_name):
         self.current_worksheet = self.workbook[ws_name]
+        self.current_worksheet_name = ws_name
 
         # Dimension stuff...
         dimensions = self.current_worksheet.calculate_dimension()
@@ -97,6 +103,8 @@ class ExcelDataReader(object):
 
     def read_row_into_table(self, row_idx, data_table):
         top_left_column = self.worksheet_dimensions[0][0]
+
+        assert (self.current_worksheet is not None), ("Use open_worksheet! Worksheet is None in " + self.filename)
         column_name = self.current_worksheet.cell(row = row_idx, column = top_left_column).value
 
         if column_name in headers["numune"]: # 2020 table start
@@ -106,7 +114,7 @@ class ExcelDataReader(object):
             if self.file_year == 2020:
                 return 1 # Started
 
-        if column_name in headers["bolge"]: # 2018 table start TODO
+        if column_name in headers["bolge"]: # 2018 table start
             data_temp = self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value
             data_table["Bölge Adı"] = data_temp
 
@@ -148,15 +156,16 @@ class ExcelDataReader(object):
                 dates.append(col_data)
             data_table["Numune Alma Tarihi"] = dates
 
-        if column_name in headers["koord"]: # todo
+        if column_name in headers["koord"]:
             left_col = (self.current_worksheet.cell(row = row_idx, column = top_left_column + 1).value)
             right_col = (self.current_worksheet.cell(row = row_idx, column = top_left_column + 2).value)
 
             data_temp = None
             if right_col == None:
-                data_temp = left_col
+                if (left_col is not None) and (type(left_col) == str):
+                    data_temp = left_col.replace("\n", ", ")
             else:
-                data_temp = left_col + "\n" + right_col
+                data_temp = left_col + ", " + right_col
 
             data_table["GPS Koordinatları"] = data_temp
 
@@ -197,31 +206,55 @@ class ExcelDataReader(object):
 
             last = state
 
-    def generate_tsv_from_table(self, table):
-        reading_count = len(table['Numune Alma Tarihi'])
+    def generate_tsv(self) -> str:
+        tsv = ""
+        for table in self.data_tables:
+            tsv += ExcelDataReader.__tsv_from_table(table, self.filename, self.current_worksheet_name)
 
-        line = "{}\t{}\t({})\t{}\t{}\t{}".format(file_path, table_name, row_idx, column_name, "System.String", value) # todo System.String?
+        return tsv
+
+
+    def __tsv_from_table(table, file_path, table_name) -> str:
+        reading_count = len(table['Numune Alma Tarihi'])
 
         keys_with_single_value = []
         keys_with_multiple_values = []
 
         for key, value in table.items():
             if type(value) == list:
+                assert (len(value) == reading_count), ("Non-uniform number of items in " + file_path + "!")
                 keys_with_multiple_values.append(key)
             else:
                 keys_with_single_value.append(key)
 
-        # TODO:
-        # - Generate TSV data from ExcelDateReader instance directly.
-        # - Also pickle the EDR instances, no need to only use dictionaries.
+        # TODO delete debug
+        # print("single_value:", keys_with_single_value)
+        # print("multiple_values:", keys_with_multiple_values)
 
-    def get_all_data(filepath_list):
-        data_tables = []
+        result = ""
 
+        for row_idx in range(0, reading_count):
+            for key in keys_with_single_value:
+                line = "{}\t{}\t({})\t{}\t{}\t{}\n".format(file_path, table_name, row_idx, key, "System.String", table[key])
+                result += line
+            for key in keys_with_multiple_values:
+                line = "{}\t{}\t({})\t{}\t{}\t{}\n".format(file_path, table_name, row_idx, key, "System.String", table[key][row_idx])
+                result += line
+
+        return result
+
+
+    def get_all_data(filepath_list, log_completion = True):
+        readers = []
+
+        count = 0
+        total = len(filepath_list)
         for filepath in filepath_list:
+            count += 1
+
             edr = ExcelDataReader(filepath)
 
-            print("Current file:", edr.filename)
+            print("Current file: {}, ({} out of {})".format(edr.filename, count, total))
 
             intersections = edr.check_worksheet_names()
 
@@ -229,10 +262,13 @@ class ExcelDataReader(object):
                 print("Worksheet:", ws_name)
                 edr.open_worksheet(ws_name)
 
-                edr.read_tables()
-                data_tables += edr.data_tables
+                edr.read_tables(log_completion)
 
-        return data_tables
+                readers.append(edr)
+
+            edr.close()
+
+        return readers
 
 def get_all_data_and_pickle(year):
     assert ((year == 2020) or (year == 2018)), "Year not valid."
@@ -245,15 +281,21 @@ def get_all_data_and_pickle(year):
         file_list = excel_files_2018
         pickle_name = "tables_2018"
 
-    data_tables = ExcelDataReader.get_all_data(file_list)
-    print("Total number of tables:", len(data_tables))
-    dump_to_pickle(data_tables, pickle_name)
+    readers = ExcelDataReader.get_all_data(file_list)
+    print("Total number of files:", len(readers))
+    dump_to_pickle(readers, pickle_name)
     print("Pickled the data")
 
-    return data_tables
+    return readers
 
 def main():
-    all_data = get_all_data_and_pickle(2018) + get_all_data_and_pickle(2020)
+    all_edrs = get_all_data_and_pickle(2018) + get_all_data_and_pickle(2020)
+
+    for edr in all_edrs:
+        with open("stuff.tsv", "w") as fd:
+            fd.write(edr.generate_tsv() + "\n\n")
+
+    print("Everthing done! Yay!")
 
 if __name__ == '__main__':
     main()
