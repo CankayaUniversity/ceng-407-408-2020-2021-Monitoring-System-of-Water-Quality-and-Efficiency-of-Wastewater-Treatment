@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import {Bar} from "react-chartjs-2";
 
-const BarGraph = ({data,label,unit,color,months, is_all,yillar}) => {
+const BarGraph = ({id,data,label,unit,colors,months, is_all,yillar}) => {
     const [chartData,setChartData] = useState({})
     const chart =  ()=>{
         setChartData({
@@ -9,11 +9,11 @@ const BarGraph = ({data,label,unit,color,months, is_all,yillar}) => {
             datasets: [{
                 //label: label + " - " + unit + " ( mg/L )",
                 label: label ,
-                backgroundColor: ["rgba(42, 82, 86, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"],
+                backgroundColor: colors.length < 2 ? ["rgba(52, 92, 96, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"] : colors,
                 borderColor: "transparent",
                 borderWidth: 2,
-                hoverBackgroundColor: ["rgba(52, 92, 96, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"],
-                hoverBorderColor: "#3e95cd",
+                // hoverBackgroundColor: ["rgba(52, 92, 96, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"],
+                // hoverBorderColor: "#3e95cd",
                 data: data,
                 fill: false,
                 
@@ -75,7 +75,7 @@ const BarGraph = ({data,label,unit,color,months, is_all,yillar}) => {
     }
     return (
         <>
-              <Bar data={chartData}
+              <Bar id={id} data={chartData}
                           options={{
                               maintainAspectRatio: false,
                               scales: {

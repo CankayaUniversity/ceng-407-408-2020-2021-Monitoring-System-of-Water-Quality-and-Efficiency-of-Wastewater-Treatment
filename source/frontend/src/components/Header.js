@@ -5,7 +5,7 @@ import {ReactComponent as IconLogo} from '../../src/logo.svg'
 const Header = () => {
 
     return (
-        <header>
+        <header style={{marginBottom: "16px"}}>
           <Navbar variant={"light"} expand="lg">
             <Container>
             

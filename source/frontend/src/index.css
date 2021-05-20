@@ -307,3 +307,8 @@ main{
   text-align: center;
   color: #888;
 }
+
+.container .card img{
+  width: 50%;
+  height: 50%;
+}

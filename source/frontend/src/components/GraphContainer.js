@@ -1,11 +1,13 @@
 import React, { useEffect,useState } from "react";
 import LineGraph from "./LineGraph";
 import BarGraph from "./BarGraph";
-import { Row, Col, Card, Spinner,Container} from "react-bootstrap";
+import { Row, Col, Card, Spinner,Container,Button, Popover, OverlayTrigger, Table as TablePopover} from "react-bootstrap";
 import axios from "axios";
 import Table from './Table'
 import AllYears from "./AllYears";
 import domToPdf from 'dom-to-pdf';
+import Referans from './Referans'
+import {saveAs} from 'file-saver'
 
 const GraphContainer = (props) => {
   // path('api/reading/<str:bolge>/<str:yer>/<str:parametre>/<str:yil>/',views.getSpecificReading,name="spesific"),
@@ -50,6 +52,7 @@ const GraphContainer = (props) => {
       setYillar(yıllarArray)
       setIsTable(queries[0] === "Tablo" ? true : false)
       setLoading(false)
+      console.log(data)
       
       
     }
@@ -62,21 +65,40 @@ const GraphContainer = (props) => {
   useEffect(()=>{
     setQueries(props.queries)
   },[props.queries])
-  const generatePdf = () => {
 
-    const element = document.getElementById('pdfCard');
+  const popover = (referans) => (
 
-    const options = {
-      filename: "test.pdf",
-      compression: "FAST",
-      overrideWidth: 1440
-    };
+    <Popover id="popover-basic">
+      <Popover.Content>
+        <div style={{fontWeight: "bolder", letterSpacing: "1px"}}>Referans Aralığı</div>
+        <hr></hr>
+        {referans ? (
+          referans.map((referansItem, index) =>
+            (<div >
+                <p>{`${index + 1}. Sınıf`} - {referansItem}</p>
+            </div>)
+            )
+        ) : "Referans Aralğı Verilmemiştir"}
+      </Popover.Content>
+    </Popover>
+  );
 
-    return domToPdf(element, options, () => {
-      // callback function
-    });
+  const saveCanvas = () => {
+    if (data.length > 1){
+      data.map( (item, index)=>{
+        const canvasSave = document.getElementById(`graphId-${index}`)
+        canvasSave.toBlob(function (blob) {
+          saveAs(blob, `graphId-${index}.png`)
+      })
+    })
+    }
+    else{
+      const canvasSave = document.getElementById("graphId")
+        canvasSave.toBlob(function (blob) {
+          saveAs(blob, "graphId.png")
+        })
+    }
   }
-  
   return (
     <>
      {
@@ -89,11 +111,13 @@ const GraphContainer = (props) => {
                       isParameterAll && queries[0] !== "Tablo" ? 
                            (
                                
-                             data.map( (item)=>(
-                              <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                                
-                                <BarGraph data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} color={"rgba(50,150,250,1)"} months={tarih} />
-                             </Card>
+                             data.map( (item, index)=>(
+                            <OverlayTrigger trigger="hover" placement="right" overlay={popover(item.referans)}>
+                              <Card className='my-3 mx-5 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
+                                <BarGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
+                              </Card>
+                            </OverlayTrigger>
+                              
                              ))
                            
 
@@ -101,21 +125,26 @@ const GraphContainer = (props) => {
                       
                       :
                     isYearAll && queries[0] !== "Tablo" ? (
+                      <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
                       <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
                         <h6 style={{textAlign:"center"}}>{`${data.location.bolge_adi} - ${data.location.yer} - ${data.reading_type.name} - ( ${data.date[0]} - ${data.date[data.date.length-1]} )`}</h6>
-                       <AllYears data={data}/>
+                       <AllYears id="graphId" data={data}/>
                        </Card>
+                        </OverlayTrigger>
                     ):
                         (
                          queries[0] === "Cizgi" ? (
+                          <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
                           <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                           <LineGraph data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
+                           <LineGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
                            </Card>
+                           </OverlayTrigger>
                       ) : queries[0] == "Bar" ? (
-                         
+                        <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
                           <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                             <BarGraph data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
+                             <BarGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} colors={data.colors} months={tarih} is_all={isAll} yillar={yillar}/>
                           </Card>
+                          </OverlayTrigger>
                       ) : (
                         <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
                                <Table queries={queries} data={data} />
@@ -124,8 +153,9 @@ const GraphContainer = (props) => {
                         )
                       
                    }
-                   <button onClick={generatePdf}>Ayhh</button>
-              
+                   {/* <Referans referans={data.referans} parametre={data.reading_type.name} /> */}
+                   
+                   <Button onClick={saveCanvas}>Disa Aktar</Button>
              </Col>
          }
          </Row>

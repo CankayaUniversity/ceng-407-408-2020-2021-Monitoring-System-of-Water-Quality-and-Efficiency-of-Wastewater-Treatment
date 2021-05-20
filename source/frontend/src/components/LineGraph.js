@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import {Line} from "react-chartjs-2";
 
-const LineGraph = ({data,label,unit,color,months, is_all,yillar}) => {
+const LineGraph = ({id, data,label,unit,color,months, is_all,yillar}) => {
     const [chartData,setChartData] = useState({})
     const chart =  ()=>{
        
@@ -74,7 +74,7 @@ const LineGraph = ({data,label,unit,color,months, is_all,yillar}) => {
     }
     return (
         <>
-              <Line data={chartData}
+              <Line id={id} data={chartData}
                           options={{
                               maintainAspectRatio: false,
                               scales: {

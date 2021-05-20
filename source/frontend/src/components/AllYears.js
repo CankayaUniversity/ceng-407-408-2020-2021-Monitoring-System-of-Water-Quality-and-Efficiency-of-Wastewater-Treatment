@@ -87,6 +87,7 @@ const AllYears = (props) => {
            loading ? <h1>Loading</h1> :
            (
             <Bar
+            id={props.id}
             data={data}
             width={null}
             height={null}
