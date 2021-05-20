@@ -10,12 +10,12 @@ import tables
 # import strformat
 
 proc read_locations_from_file*(): (Table[string, string], Table[string, (string, string)]) =
-  var dataFile = open("temiz_nby.txt")
+  var dataFile = open("temiz_nby.data.txt")
   defer: close(dataFile)
 
   var dirty_to_clean_code = initTable[string, string]()
   var code_to_bolge_yer = initTable[string, (string, string)]()
- 
+
   var count = 0
   for line in dataFile.lines():
     count += 1
@@ -38,10 +38,10 @@ proc read_locations_from_file*(): (Table[string, string], Table[string, (string,
       a_code  = after_splits[0].strip()
       a_bolge = after_splits[1].strip()
       a_yer   = after_splits[2].strip()
-    
+
     if not dirty_to_clean_code.hasKey(b_code):
       dirty_to_clean_code[b_code] = a_code
-    
+
     if not code_to_bolge_yer.hasKey(a_code):
       code_to_bolge_yer[a_code] = (a_bolge, a_yer)
 

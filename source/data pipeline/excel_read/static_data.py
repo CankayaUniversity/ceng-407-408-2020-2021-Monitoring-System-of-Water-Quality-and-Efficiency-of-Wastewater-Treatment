@@ -1,3 +1,5 @@
+possible_table_types = ["Akarsu", "Göl", "Deniz", "Arıtma", "Yeraltı", "AKARSU", "GÖL", "DENİZ", "ARITMA", "YERALTI"]
+
 possible_row_names = [
 	# 2020 -----
     'NUMUNE KODU:',

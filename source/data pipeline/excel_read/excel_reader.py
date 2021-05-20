@@ -9,6 +9,8 @@ from openpyxl import Workbook, load_workbook
 
 from static_data import *
 
+from datetime import datetime # datetime.fromisoformat(datetime_string: str)
+
 import pprint # for debugging
 pp = pprint.PrettyPrinter(indent = 4) # for debug
 
@@ -60,12 +62,14 @@ class ExcelDataReader(object):
         return string
 
     def close(self):
-        if self.workbook is not None:
-            self.workbook.close()
-            self.workbook               = None
-            self.current_worksheet      = None
-            self.worksheet_dimensions   = None
-
+        try:
+            if self.workbook is not None:
+                self.workbook.close()
+                self.workbook               = None
+                self.current_worksheet      = None
+                self.worksheet_dimensions   = None
+        except:
+            pass
 
     def check_worksheet_names(self):
         possible_sheetnames = ['Akarsu', 'Göl', 'Deniz', 'Atıksu', 'Sayfa1', 'Sayfa2', 'Sayfa3', 'RAPOR'] # "RAPOR" is only in 2020 files.
@@ -118,6 +122,9 @@ class ExcelDataReader(object):
             data_table["Numune Kodu"] = data_temp
 
             if self.file_year == 2020:
+                # I know too much state mutation is bad, but...
+                # NOTE(ag): This should get deleted later on, or at least ignored.
+                data_table["Start_Row"] = row_idx
                 return 1 # Started
 
         if column_name in headers["bolge"]: # 2018 table start
@@ -125,6 +132,9 @@ class ExcelDataReader(object):
             data_table["Bölge Adı"] = data_temp
 
             if self.file_year == 2018:
+                # I know too much state mutation is bad, but...
+                # NOTE(ag): This should get deleted later on, or at least ignored.
+                data_table["Start_Row"] = row_idx
                 return 1 # Started
 
         if column_name not in possible_row_names:
@@ -152,6 +162,25 @@ class ExcelDataReader(object):
                         break
 
                 self.month_count = count
+
+            table_type_col = 0
+            if self.file_year == 2020:
+                table_type_col = 10 # It's mostly column J (10), sometimes H (8)
+            else: # 2018
+                table_type_col = top_left_column + self.month_count + 1
+
+            table_type = self.current_worksheet.cell(row = data_table["Start_Row"], column = table_type_col).value
+
+            if self.file_year == 2020 and table_type is None:
+                table_type_col = 8
+                table_type = self.current_worksheet.cell(row = data_table["Start_Row"], column = table_type_col).value
+
+            assert_error_text = "Unexpected table_type: " + str(table_type) + "Row and col:" + str(data_table["Start_Row"]) + "," + str(table_type_col)
+            assert (table_type in possible_table_types), (assert_error_text)
+
+            data_table["Table_Type"] = table_type
+
+            del data_table["Start_Row"] # We don't need it anymore.
 
             assert (self.month_count > 1), ("month_count must be greater than 1, weird data. -- " + self.filename)
             dates = []
@@ -215,10 +244,9 @@ class ExcelDataReader(object):
     def generate_tsv(self) -> str:
         tsv = ""
         for table in self.data_tables:
-            tsv += ExcelDataReader.__tsv_from_table(table, self.filename, self.current_worksheet_name)
+            tsv += ExcelDataReader.__tsv_from_table(table, self.filename, table["Table_Type"])
 
         return tsv
-
 
     def __tsv_from_table(table, file_path, table_name) -> str:
         reading_count = len(table['Numune Alma Tarihi'])
@@ -227,6 +255,9 @@ class ExcelDataReader(object):
         keys_with_multiple_values = []
 
         for key, value in table.items():
+            if key == "Table_Type":
+                continue
+
             if type(value) == list:
                 assert (len(value) == reading_count), ("Non-uniform number of items in " + file_path + "!")
                 keys_with_multiple_values.append(key)
@@ -236,15 +267,36 @@ class ExcelDataReader(object):
         result = ""
 
         for row_idx in range(reading_count):
+            date_data = table['Numune Alma Tarihi'][row_idx]
+            print(row_idx)
+            # print("Date Data:", date_data, "Type:", type(date_data)) # debug
+
+            if type(date_data) == str:
+                date_data = datetime.fromisoformat(date_data)
+            elif date_data is None:
+                continue # If there is no date, there is no data. (AFAICT)
+
+            tbl_name_date = table_name + "_" + str(date_data.year) + "_" + str(date_data.month)
+            # print("tbl_name_date ->", tbl_name_date) # debug
+
             for key in keys_with_single_value:
-                line = "{}\t{}\t({})\t{}\t{}\t{}\n".format(file_path, table_name, row_idx, key, "System.String", table[key])
+                clean_key = key
+                if "\n" in key:
+                    clean_key = key.replace("\n", " ")
+
+                value = str(table[key]).strip()
+                line = "{}\t{}\t({})\t{}\t{}\t{}\n".format(file_path, tbl_name_date, row_idx, clean_key, "System.String", value)
                 result += line
             for key in keys_with_multiple_values:
-                line = "{}\t{}\t({})\t{}\t{}\t{}\n".format(file_path, table_name, row_idx, key, "System.String", table[key][row_idx])
+                clean_key = key
+                if "\n" in key:
+                    clean_key = key.replace("\n", " ")
+
+                value = str(table[key][row_idx]).strip()
+                line = "{}\t{}\t({})\t{}\t{}\t{}\n".format(file_path, tbl_name_date, row_idx, clean_key, "System.String", value)
                 result += line
 
         return result
-
 
 def get_all_data(filepath_list, log_completion = True):
     readers = []
@@ -340,7 +392,6 @@ def get_all_data_and_pickle(year, multiprocess = False):
 def main():
     mp = True
     # all_edrs = get_all_data_and_pickle(2018, mp) + get_all_data_and_pickle(2020, mp)
-
     all_edrs = load_from_pickle("tables_2018_mp") + load_from_pickle("tables_2020_mp")
 
     with open("stuff.tsv", "w") as fd:

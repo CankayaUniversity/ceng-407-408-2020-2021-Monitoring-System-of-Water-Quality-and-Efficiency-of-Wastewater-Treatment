@@ -1,16 +1,20 @@
 from strutils import parseUInt, split, strip, contains, join, replace
+from sequtils import deduplicate
 import types
 import tables # for iterating over "column_names"
-import strformat # for "fmt"
+# import strformat # for "fmt"
 import sets # for HashSet
 import options # Option[T]
 from sugar import collect
 import fix_locations
 
-var unknown_columns: seq[string] = @[]
+from algorithm import sort
+
+var unknown_columns:  seq[string] = @[]
+var unknown_locs_new: seq[string] = @[]
 
 # I <3 compile-time metaprogramming.
-# We're generating a list of possible features at 
+# We're generating a list of possible features at
 # compile time by iterating over enum fields!
 const features: seq[Feature] = collect(newSeq()):
   for f in Feature.items():
@@ -36,11 +40,11 @@ proc extract_tableinfo(input: string): TableInfo =
   let tableData = input.split("_")
 
   result.ttype = case tableData[0]:
-    of "Akarsu":     TableType.Akarsu
-    of "Arıtma":     TableType.Aritma
-    of "Göl", "Gol": TableType.Gol
-    of "Deniz":      TableType.Deniz
-    of "Yeraltı":    TableType.Yeralti
+    of "Akarsu", "AKARSU":   TableType.Akarsu
+    of "Arıtma", "ARITMA":   TableType.Aritma
+    of "Göl", "Gol", "GÖL":  TableType.Gol
+    of "Deniz", "DENİZ":     TableType.Deniz
+    of "Yeraltı", "YERALTI": TableType.Yeralti
     else: raise newException(ValueError, "Weird table type:" & tableData[0])
 
   result.year  = parseUInt(tableData[1])
@@ -67,8 +71,14 @@ proc extract_feature(input: string, tableInfo: TableInfo): Option[Feature] =
 
 proc process_line(line: string): Option[Entry] =
   let entryData = line.split("\t")
-  var resultingEntry: Entry
+
+  if entryData.len < 6:
+    echo "Short line: " & line
+
   var
+    resultingEntry: Entry
+    data_parsed:    string
+    optionalData:   Option[float64]
     filePath    = entryData[0]
     tableName   = entryData[1]
     tableInfo   = extract_tableinfo(tableName)
@@ -76,16 +86,14 @@ proc process_line(line: string): Option[Entry] =
     column      = extract_feature(entryData[3], tableInfo)
     dataType    = extract_datatype(entryData[4])
     data        = entryData[5]
-    data_parsed: string
-    optionalData: Option[float64]
 
   if column.isNone: return none(Entry)
 
-  if shouldBeFloat64(column.get): 
+  if shouldBeFloat64(column.get):
     optionalData = parseToFloat(data)
     if optionalData.isNone: return none(Entry)
     data_parsed = $(optionalData.get)
-  elif shouldBeString(column.get): 
+  elif shouldBeString(column.get):
     data_parsed = data.replace(',', '.')
   elif shouldBeUInt(column.get): data_parsed = $parseToUInt(data)
   else: raise newException(ValueError, "This shouldn't happen.")
@@ -105,6 +113,7 @@ proc get_cleaned(code: string): (string, string, string) =
     let clean_code = dirty_to_clean_code[code]
     let (bolge, yer) = code_to_bolge_yer[clean_code]
     return (clean_code, bolge, yer)
+
   raise newException(ValueError, "thing")
 
 proc newRow(entries: seq[Entry]): string =
@@ -116,10 +125,13 @@ proc newRow(entries: seq[Entry]): string =
   try:
     key = entryTable[Feature.numune]
   except:
-    echo entries
+    echo "Error ----- " & $entries
     return ""
-    
+
   if not dirty_to_clean_code.hasKey(key):
+    # TODO
+    let unknown = entryTable[Feature.numune] & " -- " & entryTable[Feature.bolge] & " -- " & entryTable[Feature.yer]
+    unknown_locs_new.add(unknown)
     return ""
   else:
     let dirty_code = entryTable[Feature.numune]
@@ -138,9 +150,30 @@ proc newRow(entries: seq[Entry]): string =
 
   result = strSeq.join(",")
 
+# -------------------------------
+proc print_new_features() =
+  let
+    dataFile = open(dataFilepath2018)
+    fileContents = dataFile.readAll()
+    lines = fileContents.split('\n')
+  close(dataFile)
+
+
+  var newStuffSet = initHashSet[string]()
+
+  for line in lines:
+    let clean_line = line.strip()
+    if clean_line == "": continue
+
+    let entryData = line.split("\t")
+
+    newStuffSet.incl(entryData[3])
+
+  echo newStuffSet
+# -------------------------------
+
 proc main() =
-  var dataFile = open(dataFilepath)
-  defer: close(dataFile)
+  let dataFileLines = readDataFiles().split('\n')
 
   var csvString = ""
 
@@ -152,8 +185,13 @@ proc main() =
   csvString = csvString & columns & '\n'
 
   var current_row: uint = 9999999
-  for line in dataFile.lines():
-    var entryOption = process_line(line)
+
+  for line in dataFileLines:
+    let clean_line = line.strip()
+
+    if clean_line == "": continue
+
+    var entryOption = process_line(clean_line)
 
     if entryOption.isSome:
       let entry: Entry = entryOption.get
@@ -167,14 +205,18 @@ proc main() =
         current_row = entry.row
       elif entry.row == current_row:
         entries.add(entry)
-  
+
   var csvFile = open("csv_data_clean_names.csv", fmWrite)
   csvFile.write(csvString)
   csvFile.close()
+
+  unknown_locs_new.sort()
+  echo unknown_locs_new.deduplicate()
 
 const test_locs: bool = false
 
 when isMainModule and not test_locs:
   main()
 else:
-  echo dirty_to_clean_code
+  # echo dirty_to_clean_code
+  print_new_features()

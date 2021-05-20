@@ -21,6 +21,15 @@ These programs are only used during development and are not to be distributed or
 - Edit the code to point to the right folder containing the `.mdb` files
 - Run the code through Visual Studio
 
+## `excel_read`
+
+`excel_read` takes Excel `.xslx` and `.xslm` files and outputs `tsv` files for `clean_csv_gen`.
+
+### Installing and Running for Development
+
+- Install `Python 3.8`
+- Execute the `excel_reader` script
+
 ## `clean_csv_gen`
 
 `clean_csv_gen` takes tab-seperated value files as input, cleans the data and outputs a .csv file to be used in ML and Backend modules.
