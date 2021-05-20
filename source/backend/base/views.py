@@ -56,20 +56,16 @@ def postVeriGirisi(request):
     aylar = [["ocak","-01-01"], ["subat", "-02-01"], ["mart","-03-01"], ["nisan", "-04-01"], ["mayis", "-05-01"], ["haziran", "-06-01"], ["temmuz", "-07-01"], ["agustos", "-08-01"], ["eylul", "-09-01"], ["ekim", "-10-01"], ["kasim", "-11-01"], ["aralik", "-12-01"]]
 
     # save data
-    # lc = Location(bolge_adi= request.data["bolge_adi"], numune_adi= request.data["numune_adi"], yer= request.data["yer"], utm_x= request.data["utm_x"], utm_y= request.data["utm_y"])
-    # lc.save()
     lc = Location.objects.get(bolge_adi= request.data["bolge_adi"],yer= request.data["yer"])
     print(lc)
     
     for i in iler:
-        # rt = ReadingType(name= request.data[i]["id"]) #min max
-        # rt.save()
         rt = ReadingType.objects.get(name= request.data[i]["id"])
         print(rt)
         for ay in aylar:
             dateValue = request.data["date"] + ay[1]
             r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], date=dateValue) #araliklar
-            # r.save()
+            r.save()
             print(r.reading_value)
 
     return Response()
