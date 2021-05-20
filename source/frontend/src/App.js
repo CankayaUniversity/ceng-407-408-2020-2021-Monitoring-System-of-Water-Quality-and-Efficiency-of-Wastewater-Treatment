@@ -11,7 +11,7 @@ import DataEntry from './components/DataEntry'
 
 function App(props) {
   let user = props.data.group
-
+  console.log(user)
   return (
     
 
@@ -26,7 +26,7 @@ function App(props) {
             <Route path='/aritma' component={Visualize} exact/>
             <Route path='/gol' component={Visualize} exact/>
             </>
-          ) : (
+          ) : user === "veriGirisci" ? (
             <>
             <Header/>
             <Route path='/' component={DataEntryMainScreen} exact/>
@@ -34,6 +34,10 @@ function App(props) {
             <Route path='/deniz' component={DataEntry} exact/>
             <Route path='/aritma' component={DataEntry} exact/>
             <Route path='/gol' component={DataEntry} exact/>
+            </>
+          ) : (
+            <>
+            <Login />
             </>
           )}
           
