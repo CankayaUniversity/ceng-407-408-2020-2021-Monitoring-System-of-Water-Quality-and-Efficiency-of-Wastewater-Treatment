@@ -20,7 +20,7 @@ const features: seq[Feature] = collect(newSeq()):
   for f in Feature.items():
     f
 
-let (dirty_to_clean_code, code_to_bolge_yer) = read_locations_from_file()
+const (dirty_to_clean_code, code_to_bolge_yer) = read_locations_from_file()
 
 # The format of row num is "(" + uint +  ")", always.
 # Which means we have to ignore the first and last characters.
