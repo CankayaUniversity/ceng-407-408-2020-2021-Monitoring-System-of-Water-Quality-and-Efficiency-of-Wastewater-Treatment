@@ -10,7 +10,7 @@ const LineGraph = ({id, data,label,unit,color,months, is_all,yillar}) => {
             datasets: [
               {
                 label: label +" - "+ unit,
-                data:  data.map( item => item == 0 ? null : item),
+                data:  data,
                 fill: false,
                 backgroundColor:  "rgba(103, 155, 163, 1)",
                 borderColor: 'rgba(50, 150, 250, 0.8)',

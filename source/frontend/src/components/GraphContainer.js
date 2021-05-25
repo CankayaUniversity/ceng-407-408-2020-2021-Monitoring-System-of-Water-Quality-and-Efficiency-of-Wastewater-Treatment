@@ -114,7 +114,11 @@ const GraphContainer = (props) => {
                              data.map( (item, index)=>(
                             <OverlayTrigger trigger="hover" placement="right" overlay={popover(item.referans)}>
                               <Card className='my-3 mx-5 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
+                              {queries[0] === "Cizgi" ? 
+                                <LineGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
+                                :
                                 <BarGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
+                            }
                               </Card>
                             </OverlayTrigger>
                               
