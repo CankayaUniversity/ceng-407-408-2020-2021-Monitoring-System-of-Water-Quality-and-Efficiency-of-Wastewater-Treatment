@@ -36,10 +36,10 @@ const Visualize = (props) => {
 	const [parametreler, setParametreler] = useState([]);
 	const [yillar, setYillar] = useState([]);
 	//-----------------
-	const [selectedBolge, setSelectedBolge] = useState();
-	const [selectedYer, setSelectedYer] = useState();
-	const [selectedParametre, setSelectedParametre] = useState();
-	const [selectedYil, setSelectedYil] = useState();
+	const [selectedBolge, setSelectedBolge] = useState(false);
+	const [selectedYer, setSelectedYer] = useState(false);
+	const [selectedParametre, setSelectedParametre] = useState(false);
+	const [selectedYil, setSelectedYil] = useState(false);
 
 	const [queryInfo, setQueryInfo] = useState([]);
 	const [show, setShow] = useState(false);
@@ -163,10 +163,10 @@ const Visualize = (props) => {
 			</Container>
 			<Row className={"button-container"}>
 				<ButtonGroup aria-label="Basic example">
-					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }}>
+					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil}>
 						Bar
 					</Button>
-					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }}>
+					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil}>
 						Çizgi
 					</Button>
 					<OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Tooltip!</Tooltip>} show={false}>
