@@ -435,7 +435,9 @@ def allYear(bolge, yer, parametre, yil):
             "Kasım": monthValues[10],
             "Aralık": monthValues[11],
         },
-        "date": dateValues
+        "date": dateValues,
+        "referans": jsn[0]['referans'],
+        # "colors": referenceAndColors[1],
     }
     return jsnObject
 
@@ -524,7 +526,9 @@ def allBetweenDates(bolge, yer, parametre, sdata):
             "Kasım": monthValues[10],
             "Aralık": monthValues[11],
         },
-        "date": dateValues
+        "date": dateValues,
+        "referans": jsn[0]['referans'],
+        # "colors": referenceAndColors[1],
     }
     return jsnObject
 
