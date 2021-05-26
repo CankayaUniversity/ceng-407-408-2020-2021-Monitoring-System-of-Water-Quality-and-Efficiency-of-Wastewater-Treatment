@@ -92,6 +92,26 @@ const DataEntry = (props) => {
 	bolgeAdlari.map((bolge) => BolgeOptions.push({ name: bolge, value: bolge }))
 	yerAdlari.map((yer) => YerOptions.push({ name: yer, value: yer }))
 
+	const validation = (newValue, row, column) => {
+		if(newValue.startsWith("<")){
+			// deger -= deger * 0.01
+			// degeri koymadan burada flag tanimlasak?
+		}
+		if(newValue.startsWith(">")){
+			// deger += deger * 0.01
+		}
+		var num = Number(newValue)
+		console.log(num)
+		if(isNaN(num)){
+			return {
+				valid: false,
+				message: 'Geçersiz'
+			}
+		}
+		else // min max kontrolu
+			return true
+	}
+
 	const columns = [
 		{
 			dataField: "id",
@@ -101,61 +121,73 @@ const DataEntry = (props) => {
 			dataField: "ocak",
 			text: "OCAK",
 			align: "center",
+			validator: validation.bind(this) 
 		},
 		{
 			dataField: "subat",
 			text: "SUBAT",
 			align: "center",
+			validator: validation.bind(this) 
 		},
 		{
 			dataField: "mart",
 			text: "MART",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "nisan",
 			text: "NISAN",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "mayis",
 			text: "MAYIS",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "haziran",
 			text: "HAZIRAN",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "temmuz",
 			text: "TEMMUZ",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "agustos",
 			text: "AGUSTOS",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "eylul",
 			text: "EYLUL",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "ekim",
 			text: "EKIM",
 			align: "center",
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "kasim",
 			text: "KASIM",
 			align: "center",
+			validator: validation.bind(this) 
 		},
 		{
 			dataField: "aralik",
 			text: "ARALIK",
 			align: "center",
+			validator: validation.bind(this) 
 		},
 	]
 	const CaptionElement = () => (
@@ -252,6 +284,18 @@ const DataEntry = (props) => {
 				</Row>
 			</Container>
 
+			<Container>
+				<Card>
+					<p>
+						Girilen değerler harf, nokta dışında noktalama işaretleri, boşluk ve özel karakterler {`(&,@,#,% vs.)`} içeremez.
+						<br></br>
+						Eksi değer girmek için değerin başına "-" koymalısınız. Kesirli sayı girmek için "." kullanmalısınız.
+						<br></br>
+						"{`<`}" veya "{`>`}" karakterlerini sadece sayıdan önce koymalısınız.
+					</p>
+				</Card>
+			</Container>
+
 			<Container fluid>
 				<Row>
 					<Col sm={12} md={12} lg={12} xl={12} id="dataCard">
@@ -279,10 +323,13 @@ const DataEntry = (props) => {
 									},
 									afterSaveCell: (oldValue, newValue, row, column) => {
 										console.log("After Saving Cell!! o: " + oldValue + "- n: " + newValue)
+										// const updatedRow = Object.entries(row).map(([k, v]) => v === "" ? {k:null} : {k:v})
+										// console.log("uprow: ",updatedRow)
 										console.log("r- ", row)
 										console.log("c- ", column)
 										setParametreOptions((previousParametreOptions) => {
 											return previousParametreOptions.map((object) => (object.id === row.id ? row : object))
+											
 										})
 										setTimeout(() => {
 											console.log(parametreOptionsState)
