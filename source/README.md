@@ -1,3 +1,5 @@
+`app` folder contains files to build a Docker image.
+
 `backend` folder contains the Django source code.
 
 `frontend` folder contains the React front-end code.
