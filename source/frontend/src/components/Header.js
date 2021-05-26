@@ -8,7 +8,7 @@ const Header = () => {
         <header style={{marginBottom: "16px"}}>
           <Navbar variant={"light"} expand="lg">
             <Container>
-            
+
               <LinkContainer to={"/"} style={{display:"flex", justifyContent:"center",alignItems:"center"}}>
                 <Navbar.Brand><IconLogo style={{marginRight:"16px"}}/> WQPMS</Navbar.Brand>
               </LinkContainer>
@@ -27,9 +27,12 @@ const Header = () => {
                   <LinkContainer to={"/aritma"}>
                       <Nav.Link >Arıtma</Nav.Link>
                   </LinkContainer>
+                  <Button variant="outline-secondary" size="sm">
+                    Çıkış
+                  </Button>
                 </Nav>
               </Navbar.Collapse>
-             
+
             </Container>
           </Navbar>
         </header>

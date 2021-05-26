@@ -16,12 +16,12 @@ const BarGraph = ({id,data,label,unit,colors,months, is_all,yillar}) => {
                 // hoverBorderColor: "#3e95cd",
                 data: data,
                 fill: false,
-                
+
             }]
         })
 
     }
-    
+
     useEffect(()=>{
         chart()
 
@@ -91,7 +91,7 @@ const BarGraph = ({id,data,label,unit,colors,months, is_all,yillar}) => {
                                           fontSize: 18
                                       },
                                       ticks:{
-                                         
+
                                           stepSize: 5
                                       }
 
@@ -103,20 +103,22 @@ const BarGraph = ({id,data,label,unit,colors,months, is_all,yillar}) => {
                                       ticks:{
                                         fontSize:14
                                     },
-                                    
+
                                   }],
                                   yAxes: [{
                                     gridLines: {
                                         display: true
                                     } ,
                                     ticks:{
+                                      min: Math.min(...data) - Math.min(...data) * 0.2,
+                                      max:Math.max(...data) + Math.max(...data) * 0.2,
                                       fontSize:14
                                   },
-                                  
+
                                 }]
                               },
-                              
-                                    
+
+
 
                           }}/>
         </>

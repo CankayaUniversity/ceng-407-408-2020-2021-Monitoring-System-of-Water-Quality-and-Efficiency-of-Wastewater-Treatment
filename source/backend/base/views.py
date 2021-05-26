@@ -45,28 +45,28 @@ def handleLogin(request):
 def postVeriGirisi(request):
     # get parameters
     readingTypeArray = clearReadingTypes("Deniz")
-    print("len: ",readingTypeArray)
+    #print("len: ",readingTypeArray)
     # find the number of parameters
     iler = []
     j=0
     for r in readingTypeArray:
         iler.append(str(j))
-        j += 1 
+        j += 1
 
     aylar = [["ocak","-01-01"], ["subat", "-02-01"], ["mart","-03-01"], ["nisan", "-04-01"], ["mayis", "-05-01"], ["haziran", "-06-01"], ["temmuz", "-07-01"], ["agustos", "-08-01"], ["eylul", "-09-01"], ["ekim", "-10-01"], ["kasim", "-11-01"], ["aralik", "-12-01"]]
 
     # save data
     lc = Location.objects.get(bolge_adi= request.data["bolge_adi"],yer= request.data["yer"])
-    print(lc)
-    
+    #print(lc)
+
     for i in iler:
         rt = ReadingType.objects.get(name= request.data[i]["id"])
-        print(rt)
+        #print(rt)
         for ay in aylar:
             dateValue = request.data["date"] + ay[1]
             r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], date=dateValue) #araliklar
             r.save()
-            print(r.reading_value)
+            #print(r.reading_value)
 
     return Response()
 
@@ -310,8 +310,8 @@ def getReferenceAndColors(data, table_type, parametre):
 
     return referenceAndColors
 
-    
-    
+
+
 
 def JsonVeri(bolge, yer, parametre, yil):
     reading = Reading.objects.select_related("reading_type", "location").filter(
@@ -321,7 +321,7 @@ def JsonVeri(bolge, yer, parametre, yil):
         date__contains=yil,
     )
     serialize = TemizSerializer(reading, many=True)
-    
+
     if len(serialize.data) == 0:
         jsonObject = {
             "location": {

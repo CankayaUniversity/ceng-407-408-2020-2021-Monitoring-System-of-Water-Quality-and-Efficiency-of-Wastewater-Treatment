@@ -28,7 +28,7 @@ export default function SignIn() {
 		console.log(formData)
 
 		axios
-			.post("/api/login", {
+			.post("http://127.0.0.1:8000/api/login", {
 				username: formData.username,
 				password: formData.password,
 			})

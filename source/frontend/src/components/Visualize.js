@@ -44,7 +44,7 @@ const Visualize = (props) => {
 	const [queryInfo, setQueryInfo] = useState([]);
 	const [show, setShow] = useState(false);
   	const target = useRef(null);
-	
+
 	const [isDisabled, setisDisabled] = useState(false)
 	const ref = React.createRef();
 	useEffect(() => {
@@ -56,14 +56,12 @@ const Visualize = (props) => {
 		fetchLocations();
 	}, []);
     async function fetchYer(bolge_adi) {
-        await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then(res => 
+        await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then(res =>
 			{
-				console.log(res.data)
 				setYerAdlari(res.data)
-				
 			}
 		)
-        
+
     }
 	async function fetchParameters(yer) {
 		let parametreArray = [];
@@ -83,14 +81,14 @@ const Visualize = (props) => {
 	const BolgeOptions = [];
 	const YerOptions = [];
 	const parametreOptions = [];
-	
-	
+
+
 	bolgeAdlari.map((bolge) => BolgeOptions.push({ name: bolge, value: bolge }));
 	yerAdlari.map((yer) => YerOptions.push({ name: yer, value: yer }));
 	parametreler.map((parametre) => parametreOptions.push({ name: parametre, value: parametre }));
 	parametreOptions.splice(0, 0, { name: "Hepsi", value: "all" });
-	
-	
+
+
 
 	const showInfo = (chartType) => {
 		let temparray = [chartType, selectedBolge, selectedYer, selectedParametre, selectedYil];
@@ -171,7 +169,7 @@ const Visualize = (props) => {
 					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedParametre === "all" && selectedYil[0] === "all")}>
 						Bar
 					</Button>
-					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedParametre === "all" && selectedYil[0] === "all")}>
+					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= { selectedYil[0] === "all" || !selectedBolge || !selectedParametre || !selectedYer || !selectedYil }>
 						Çizgi
 					</Button>
 					<OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Tooltip!</Tooltip>} show={false}>
@@ -185,8 +183,8 @@ const Visualize = (props) => {
 			</Row>
 
 			<Container  fluid={queryInfo[0] === "Tablo"} className="graph-container">{queryInfo.length !== 0 ? <GraphContainer  queries={queryInfo} /> : null}</Container>
-			
-			
+
+
 		</>
 	);
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react"
 import BootstrapTable from "react-bootstrap-table-next"
-import { Container, Row, Col, Card, Button, Spinner, FormControl, InputGroup } from "react-bootstrap"
+import { Container, Row, Col, Card, Button, Spinner, FormControl, InputGroup ,Alert} from "react-bootstrap"
 import cellEditFactory from "react-bootstrap-table2-editor"
 import ToolkitProvider, { CSVExport } from "react-bootstrap-table2-toolkit"
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css"
@@ -35,14 +35,22 @@ const DataEntry = (props) => {
 	const [bolgeAdlari, setBolgeAdlari] = useState([])
 	const [yerAdlari, setYerAdlari] = useState([])
 	//-----------------
-	const [selectedBolge, setSelectedBolge] = useState()
-	const [selectedYer, setSelectedYer] = useState()
+	const [selectedBolge, setSelectedBolge] = useState("")
+	const [selectedYer, setSelectedYer] = useState("")
 	const [parametreler, setParametreler] = useState([])
 	const [parametreOptionsState, setParametreOptions] = useState([])
 	const [selectedNumuneKodu, setSelectedNumuneKodu] = useState("")
 	const [selectedYil, setSelectedYil] = useState("")
 	const [enlem, setEnlem] = useState()
 	const [boylam, setBoylam] = useState()
+
+	const [alert,setAlert] = useState({
+		hasAlert: false,
+		isError: false,
+		isSucces: false,
+		isInfo: false,
+		message: null
+	})
 
 	useEffect(() => {
 		// change
@@ -57,6 +65,7 @@ const DataEntry = (props) => {
 				console.log(parametre)
 				parametreArray.push(parametre)
 			})
+			setParametreler(parametreArray)
 			const parametreOptions = []
 
 			parametreArray.map((parametre) =>
@@ -121,13 +130,13 @@ const DataEntry = (props) => {
 			dataField: "ocak",
 			text: "OCAK",
 			align: "center",
-			validator: validation.bind(this) 
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "subat",
 			text: "SUBAT",
 			align: "center",
-			validator: validation.bind(this) 
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "mart",
@@ -181,13 +190,13 @@ const DataEntry = (props) => {
 			dataField: "kasim",
 			text: "KASIM",
 			align: "center",
-			validator: validation.bind(this) 
+			validator: validation.bind(this)
 		},
 		{
 			dataField: "aralik",
 			text: "ARALIK",
 			align: "center",
-			validator: validation.bind(this) 
+			validator: validation.bind(this)
 		},
 	]
 	const CaptionElement = () => (
@@ -211,10 +220,47 @@ const DataEntry = (props) => {
 				table_type: locationType,
 			})
 			.then(function (response) {
-				console.log(response)
+				setAlert({
+					hasAlert: true,
+					isSucces: true,
+					isInfo: false,
+					isError: false,
+					message: "Veri tabanına başarıyla eklendi."
+				})
+				const parametreOptions = []
+				parametreler.map((parametre) =>
+						parametreOptions.push({
+							id: parametre,
+							ocak: null,
+							subat: null,
+							mart: null,
+							nisan: null,
+							mayis: null,
+							haziran: null,
+							temmuz: null,
+							agustos: null,
+							eylul: null,
+							ekim: null,
+							kasim: null,
+							aralik: null,
+						})
+				)
+				setParametreOptions(parametreOptions)
+				setSelectedBolge("")
+				setSelectedYer("")
+				setSelectedNumuneKodu("")
+				setEnlem("")
+				setBoylam("")
+				setSelectedYil("")
 			})
 			.catch(function (error) {
-				console.log(error)
+				setAlert({
+					hasAlert: true,
+					isSucces: false,
+					isInfo: false,
+					isError: true,
+					message: error.response.status === 404 ? "Uygun formatta veri girişi yapınız." : "Server kaynaklı hatadan dolayı veri girişi yapılamadı."
+				})
 			})
 	}
 
@@ -227,6 +273,7 @@ const DataEntry = (props) => {
 							<SelectSearch
 								options={BolgeOptions}
 								search
+								value={selectedBolge || ""}
 								emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
 								placeholder="Bölge"
 								filterOptions={fuzzySearch}
@@ -247,6 +294,7 @@ const DataEntry = (props) => {
 						<SelectSearch
 							options={YerOptions}
 							search
+							value={selectedYer || ""}
 							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
 							placeholder="Yer"
 							filterOptions={fuzzySearch}
@@ -258,13 +306,13 @@ const DataEntry = (props) => {
 							<InputGroup.Prepend>
 								<InputGroup.Text>Enlem (Lat)</InputGroup.Text>
 							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setEnlem(e.target.value)} />
+							<FormControl onChange={(e) => setEnlem(e.target.value)} value={enlem || ""}/>
 						</InputGroup>
 						<InputGroup className="mb-3">
 							<InputGroup.Prepend>
 								<InputGroup.Text>Boylam (Long)</InputGroup.Text>
 							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setBoylam(e.target.value)} />
+							<FormControl onChange={(e) => setBoylam(e.target.value)} value={boylam || ""} />
 						</InputGroup>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
@@ -272,13 +320,13 @@ const DataEntry = (props) => {
 							<InputGroup.Prepend>
 								<InputGroup.Text>Numune Kodu</InputGroup.Text>
 							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setSelectedNumuneKodu(e.target.value)} />
+							<FormControl onChange={(e) => setSelectedNumuneKodu(e.target.value)} value={selectedNumuneKodu || ""} />
 						</InputGroup>
 						<InputGroup className="mb-3">
 							<InputGroup.Prepend>
 								<InputGroup.Text>Yıl</InputGroup.Text>
 							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setSelectedYil(e.target.value)} />
+							<FormControl onChange={(e) => setSelectedYil(e.target.value)} value={selectedYil || ""}/>
 						</InputGroup>
 					</Col>
 				</Row>
@@ -295,7 +343,6 @@ const DataEntry = (props) => {
 					</p>
 				</Card>
 			</Container>
-
 			<Container fluid>
 				<Row>
 					<Col sm={12} md={12} lg={12} xl={12} id="dataCard">
@@ -329,7 +376,7 @@ const DataEntry = (props) => {
 										console.log("c- ", column)
 										setParametreOptions((previousParametreOptions) => {
 											return previousParametreOptions.map((object) => (object.id === row.id ? row : object))
-											
+
 										})
 										setTimeout(() => {
 											console.log(parametreOptionsState)
@@ -339,6 +386,15 @@ const DataEntry = (props) => {
 							/>
 							<hr />
 							<Button onClick={veriGonder}>Gonder</Button>
+
+							<Card.Footer className="text-muted">
+								{ alert.hasAlert ? (
+										<Alert  variant={alert.isSucces ? "success" : "danger"}>
+											{alert.message}
+										</Alert>
+								): ""
+								}
+							</Card.Footer>
 						</Card>
 					</Col>
 				</Row>

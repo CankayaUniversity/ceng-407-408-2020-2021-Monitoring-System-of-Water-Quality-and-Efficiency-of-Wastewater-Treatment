@@ -3,14 +3,13 @@ import { Bar } from "react-chartjs-2";
 
 
 const AllYears = (props) => {
-    console.log(props.data);
     const [data,setData] = useState({})
     const [loading, setLoading] = useState(true)
     useEffect(() => {
-       
+
     setLoading(false)
-   
-   
+
+
     const dataSETS = []
     const hoverColors = ["rgba(52, 92, 96, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"]
     const colors =["rgba(42, 82, 86, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"]
@@ -24,20 +23,20 @@ const AllYears = (props) => {
             borderWidth: 2,
             hoverBackgroundColor: hoverColors[index],
             hoverBorderColor: "#3e95cd",
-            
+
             fill: false,
           }
        )
-        
+
     })
-   
-    setData({ 
-       
+
+    setData({
+
         labels: props.data.date,
         datasets:dataSETS
 })
     }, [])
-    
+
     const options = {
         maintainAspectRatio: false,
         scales: {
@@ -49,11 +48,11 @@ const AllYears = (props) => {
                 },
                 scaleLabel: {
                     display: true,
-                    
+
                     fontSize: 18
                 },
                 ticks:{
-                   
+
                     stepSize: 5
                 }
 
@@ -65,7 +64,7 @@ const AllYears = (props) => {
                 ticks:{
                   fontSize:14
               },
-              
+
             }],
             yAxes: [{
               gridLines: {
@@ -74,13 +73,13 @@ const AllYears = (props) => {
               ticks:{
                 fontSize:14
             },
-            
+
           }]
         },
-        
-    
+
+
       };
-     
+
     return (
         <>
        {

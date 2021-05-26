@@ -21,11 +21,10 @@ const GraphContainer = (props) => {
   const [isYearAll, setIsYearAll]= useState(false)
   const [queries, setQueries]=useState(props.queries)
   const [isTable, setIsTable] = useState(false)
-  
+
   useEffect(() => {
     setIsParameterAll(queries[3] === "all")
     setIsYearAll(queries[4][0] === "all" || queries[4].length === 2)
-    console.log(queries[4])
     async function fetchData() {
       let tarihArray = [];
       let valueArray = [];
@@ -42,7 +41,7 @@ const GraphContainer = (props) => {
          });
       }
       else if(queries[4] === "all"){
-       
+
       }
       else{
         data.date.map( item => {tarihArray.push(item.slice(5,7)); yıllarArray.push(item.slice(0,4));  valueArray.push(item);})
@@ -52,14 +51,11 @@ const GraphContainer = (props) => {
       setYillar(yıllarArray)
       setIsTable(queries[0] === "Tablo" ? true : false)
       setLoading(false)
-      console.log(data)
-      
-      
     }
     fetchData();
-   
-    
-    
+
+
+
   }, [props.queries]);
 
   useEffect(()=>{
@@ -104,29 +100,29 @@ const GraphContainer = (props) => {
      {
          loading ?  <Container><Row style={{height:"70vh",justifyContent:"center", alignItems:"center"}} ><Spinner animation="border" variant="primary" /></Row></Container> :
            <Row >
-         {  
+         {
               <Col sm={12} md={12} lg={12} xl={12} id="pdfCard" >
                 {
-                      
-                      isParameterAll && queries[0] !== "Tablo" ? 
+
+                      isParameterAll && queries[0] !== "Tablo" ?
                            (
-                               
+
                              data.map( (item, index)=>(
                             <OverlayTrigger trigger="hover" placement="right" overlay={popover(item.referans)}>
                               <Card className='my-3 mx-5 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                              {queries[0] === "Cizgi" ? 
+                              {queries[0] === "Cizgi" ?
                                 <LineGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
                                 :
                                 <BarGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
                             }
                               </Card>
                             </OverlayTrigger>
-                              
+
                              ))
-                           
+
 
                            )
-                      
+
                       :
                     isYearAll && queries[0] !== "Tablo" ? (
                       <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
@@ -155,15 +151,13 @@ const GraphContainer = (props) => {
                           </Card>
                       )
                         )
-                      
+
                    }
-                   {/* <Referans referans={data.referans} parametre={data.reading_type.name} /> */}
-                   
-                   <Button onClick={saveCanvas}>Disa Aktar</Button>
+                   <Button onClick={saveCanvas}>İndir</Button>
              </Col>
          }
          </Row>
-       
+
      }
     </>
   );

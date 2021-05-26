@@ -4,7 +4,7 @@ import {Line} from "react-chartjs-2";
 const LineGraph = ({id, data,label,unit,color,months, is_all,yillar}) => {
     const [chartData,setChartData] = useState({})
     const chart =  ()=>{
-       
+
         setChartData({
             labels: convertMonths(months),
             datasets: [
@@ -19,8 +19,8 @@ const LineGraph = ({id, data,label,unit,color,months, is_all,yillar}) => {
         })
 
     }
-    
-    
+
+
     useEffect(()=>{
         chart()
 
@@ -90,7 +90,7 @@ const LineGraph = ({id, data,label,unit,color,months, is_all,yillar}) => {
                                           fontSize: 18
                                       },
                                       ticks:{
-                                         
+
                                           stepSize: 5
                                       }
 
@@ -102,20 +102,22 @@ const LineGraph = ({id, data,label,unit,color,months, is_all,yillar}) => {
                                       ticks:{
                                         fontSize:14
                                     },
-                                    
+
                                   }],
                                   yAxes: [{
                                     gridLines: {
                                         display: true
                                     } ,
                                     ticks:{
+                                      min: Math.min(...data) - Math.min(...data) * 0.2,
+                                      max:Math.max(...data) + Math.max(...data) * 0.2,
                                       fontSize:14
                                   },
-                                  
+
                                 }]
                               },
-                              
-                                    
+
+
 
                           }}/>
         </>
