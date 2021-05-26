@@ -53,21 +53,26 @@ const Visualize = (props) => {
 			const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}`);
 			setBolgeAdlari(data)
 		}
-		async function fetchParameters() {
-			let parametreArray = [];
-			const { data } = await axios.get(`http://127.0.0.1:8000/api/readingtypes/${locationType}`);
-			data.map((parametre) => {
-				parametreArray.push(parametre);
-			});
-			setParametreler(parametreArray);
-		}
 		fetchLocations();
-		fetchParameters();
 	}, []);
     async function fetchYer(bolge_adi) {
-        const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`);
-        setYerAdlari(data)
+        await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then(res => 
+			{
+				console.log(res.data)
+				setYerAdlari(res.data)
+				
+			}
+		)
+        
     }
+	async function fetchParameters(yer) {
+		let parametreArray = [];
+		const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}`);
+		data.map((parametre) => {
+			parametreArray.push(parametre);
+		});
+		setParametreler(parametreArray);
+	}
 	async function fetchYillar(parametre) {
 		const yilOptions = [];
         const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}`);
@@ -114,7 +119,7 @@ const Visualize = (props) => {
 							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
 							placeholder="Yer"
 							filterOptions={fuzzySearch}
-							onChange={(e) => setSelectedYer(e)}
+							onChange={(e) => {setSelectedYer(e); fetchParameters(e);}}
 						/>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
