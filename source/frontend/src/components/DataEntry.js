@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react"
 import BootstrapTable from "react-bootstrap-table-next"
-import { Container, Row, Col, Card, Button, Spinner, FormControl, InputGroup ,Alert} from "react-bootstrap"
+import { Container, Row, Col, Card, Button, Spinner, FormControl, InputGroup , Alert, Collapse} from "react-bootstrap"
 import cellEditFactory from "react-bootstrap-table2-editor"
 import ToolkitProvider, { CSVExport } from "react-bootstrap-table2-toolkit"
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css"
@@ -43,6 +43,8 @@ const DataEntry = (props) => {
 	const [selectedYil, setSelectedYil] = useState("")
 	const [enlem, setEnlem] = useState()
 	const [boylam, setBoylam] = useState()
+
+	const [open, setOpen] = useState(false);
 
 	const [alert,setAlert] = useState({
 		hasAlert: false,
@@ -302,13 +304,13 @@ const DataEntry = (props) => {
 						/>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
-						<InputGroup className="mb-3">
+						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
 							<InputGroup.Prepend>
 								<InputGroup.Text>Enlem (Lat)</InputGroup.Text>
 							</InputGroup.Prepend>
 							<FormControl onChange={(e) => setEnlem(e.target.value)} value={enlem || ""}/>
 						</InputGroup>
-						<InputGroup className="mb-3">
+						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
 							<InputGroup.Prepend>
 								<InputGroup.Text>Boylam (Long)</InputGroup.Text>
 							</InputGroup.Prepend>
@@ -316,13 +318,13 @@ const DataEntry = (props) => {
 						</InputGroup>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
-						<InputGroup className="mb-3">
+						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
 							<InputGroup.Prepend>
 								<InputGroup.Text>Numune Kodu</InputGroup.Text>
 							</InputGroup.Prepend>
 							<FormControl onChange={(e) => setSelectedNumuneKodu(e.target.value)} value={selectedNumuneKodu || ""} />
 						</InputGroup>
-						<InputGroup className="mb-3">
+						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
 							<InputGroup.Prepend>
 								<InputGroup.Text>Yıl</InputGroup.Text>
 							</InputGroup.Prepend>
@@ -333,16 +335,29 @@ const DataEntry = (props) => {
 			</Container>
 
 			<Container>
-				<Card>
-					<p>
-						Girilen değerler harf, nokta dışında noktalama işaretleri, boşluk ve özel karakterler {`(&,@,#,% vs.)`} içeremez.
+				<Container style={{ display:"flex", justifyContent:"center", alignItems:"center" }}>
+					<Button
+						onClick={() => setOpen(!open)}
+						aria-controls="example-collapse-text"
+						aria-expanded={open}
+						variant="info"
+					>
+						Kurallar
+					</Button>
+				</Container>
+				<Collapse in={open}>
+					<Card id="example-collapse-text" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
+						<Card.Body className="text-center">
+						Girilen değerler <strong>harf</strong>, nokta dışında <strong>noktalama işaretleri</strong>, <strong>boşluk</strong> ve <strong>özel karakterler</strong> {`(&,@,#,% vs.)`} <strong>içeremez.</strong>
 						<br></br>
 						Eksi değer girmek için değerin başına "-" koymalısınız. Kesirli sayı girmek için "." kullanmalısınız.
 						<br></br>
-						"{`<`}" veya "{`>`}" karakterlerini sadece sayıdan önce koymalısınız.
-					</p>
-				</Card>
+						"{`<`}" veya "{`>`}" karakterlerini <strong>sadece sayıdan önce</strong> koymalısınız.
+						</Card.Body>
+					</Card>
+				</Collapse>
 			</Container>
+
 			<Container fluid>
 				<Row>
 					<Col sm={12} md={12} lg={12} xl={12} id="dataCard">
