@@ -104,12 +104,29 @@ const DataEntry = (props) => {
 	yerAdlari.map((yer) => YerOptions.push({ name: yer, value: yer }))
 
 	const validation = (newValue, row, column) => {
-		if(newValue.startsWith("<")){
-			// deger -= deger * 0.01
-			// degeri koymadan burada flag tanimlasak?
+		if(newValue.includes(" ")){
+			return {
+				valid: false,
+				message: 'Geçersiz'
+			}
 		}
-		if(newValue.startsWith(">")){
-			// deger += deger * 0.01
+		if(newValue.startsWith("<") || newValue.startsWith(">")){
+			if(newValue.length === 1){
+				return {
+					valid: false,
+					message: 'Geçersiz'
+				}
+			}
+			var num = Number(newValue.slice(1));
+			console.log("slc "+num)
+			if(isNaN(num)){
+				return {
+					valid: false,
+					message: 'Geçersiz'
+				}
+			}
+			else // min max kontrolu
+				return true
 		}
 		var num = Number(newValue)
 		console.log(num)

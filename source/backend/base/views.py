@@ -64,6 +64,17 @@ def postVeriGirisi(request):
         #print(rt)
         for ay in aylar:
             dateValue = request.data["date"] + ay[1]
+
+            if request.data[i][ay[0]] != None:
+                if request.data[i][ay[0]] == "":
+                    request.data[i][ay[0]] = None
+                elif request.data[i][ay[0]][0] == "<":
+                    num = int(request.data[i][ay[0]][1:])
+                    request.data[i][ay[0]] = num - num * 0.01
+                elif request.data[i][ay[0]][0] == ">":
+                    num = int(request.data[i][ay[0]][1:])
+                    request.data[i][ay[0]] = num + num * 0.01
+
             r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], date=dateValue) #araliklar
             r.save()
             #print(r.reading_value)
