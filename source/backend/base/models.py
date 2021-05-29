@@ -11,6 +11,10 @@ class ReadingType(models.Model):
 
     def __str__(self):
         return self.name
+        
+    class Meta:
+        verbose_name = 'Parametre'
+        verbose_name_plural = 'Parametreler'
 
 class Location(models.Model):
     bolge_adi = models.CharField(max_length = 50)
@@ -20,29 +24,16 @@ class Location(models.Model):
     utm_y = models.FloatField(null = True) # Positive Big Integer Field?
 
     def __str__(self):
-        return str(self.numune_adi + ' - ' + self.bolge_adi + ' - ' + self.yer)
+        return str(self.bolge_adi + ' - ' + self.yer)
 
-class Araliklar(models.Model):
-    sinif = models.IntegerField(null = True)
-    su_turu = models.CharField(max_length = 50, null = True)
-    min_value = models.FloatField(null = True) # (Şimdilik null, sonra null = False olacak) Decimal Field daha mantıklı olabilir. 
-    max_value = models.FloatField(null = True) # (Şimdilik null, sonra null = False olacak) Decimal Field daha mantıklı olabilir. 
-    tekDeger = models.BooleanField(null = True)
-    
-    reading_type = models.ForeignKey(ReadingType, on_delete = models.DO_NOTHING)
-    location = models.ForeignKey(Location,on_delete = models.DO_NOTHING)
-    
-    def __str__(self):
-        return self.sinif
-
+    class Meta:
+        verbose_name = 'Bölge'
+        verbose_name_plural = 'Bölgeler'
     
 class Reading(models.Model):
     reading_type = models.ForeignKey(ReadingType, on_delete = models.DO_NOTHING)
     table_type = models.CharField(max_length = 15)
     location = models.ForeignKey(Location, on_delete = models.DO_NOTHING)
-
-    #aralilari buraya da eklememiz lazim gibi geldi
-    araliklar = models.ForeignKey(Araliklar, on_delete = models.DO_NOTHING, null = True)
 
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.SET_NULL, null = True) # null olma olayı hoşuma gitmedi, başka çözüm gerekebilir
     
@@ -51,3 +42,7 @@ class Reading(models.Model):
     date = models.DateField()
     def __str__(self):
         return str(str(self.location) + ': ' + str(self.reading_type) + ' - ' + str(self.date))
+
+    class Meta:
+        verbose_name = 'Değer'
+        verbose_name_plural = 'Değerler'
