@@ -21,4 +21,4 @@ Each module folder contains specific instructions in their respective `README.md
 
 ### For production
 
-Instructions for production usage will be added here before May 21st.
+See [Installation Guide](https://github.com/CankayaUniversity/ceng-407-408-2020-2021-Monitoring-System-of-Water-Quality-and-Efficiency-of-Wastewater-Treatment/wiki/Installation-Guide).
