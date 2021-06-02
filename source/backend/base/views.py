@@ -387,3 +387,11 @@ def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
         return Response(jsn)
 
     return Response(allBetweenDates(bolge, yer, parametre,serialize.data))
+
+# TODO(ag)
+
+from . import generate_csv
+@api_view(["GET"])
+def getDataCSV(request):
+    data = generate_csv.get_data()
+    return Response(data)
