@@ -9,6 +9,8 @@ float_keys = ['Amonyak', 'Amonyum Azotu', 'Askıda Katı Madde', 'Toplam Çözü
               'pH', 'Nitrat Azotu', 'Nitrat', 'Nitrit Azotu', 'Sıcaklık', 'Klorofil', 'Tuzluluk', 'Yağ', 'Orto Fosfat']
 string_keys = ['Table Type', 'Açıklama', 'Renk', 'Koku', 'Renk / Koku']
 
+# TODO(ag) dd_north ve dd_east eklenecek!
+
 def db_load():
     filename = "csv_data_clean_names.csv"
     csvfile = open(filename, encoding="utf-8")
@@ -26,9 +28,11 @@ def db_load():
         _numune = row["Numune Adı"].strip()
         _yer    = row["Yer"].strip()
         _tablo_tipi = row["Table Type"].strip()
-        _date = datetime.date(int(row["Year"]), int(row["Month"]), 1)
+        _date  = datetime.date(int(row["Year"]), int(row["Month"]), 1)
+        _north = 0.0#float(row["dd_north"])
+        _east  = 0.0#float(row["dd_east"])
 
-        (loc, created_loc) = Location.objects.get_or_create(bolge_adi = _bolge, numune_adi = _numune, yer = _yer, utm_x = None, utm_y = None)
+        (loc, created_loc) = Location.objects.get_or_create(bolge_adi = _bolge, numune_adi = _numune, yer = _yer, dd_north = _north, dd_east = _east)
 
         for key, val in row.items():
             # if key not in reading_types:
@@ -53,5 +57,6 @@ def db_load():
                                     added_by = None,
                                     reading_value = val_float,
                                     reading_string_value = val_string,
-                                    date = _date
+                                    date = _date,
+                                    unique_row_id = count,
                              )

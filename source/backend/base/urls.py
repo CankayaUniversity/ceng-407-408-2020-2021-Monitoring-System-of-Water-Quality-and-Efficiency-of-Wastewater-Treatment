@@ -20,4 +20,4 @@ urlpatterns = [
 VERI_YUKLE = False # Bu True ise veri sql'e yüklenmeye başlar, uzun sürebilir!!!
 
 if VERI_YUKLE:
-    db_load()
+    db_load.db_load()
