@@ -18,6 +18,12 @@ def db_load():
     all_data = list(reader) # print(all_data)
     csvfile.close()
     
+    import pickle
+
+    coord_fd = open("coordinates.pickle", "rb")
+    all_coordinates = pickle.load(coord_fd)
+    coord_fd.close()
+
     total = len(all_data)
     count = 0
     for row in all_data:
@@ -29,10 +35,17 @@ def db_load():
         _yer    = row["Yer"].strip()
         _tablo_tipi = row["Table Type"].strip()
         _date  = datetime.date(int(row["Year"]), int(row["Month"]), 1)
-        _north = 0.0#float(row["dd_north"])
-        _east  = 0.0#float(row["dd_east"])
+        _north = None
+        _east  = None
+
+        coord_key = (_bolge, _yer)
+        if coord_key in all_coordinates.keys():
+            _north = all_coordinates[coord_key][0]
+            _east  = all_coordinates[coord_key][1]
 
         (loc, created_loc) = Location.objects.get_or_create(bolge_adi = _bolge, numune_adi = _numune, yer = _yer, dd_north = _north, dd_east = _east)
+        if created_loc:
+            print("New location inserted:", _bolge, _yer, "Coordinates:", _north, _east)
 
         for key, val in row.items():
             # if key not in reading_types:
