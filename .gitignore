@@ -44,3 +44,4 @@ source/backend/base/migrations/__pycache__/*.pyc
 *.tsv
 *.exe
 *.7z
+*.bak

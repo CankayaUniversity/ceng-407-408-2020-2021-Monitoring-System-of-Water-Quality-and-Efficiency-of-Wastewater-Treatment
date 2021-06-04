@@ -26,6 +26,9 @@ def db_load():
 
     total = len(all_data)
     count = 0
+
+    insert_to_db = []
+
     for row in all_data:
         count += 1
         print("Row", count, "of", total)
@@ -63,7 +66,7 @@ def db_load():
                 val_string = val
             else:
                 continue # raise ValueError("Bunun olmaması lazım :D:D:D:D:D:D:D!!111", key)
-            reading_for_db = Reading.objects.get_or_create(
+            reading_for_db = Reading(
                                     reading_type = reading_type,
                                     table_type = _tablo_tipi,
                                     location = loc,
@@ -73,3 +76,9 @@ def db_load():
                                     date = _date,
                                     unique_row_id = count,
                              )
+
+            insert_to_db.append(reading_for_db)
+
+    print("Inserting", len(insert_to_db), "items.")
+    Reading.objects.bulk_create(insert_to_db)
+    print("Done!")
