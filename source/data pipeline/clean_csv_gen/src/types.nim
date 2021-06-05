@@ -3,7 +3,20 @@ import options # Option[T]
 from strutils import parseUInt, parseFloat, replace, strip, contains # for parsing floats.
 from math import pow
 
-const dataFilepath* = "A:/mdb_databases/tsv.txt" 
+const dataFilepath2005* = "A:/mdb_databases/tsv.txt"
+const dataFilepath2018* = "A:/Bitirme/ceng-407-408-2020-2021-Monitoring-System-of-Water-Quality-and-Efficiency-of-Wastewater-Treatment/source/data pipeline/excel_read/2018_2020.tsv"
+
+proc readDataFiles*(): string =
+  var
+    dataFileOld  = open(dataFilepath2005)
+    dataFileNew  = open(dataFilepath2018)
+    fileContents = dataFileNew.readAll() # dataFileOld.readAll() & dataFileNew.readAll()
+
+  close(dataFileOld)
+  close(dataFileNew)
+
+  return fileContents
+
 
 type Feature* = enum
   bolge            = "Bölge Adı",
@@ -78,40 +91,48 @@ const column_names* = {
     # Feature.ekoord: @["E"], # Bunlar bir kere girilip silinecek
     # Feature.utmx: @["X_UTM", "X_UTM"],
     # Feature.utmy: @["Y","Y_UTM","Y_UTM"],
-    Feature.koku: @["KOKU"],
+    # feature.gps ??? -> @["GPS Koordinatları"]
+    Feature.koku: @["KOKU", "Koku (TON)"],
     Feature.renk_koku: @["RENK_KOKU"], # TODO What is this?
     Feature.toplam_cozunmus: @["TOPLAM_COZUNMUS_MADDE_MGL"], # TODO What is this?
-    Feature.amonyak: @["AMONYAK (MG/ L)", "AMONYAK (MG/ L)", "AMONYAK_MGL", "AMONYAK_MGL"],
-    Feature.amonyum_azot: @["AMONYUM_AZOTU_MGL", "AMONYUM_AZOTU_MGL"],
-    Feature.kati_madde: @["ASKIDA_KATI_MADDE_MGL", "ASKIDA_KATI_MADDE_MGL"],
+    Feature.amonyak: @["AMONYAK (MG/ L)", "AMONYAK (MG/ L)", "AMONYAK_MGL", "AMONYAK_MGL", "Amonyak (mg/ L)"],
+    Feature.amonyum_azot: @["AMONYUM_AZOTU_MGL", "AMONYUM_AZOTU_MGL", "Amonyum Azotu (mg/ L)", "Amonyum Azotu (mg/L)"],
+    Feature.kati_madde: @["ASKIDA_KATI_MADDE_MGL", "ASKIDA_KATI_MADDE_MGL", "Askıda Katı Madde (mg/ L)", "Askıda Katı Madde (mg/L)"],
     Feature.cozunmus_o: @[
         "ÇÖZÜNMÜŞ O_MGLKSİJEN_",
-        "ÇÖZÜNMÜS OKSİJEN (%)",
         "COZUNMUS_O_MGL",
         "COZUNMUS_O_MGL",
         "COZUNMUS_O_MGL",
+        "ÇÖZÜNMÜŞ_OKSİJEN_MGL",
+        "ÇÖZÜNMÜŞ_OKSİJEN_MGL",
+        "Çözünmüş Oksijen (mg/ L)",
+        "Çözünmüş Oksijen (mg/L)",
+        # Percent below, mg/l above.
         "COZUNMUS_O_YUZDe",
         "COZUNMUS_O_YUZDE",
         "COZUNMUS_O_YUZDe",
         "COZUNMUS_O_YUZDE",
         "ÇÖZÜNMÜŞ_O_YÜZDE",
-        "ÇÖZÜNMÜŞ_OKSİJEN_MGL",
-        "ÇÖZÜNMÜŞ_OKSİJEN_MGL",
         "ÇÖZÜNMÜŞ_OKSİJEN_YUZDE",
         "ÇÖZÜNMÜŞ_OKSİJEN_YÜZDE",
         "ÇÖZÜNMÜŞ_OKSİJEN_YUZDE",
         "ÇÖZÜNMÜŞ_OKSİJEN_YÜZDE",
+        "ÇÖZÜNMÜS OKSİJEN (%)",
+        "O2 (%)",
     ],
-    Feature.boi: @["BOI_MGL", "BOİ_MGL", "BOI_MGL", "BOİ_MGL"],
-    Feature.debi_gun: @["DEBI_M3_GUN", "DEBI_M3_GUN"],
-    Feature.debi_sn: @["DEBI_M3_SN", "DEBI_M3_SN", "DEBİ_M3_SN"],
-    Feature.bolge: @["BOLGE_ADI"],
+    Feature.boi: @["BOI_MGL", "BOİ_MGL", "BOI_MGL", "BOİ_MGL", "Biyokimyasal Oksijen İhtiyacı (mg/ L)", "Biyokimyasal Oksijen İhtiyacı (mg/L)"],
+    Feature.debi_gun: @["DEBI_M3_GUN", "DEBI_M3_GUN", "Debi (m3/gün)"],
+    Feature.debi_sn: @["DEBI_M3_SN", "DEBI_M3_SN", "DEBİ_M3_SN", "Debi (m3/ sn)", "Debi (m3/sn)"],
+    Feature.bolge: @["BOLGE_ADI", "Bölge Adı"],
     Feature.iletkenlik: @[
         "ELEKTRIKSEL_ILETKENLIK_MIKROS",
         "ELEKTRIKSEL_İLETKENLİK_MIKROS",
         "ELEKTRIKSEL_ILETKENLIK_MIKROS",
         "ELEKTRIKSEL_İLETKENLİK_MIKROS",
         "ELEKTRİKSEL_İLETKENLİK_MİKROS",
+        "Elektriksel İletkenlik (µS/ cm)",
+        "Elektriksel İletkenlik (μs/cm)",
+        "İletkenlik (μs/cm)"
     ],
     Feature.fekal_streptekok: @[
         "FEKAL STREPTOKOK (CFU/ 100ML)",
@@ -120,6 +141,9 @@ const column_names* = {
         "FEKAL_STREPTOKOK_CFU_100ML",
         "FEKAL_STREPTOKOK_CFU_100ML",
         "FEKAL_STREPTOKOK_KOB_100ML",
+        "Fekal Streptekok (CFU/ 100 mL)",
+        "FekalStreptekok  (CFU/ 100mL)",
+        "FekalStreptekok (CFU/ 100mL)",
     ],
     Feature.fekal_koliform: @[
         "FEKAL KOLİFORM (CFU/ 100ML)",
@@ -139,6 +163,11 @@ const column_names* = {
         "FKOLIFORM_CFU_100M",
         "FKOLİFORM_CFU_100ML",
         "FKOLIFORM_CFU-100 ml",
+        "Fekal  Koliform  (CFU/ 100 mL)",
+        "Fekal Koliform  (CFU/ 100mL)",
+        "Fekal Koliform (CFU/ 100 mL)",
+        "Fekal Koliform (CFU/ 100mL)",
+        "Fekal Koliform (CFU/100mL)"
     ],
     Feature.isik_gec: @[
         "IŞIK GEÇİRGENLİĞİ (M)",
@@ -149,6 +178,8 @@ const column_names* = {
         "IŞIK_GEÇİRGENLİĞİ_M",
         "ISIK_GECIRGENLIGI_M",
         "IŞIK_GEÇİRGENLİĞİ_M",
+        "Işık Geçirgenliği (M)",
+        "Işık Geçirgenliği (m)"
     ],
     Feature.koi: @[
         "KIMYASAL_OKSIJEN_IHTIYACI",
@@ -156,61 +187,75 @@ const column_names* = {
         "KOI_MGL",
         "KOI_MGL",
         "KOİ_MGL",
+        "Kimyasal Oksijen İhtiyacı (mg/L)",
+        "Kimyasal Oksijen İhtiyacı (mg/ L)",
     ],
-    Feature.ph: @["pH", "PH", "pH", "PH"],
+    Feature.ph: @["pH", "PH", "pH", "PH", "pH"],
     Feature.nitrat_azot: @[
         "NITRAT_AZOTU_MGL",
         "NITRAT_AZOTU_MGL",
         "NİTRAT_AZOTU_MGL",
+        "Nitrat Azotu (mg/L)",
+        "Nitrat Azotu (mg/ L)",
     ],
     Feature.nitrat: @["NITRAT_MGL", "NITRAT_MGL"],
-    Feature.nitrit: @["NITRIT_AZOTU_MGL", "NITRIT_AZOTU_MGL", "NİTRİT_AZOTU_MGL"],
+    Feature.nitrit: @["NITRIT_AZOTU_MGL", "NITRIT_AZOTU_MGL", "NİTRİT_AZOTU_MGL", "Nitrit Azotu (mg/ L)", "Nitrit Azotu (mg/L)"],
     Feature.sicaklik: @[
         "SICAKLIK_0C",
         "SICAKLIK_0C",
         "SICAKLIK_C",
         "SICAKLIK_C",
         "SICAKLIK_C",
+        "Sıcaklık (0C)",
+        "Sıcaklık (oC)",
+        "Sıcaklık(0C)",
     ],
-    Feature.klorofil: @["KLOROFİL_A", "KLOROFİL_A", "KLOROFIL_A_MIKRO", "KLOROFIL_A_MIKRO"],
-    Feature.tarih: @["TARIH", "TARIH", "TARİH"],
-    Feature.azot: @["TOPLAM_AZOT", "TOPLAM_AZOT", "TOPLAM_AZOT_MGL", "TOPLAM_AZOT_MGL"],
-    Feature.kjeldahl_azot: @["TOPLAM_KJELDAHL_AZOTU_MGL", "TOPLAM_KJELDAHL_AZOTU_MGL"],
-    Feature.numune: @["NUMUNE_ADI"],
+    Feature.klorofil: @["KLOROFİL_A", "KLOROFİL_A", "KLOROFIL_A_MIKRO", "KLOROFIL_A_MIKRO", "Klorofil-A (µg/ L)", "Klorofil-a (μg/L)"],
+    Feature.tarih: @["TARIH", "TARIH", "TARİH", "Numune Alma Tarihi"],
+    Feature.azot: @["TOPLAM_AZOT", "TOPLAM_AZOT", "TOPLAM_AZOT_MGL", "TOPLAM_AZOT_MGL", "Toplam Azot (mg/ L)", "Toplam Azot (mg/L)", "Toplam Azot (μg/L)"],
+    Feature.kjeldahl_azot: @["TOPLAM_KJELDAHL_AZOTU_MGL", "TOPLAM_KJELDAHL_AZOTU_MGL", "Toplam Kjeldahl Azotu (mg/ L)", "Toplam Kjeldahl Azotu (mg/L)"],
+    Feature.numune: @["NUMUNE_ADI", "Numune Kodu"],
     Feature.tuzluluk: @[
         "TUZLULUK_BINDE",
         "TUZLULUK_BINDE",
         "TUZLULUK_BİNDE",
+        "Tuzluluk (‰)"
     ],
     Feature.toplam_koliform: @[
         "TKOLIFORM_CFU_100ML",
-        "TKOLIFORM_CFU_100ML", 
         "TKOLIFORM_CFU_100ML",
-        "TKOLIFORM_CFU_100ML", 
+        "TKOLIFORM_CFU_100ML",
+        "TKOLIFORM_CFU_100ML",
         "TKOLİFORM_CFU_100ML",
-        "TKOLIFORM_KOB_100ML", 
+        "TKOLIFORM_KOB_100ML",
         "TKOLIFORM_KOB_100ML",
         "TOPLAM_KOLIFORM_CFU_100ML",
         "TOPLAM_KOLİFORM_CFU_100ML",
-        "TOPLAM_KOLIFORM_CFU_100ML", 
+        "TOPLAM_KOLIFORM_CFU_100ML",
         "TOPLAM_KOLİFORM_CFU_100ML",
-        "TOPLAM KOLİFORM (CFU/ 100ML)"
+        "TOPLAM KOLİFORM (CFU/ 100ML)",
+        "Toplam Koliform  (CFU/ 100 mL)",
+        "Toplam Koliform  (CFU/ 100mL)",
+        "Toplam Koliform (CFU/ 100mL)",
+        "Toplam Koliform (CFU/100mL)",
     ],
-    Feature.fosfor: @["TOPLAM_FOSFOR", "TOPLAM_FOSFOR", "TOPLAM_FOSFOR_MGL", "TOPLAM_FOSFOR_MGL"],
+    Feature.fosfor: @["TOPLAM_FOSFOR", "TOPLAM_FOSFOR", "TOPLAM_FOSFOR_MGL", "TOPLAM_FOSFOR_MGL", "Toplam Fosfor (mg/ L)", "Toplam Fosfor (mg/L)", "Toplam Fosfor (μg/L)"],
     Feature.pestisit: @[
-        "Toplam Pestisit", 
-        "TOPLAM_PESTISIT", 
-        "TOPLAM_PESTİSİT", 
-        "TOPLAM_PESTISIT", 
+        "Toplam Pestisit",
+        "TOPLAM_PESTISIT",
         "TOPLAM_PESTİSİT",
-        "TOPLAM_PESTİSİT_MİKROGL"
+        "TOPLAM_PESTISIT",
+        "TOPLAM_PESTİSİT",
+        "TOPLAM_PESTİSİT_MİKROGL",
+        "Toplam Pestisid (mg/ L)",
+        "Toplam Pestisit (mg/L)",
     ],
-    Feature.yag: @["YAĞ_GRES", "YAĞ_GRES", "YAĞ-GRES"],
-    Feature.yer: @["YER"],
+    Feature.yag: @["YAĞ_GRES", "YAĞ_GRES", "YAĞ-GRES", "Yağ-Gres (mg/ L)", "Yağ-Gres (mg/L)"],
+    Feature.yer: @["YER", "Yer"],
     Feature.fosfat: @["ORTO_FOSFAT", "ORTO_FOSFAT", "ORTO_FOSFAT_MGL"],
-    Feature.fenol: @["TOPLAM _FENOL", "TOPLAM _FENOL", "TOPLAM FENOL (MG/L)", "TOPLAM_FENOL_MGL"],
-    Feature.aciklama: @["ACIKLAMA"],
-    Feature.renk: @["RENK", "RENK (Pt-Co)"],
+    Feature.fenol: @["TOPLAM _FENOL", "TOPLAM _FENOL", "TOPLAM FENOL (MG/L)", "TOPLAM_FENOL_MGL", "Toplam Fenol (mg/ L)", "Toplam Fenol (mg/L)"],
+    Feature.aciklama: @["ACIKLAMA", "Açıklama"],
+    Feature.renk: @["RENK", "RENK (Pt-Co)", "Renk (Pt-Co)"],
 }.toTable.static # static is supposed to make sure that the variable is evaluated at compile-time
 
 
@@ -263,7 +308,7 @@ proc parseToFloat*(input: string): Option[float64] =
 
   if ';' in input:
     corrected = corrected.replace(';', '.')
-  
+
   if input.contains("Ölçülememiştir") or corrected == "":
     return none(float64)
 
