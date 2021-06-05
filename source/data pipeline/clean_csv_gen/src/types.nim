@@ -10,7 +10,7 @@ proc readDataFiles*(): string =
   var
     dataFileOld  = open(dataFilepath2005)
     dataFileNew  = open(dataFilepath2018)
-    fileContents = dataFileNew.readAll() # dataFileOld.readAll() & dataFileNew.readAll()
+    fileContents = dataFileOld.readAll() & dataFileNew.readAll()
 
   close(dataFileOld)
   close(dataFileNew)

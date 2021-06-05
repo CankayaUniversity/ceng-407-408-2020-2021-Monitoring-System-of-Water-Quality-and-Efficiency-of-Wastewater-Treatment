@@ -43,3 +43,5 @@ source/backend/base/migrations/__pycache__/*.pyc
 /source/data pipeline/excel_read/__pycache__
 *.tsv
 *.exe
+*.7z
+*.bak
