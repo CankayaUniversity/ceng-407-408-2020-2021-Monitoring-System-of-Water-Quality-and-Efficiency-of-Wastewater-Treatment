@@ -390,8 +390,16 @@ def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
 
 # TODO(ag)
 
+import csv
+from django.http import HttpResponse
 from . import generate_csv
 @api_view(["GET"])
 def getDataCSV(request):
-    data = generate_csv.get_data()
-    return Response(data)
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="database_export.csv"'
+
+    writer = csv.writer(response)
+    generate_csv.get_data(writer)
+
+    return response
