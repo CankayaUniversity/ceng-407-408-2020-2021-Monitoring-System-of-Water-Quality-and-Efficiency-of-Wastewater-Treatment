@@ -8,6 +8,7 @@ import AllYears from "./AllYears";
 import domToPdf from 'dom-to-pdf';
 import Referans from './Referans'
 import {saveAs} from 'file-saver'
+import MapView from './MapView'
 
 const GraphContainer = (props) => {
   // path('api/reading/<str:bolge>/<str:yer>/<str:parametre>/<str:yil>/',views.getSpecificReading,name="spesific"),
@@ -103,51 +104,70 @@ const GraphContainer = (props) => {
          {
               <Col sm={12} md={12} lg={12} xl={12} id="pdfCard" >
                 {
-
+                  isParameterAll && queries[0] !== "Tablo" ?(
+                    <MapView specificLocation={ {"bolgeAdi":data[0].location.bolge_adi, "yerAdi":data[0].location.yer, "position": [data[0].location.dd_east,data[0].location.dd_north]}}/>
+                  ): ""
+                }
+                {
+                  
                       isParameterAll && queries[0] !== "Tablo" ?
-                           (
-
+                      (
                              data.map( (item, index)=>(
-                            <OverlayTrigger trigger="hover" placement="right" overlay={popover(item.referans)}>
-                              <Card className='my-3 mx-5 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                              {queries[0] === "Cizgi" ?
-                                <LineGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
-                                :
-                                <BarGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
-                            }
-                              </Card>
-                            </OverlayTrigger>
-
-                             ))
-
-
-                           )
+                              <OverlayTrigger trigger="hover" placement="right" overlay={popover(item.referans)}>
+                                  <Card className='my-3 mx-5 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
+                                    {queries[0] === "Cizgi" ?
+                                      <LineGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
+                                      :
+                                      <BarGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
+                                  }
+                                  </Card>
+                              </OverlayTrigger>
+                              )
+                             )                                     
+                        )
 
                       :
                     isYearAll && queries[0] !== "Tablo" ? (
+                      <>
                       <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
                       <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
                         <h6 style={{textAlign:"center"}}>{`${data.location.bolge_adi} - ${data.location.yer} - ${data.reading_type.name} - ( ${data.date[0]} - ${data.date[data.date.length-1]} )`}</h6>
                        <AllYears id="graphId" data={data}/>
                        </Card>
                         </OverlayTrigger>
+                        <Col sm={12} md={12} lg={12} xl={12}>
+                        <MapView specificLocation={ {"bolgeAdi":data.location.bolge_adi, "yerAdi":data.location.yer, "position": [data.location.dd_east,data.location.dd_north]}}/>
+                     </Col>
+                      </>
                     ):
                         (
                          queries[0] === "Cizgi" ? (
-                          <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
-                          <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                           <LineGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
-                           </Card>
-                           </OverlayTrigger>
+                          <>
+                            <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
+                              <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
+                                <LineGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
+                              </Card>
+                            </OverlayTrigger>
+                            <Col sm={12} md={12} lg={12} xl={12}>
+                              <MapView specificLocation={ {"bolgeAdi":data.location.bolge_adi, "yerAdi":data.location.yer, "position": [data.location.dd_east,data.location.dd_north]}}/>
+                            </Col>
+                          </>
                       ) : queries[0] == "Bar" ? (
-                        <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
-                          <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                             <BarGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} colors={data.colors} months={tarih} is_all={isAll} yillar={yillar}/>
-                          </Card>
-                          </OverlayTrigger>
+                        <>
+                          <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
+                            <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
+                              <BarGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} colors={data.colors} months={tarih} is_all={isAll} yillar={yillar}/>
+                            </Card>
+                            </OverlayTrigger>
+                            <Col sm={12} md={12} lg={12} xl={12}>
+                                <MapView specificLocation={ {"bolgeAdi":data.location.bolge_adi, "yerAdi":data.location.yer, "position": [data.location.dd_east,data.location.dd_north]}}/>
+                            </Col>
+                        </>
                       ) : (
                         <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
                                <Table queries={queries} data={data} />
+                               <MapView specificLocation={ {"bolgeAdi":data[0].location.bolge_adi, "yerAdi":data[0].location.yer, "position": [data[0].location.dd_east,data[0].location.dd_north]}}/>
+
                           </Card>
                       )
                         )
