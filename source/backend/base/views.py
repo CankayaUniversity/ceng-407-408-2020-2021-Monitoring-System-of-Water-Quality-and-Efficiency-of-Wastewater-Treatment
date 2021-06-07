@@ -9,9 +9,9 @@ from . import referansAraliklari
 # Create your views here.
 
 def is_decision_maker(user):
-    if user.groups.filter(name= "VeriGorsellestiriciler").exists():
+    if user.groups.filter(name= "veriGorsellestirici").exists():
         return True
-    if user.groups.filter(name = "VeriGirisciler").exists():
+    if user.groups.filter(name = "veriGirisci").exists():
         return False
 
 @api_view(["POST"])
@@ -339,8 +339,8 @@ def JsonVeri(bolge, yer, parametre, yil):
                 "numune_adi": "error",
                 "bolge_adi": bolge,
                 "yer": yer,
-                "utm_x": "error",
-                "utm_y": "error",
+                "dd_north": "error",
+                "dd_east": "error",
             },
             "reading_type": {"name": parametre},
             "table_type": "error",
@@ -361,8 +361,8 @@ def JsonVeri(bolge, yer, parametre, yil):
             "numune_adi": serialize.data[0]["location"]["numune_adi"],
             "bolge_adi": serialize.data[0]["location"]["bolge_adi"],
             "yer": serialize.data[0]["location"]["yer"],
-            "utm_x": serialize.data[0]["location"]["utm_x"],
-            "utm_y": serialize.data[0]["location"]["utm_y"],
+            "dd_north": serialize.data[0]["location"]["dd_north"],
+            "dd_east": serialize.data[0]["location"]["dd_east"],
         },
         "reading_type": {"name": serialize.data[0]["reading_type"]["name"]},
         "table_type": serialize.data[0]["table_type"],
@@ -427,8 +427,8 @@ def allYear(bolge, yer, parametre, yil):
             "numune_adi": serialize.data[0]["location"]["numune_adi"],
             "bolge_adi": serialize.data[0]["location"]["bolge_adi"],
             "yer": serialize.data[0]["location"]["yer"],
-            "utm_x": serialize.data[0]["location"]["utm_x"],
-            "utm_y": serialize.data[0]["location"]["utm_y"],
+            "dd_north": serialize.data[0]["location"]["dd_north"],
+            "dd_east": serialize.data[0]["location"]["dd_east"],
         },
         "reading_type": {"name": serialize.data[0]["reading_type"]["name"]},
         "table_type": serialize.data[0]["table_type"],
@@ -518,8 +518,8 @@ def allBetweenDates(bolge, yer, parametre, sdata):
             "numune_adi": sdata[0]["location"]["numune_adi"],
             "bolge_adi": sdata[0]["location"]["bolge_adi"],
             "yer": sdata[0]["location"]["yer"],
-            "utm_x": sdata[0]["location"]["utm_x"],
-            "utm_y": sdata[0]["location"]["utm_y"],
+            "dd_north": sdata[0]["location"]["dd_north"],
+            "dd_east": sdata[0]["location"]["dd_east"],
         },
         "reading_type": {"name": parametre},
         "table_type": sdata[0]["table_type"],
