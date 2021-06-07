@@ -23,6 +23,8 @@ const GraphContainer = (props) => {
   const [queries, setQueries]=useState(props.queries)
   const [isTable, setIsTable] = useState(false)
 
+  const [customReferances,setCustomReferances] = useState([])
+
   useEffect(() => {
     setIsParameterAll(queries[3] === "all")
     setIsYearAll(queries[4][0] === "all" || queries[4].length === 2)
@@ -63,22 +65,34 @@ const GraphContainer = (props) => {
     setQueries(props.queries)
   },[props.queries])
 
+  const getColor = (sinif) =>{
+    switch (sinif) {
+      case 1:
+        return "rgb(102, 209, 242)"
+      case 2:
+        return "rgb(197, 218, 141)"
+      case 3:
+        return "rgb(240, 221, 137)"
+      case 4:
+        return "rgb(245, 103, 126)"
+    }
+  }
   const popover = (referans) => (
-
-    <Popover id="popover-basic">
+      <Popover id="popover-basic">
       <Popover.Content>
         <div style={{fontWeight: "bolder", letterSpacing: "1px"}}>Referans Aralığı</div>
         <hr></hr>
-        {referans ? (
+        {referans.length > 0 ? (
           referans.map((referansItem, index) =>
             (<div >
-                <p>{`${index + 1}. Sınıf`} - {referansItem}</p>
+                <p>{`${index + 1}. Sınıf`} - {referansItem} <span style={{backgroundColor: getColor(index+1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
             </div>)
             )
         ) : "Referans Aralğı Verilmemiştir"}
       </Popover.Content>
     </Popover>
-  );
+   )
+
 
   const saveCanvas = () => {
     if (data.length > 1){
@@ -95,6 +109,15 @@ const GraphContainer = (props) => {
           saveAs(blob, "graphId.png")
         })
     }
+  }
+  async function csvIndir (){
+    const queries4 = queries[4].length > 1 ? queries[4][0] +"/"+ queries[4][1] : queries[4][0]
+    const { data } = await axios.get(
+      `http://127.0.0.1:8000/api/csv/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`
+    ).catch(error => console.log(error));
+  }
+  const submitReferans =(e) => {
+    setCustomReferances(Object.values(e))
   }
   return (
     <>
@@ -154,9 +177,9 @@ const GraphContainer = (props) => {
                           </>
                       ) : queries[0] == "Bar" ? (
                         <>
-                          <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
+                          <OverlayTrigger trigger="hover" placement="right" overlay={customReferances.length > 0 ? popover(customReferances) : popover(data.referans)}>
                             <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                              <BarGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} colors={data.colors} months={tarih} is_all={isAll} yillar={yillar}/>
+                              <BarGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} colors={data.colors} submitReferans={submitReferans} months={tarih} is_all={isAll} yillar={yillar}/>
                             </Card>
                             </OverlayTrigger>
                             <Col sm={12} md={12} lg={12} xl={12}>
@@ -167,13 +190,13 @@ const GraphContainer = (props) => {
                         <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
                                <Table queries={queries} data={data} />
                                <MapView specificLocation={ {"bolgeAdi":data[0].location.bolge_adi, "yerAdi":data[0].location.yer, "position": [data[0].location.dd_east,data[0].location.dd_north]}}/>
-
                           </Card>
                       )
                         )
 
                    }
-                   <Button onClick={saveCanvas}>İndir</Button>
+                   <Button onClick={saveCanvas} variant="outline-primary" size="sm">İndir</Button>
+                   {queries[0] == "Tablo" ? <Button style={{marginLeft:"1rem"}} onClick={csvIndir}>CSV İndir</Button> : ""}
              </Col>
          }
          </Row>

@@ -17,8 +17,7 @@ const VisualizeMainScreen = () => {
         <Container>
          <Row>
             <Col lg={7}>
-            <IconLogo width="100%" height="100%"/>
-         
+            <IconLogo width="100%" height="100%"/>        
             </Col>
             <Col lg={5} className="visual">
             <h2 style={{color:"gray"}}>Su Kalitesi Veri Görselleştirme</h2>
