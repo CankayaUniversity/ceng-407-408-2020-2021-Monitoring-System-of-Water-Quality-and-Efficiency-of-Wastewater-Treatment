@@ -5,38 +5,61 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from . import referansAraliklari
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
+from rest_framework import status
+from rest_framework.views import APIView
 
 # Create your views here.
 
-def is_decision_maker(user):
-    if user.groups.filter(name= "veriGorsellestirici").exists():
-        return True
-    if user.groups.filter(name = "veriGirisci").exists():
-        return False
+class LoginView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
-@api_view(["POST"])
-def handleLogin(request):
-    username = request.data["username"]
-    password = request.data["password"]
+class BlacklistTokenUpdateView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = ()
 
-    user = authenticate(request, username = username, password = password)
-    if user is not None:
-        login(request, user)
-        if is_decision_maker(user):
-            veri = {
-                "username": username,
-                "group": "veriGorsellestirici"
-            }
-            return Response(data=veri)
-        else:
-            veri = {
-                "username": username,
-                "group": "veriGirisci"
-            }
-            return Response(data=veri)
-    else:
-        print("basarisiz")
-    return Response()
+    def post(self, request):
+        print("req :", request)
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# def is_decision_maker(user):
+#     if user.groups.filter(name= "veriGorsellestirici").exists():
+#         return True
+#     if user.groups.filter(name = "veriGirisci").exists():
+#         return False
+
+# @api_view(["POST"])
+# def handleLogin(request):
+#     username = request.data["username"]
+#     password = request.data["password"]
+
+#     user = authenticate(request, username = username, password = password)
+#     if user is not None:
+#         login(request, user)
+#         if is_decision_maker(user):
+#             veri = {
+#                 "username": username,
+#                 "group": "veriGorsellestirici"
+#             }
+#             return Response(data=veri)
+#         else:
+#             veri = {
+#                 "username": username,
+#                 "group": "veriGirisci"
+#             }
+#             return Response(data=veri)
+#     else:
+#         print("basarisiz")
+#     return Response()
 
 
 

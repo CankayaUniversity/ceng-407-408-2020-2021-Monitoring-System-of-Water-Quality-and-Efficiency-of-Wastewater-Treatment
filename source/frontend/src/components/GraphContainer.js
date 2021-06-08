@@ -83,12 +83,19 @@ const GraphContainer = (props) => {
         <div style={{fontWeight: "bolder", letterSpacing: "1px"}}>Referans Aralığı</div>
         <hr></hr>
         {referans.length > 0 ? (
-          referans.map((referansItem, index) =>
-            (<div >
-                <p>{`${index + 1}. Sınıf`} - {referansItem} <span style={{backgroundColor: getColor(index+1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
-            </div>)
-            )
-        ) : "Referans Aralğı Verilmemiştir"}
+          // referans.map((referansItem, index) =>
+          //   (<div >
+          //       <p>{`${index + 1}. Sınıf`} - {referansItem} <span style={{backgroundColor: getColor(index+1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+          //   </div>)
+          //   )
+          <div>
+            <p>{`1. Sınıf`} - {`<`}{referans[0]} <span style={{backgroundColor: getColor(1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`2. Sınıf`} - {referans[0]}{`-`}{referans[1]} <span style={{backgroundColor: getColor(2), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`3. Sınıf`} - {referans[1]}{`-`}{referans[2]} <span style={{backgroundColor: getColor(3), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`4. Sınıf`} - {`>`}{referans[2]} <span style={{backgroundColor: getColor(4), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+          </div>
+          
+          ) : "Referans Aralğı Verilmemiştir"}
       </Popover.Content>
     </Popover>
    )
@@ -99,14 +106,14 @@ const GraphContainer = (props) => {
       data.map( (item, index)=>{
         const canvasSave = document.getElementById(`graphId-${index}`)
         canvasSave.toBlob(function (blob) {
-          saveAs(blob, `graphId-${index}.png`)
+          saveAs(blob, `${queries[1]}-${queries[2]}-${queries[3]}-${queries[4][0]}.png`)
       })
     })
     }
     else{
       const canvasSave = document.getElementById("graphId")
         canvasSave.toBlob(function (blob) {
-          saveAs(blob, "graphId.png")
+          saveAs(blob, `${queries[1]}-${queries[2]}-${queries[3]}-${queries[4][0]}.png`)
         })
     }
   }

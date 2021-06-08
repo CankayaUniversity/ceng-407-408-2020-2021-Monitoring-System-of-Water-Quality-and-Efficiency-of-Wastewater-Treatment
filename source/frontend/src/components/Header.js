@@ -2,6 +2,7 @@ import React from 'react';
 import {Navbar,Nav,Container,Form,FormControl,Button} from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
 import {ReactComponent as IconLogo} from '../../src/logo.svg'
+import { Link } from 'react-router-dom'
 const Header = () => {
 
     return (
@@ -27,9 +28,12 @@ const Header = () => {
                   <LinkContainer to={"/aritma"}>
                       <Nav.Link >Arıtma</Nav.Link>
                   </LinkContainer>
-                  <Button variant="outline-secondary" size="sm">
-                    Çıkış
-                  </Button>
+                  <LinkContainer to={"/logout"}>
+                    <Button variant="outline-secondary" size="sm">
+                      Çıkış
+                    </Button>
+                  </LinkContainer>
+                  
                 </Nav>
               </Navbar.Collapse>
 

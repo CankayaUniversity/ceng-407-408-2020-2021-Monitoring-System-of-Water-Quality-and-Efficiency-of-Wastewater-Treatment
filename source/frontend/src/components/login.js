@@ -1,11 +1,12 @@
 import React, { useState } from "react"
 import axios from "axios"
+import axiosInstance from '../axios';
 import { Redirect, useHistory } from "react-router-dom"
 import { Container, Button, Form, Card, CardImg } from "react-bootstrap"
 import App from "../App"
 import ReactLogo from '../logo.svg';
 
-export default function SignIn() {
+export default function Login() {
 	const [isLogged, setIsLogged] = useState(false)
 	const [responseData, setResponseData] = useState([])
 	const history = useHistory()
@@ -25,34 +26,38 @@ export default function SignIn() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
-		console.log(formData)
+		// console.log(formData)
 
-		axios
-			.post("http://127.0.0.1:8000/api/login", {
-				username: formData.username,
-				password: formData.password,
-			})
-			.then(function (response) {
-				console.log(response)
-				setIsLogged(true)
-				setResponseData(response.data)
-			})
-			.catch(function (error) {
-				console.log(error)
-			})
-		// axiosInstance
-		// 	.post(`token/`, {
+		// axios
+		// 	.post("http://127.0.0.1:8000/api/login", {
 		// 		username: formData.username,
 		// 		password: formData.password,
 		// 	})
-		// 	.then((res) => {
-		// 		localStorage.setItem("access_token", res.data.access);
-		// 		localStorage.setItem("refresh_token", res.data.refresh);
-		// 		axiosInstance.defaults.headers["Authorization"] = "JWT " + localStorage.getItem("access_token");
-		// 		history.push("/");
-		// 		//console.log(res);
-		// 		//console.log(res.data);
-		// 	});
+		// 	.then(function (response) {
+		// 		console.log(response)
+		// 		setIsLogged(true)
+		// 		setResponseData(response.data)
+		// 	})
+		// 	.catch(function (error) {
+		// 		console.log(error)
+		// 	})
+		axiosInstance
+			.post(`login/`, {
+				username: formData.username,
+				password: formData.password,
+			})
+			.then((res) => {
+				localStorage.setItem("access_token", res.data.access);
+				localStorage.setItem("refresh_token", res.data.refresh);
+				localStorage.setItem("group", res.data.group);
+				axiosInstance.defaults.headers["Authorization"] = "JWT " + localStorage.getItem("access_token");
+				setResponseData(res.data.group)
+				console.log("resp ", res)
+				setIsLogged(true)
+				history.push("/");
+				//console.log(res);
+				//console.log(res.data);
+			});
 	}
 
 	return isLogged ? (
