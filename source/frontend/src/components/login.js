@@ -66,27 +66,29 @@ export default function Login() {
 		</>
 	) : (
 		<>
-			<Container style={{ width:"500px", height:"100vh"}}>
+			<div className="login-container">
+			<Container style={{ width:"500px", height:"100vh",display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
 				<Card className="p-5" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px", justifyContent: "center", alignItems: "center" }}>
 					<Card.Img variant="top" src={ReactLogo} />
 					<Card.Body>
 						<Form>
 							<Form.Group controlId="formBasicEmail">
-								<Form.Label>Kullanıcı Adı</Form.Label>
+								<Form.Label style={{fontWeight:"bold"}}>Kullanıcı Adı</Form.Label>
 								<Form.Control type="username" name="username" placeholder="Kullanıcı Adı" onChange={handleChange} />
 							</Form.Group>
 
 							<Form.Group controlId="formBasicPassword">
-								<Form.Label>Şifre</Form.Label>
+								<Form.Label style={{fontWeight:"bold"}}>Şifre</Form.Label>
 								<Form.Control type="password" name="password" placeholder="Şifre" onChange={handleChange} />
 							</Form.Group>
-							<Button variant="primary" type="submit" onClick={handleSubmit} block>
+							<Button variant="outline-info" type="submit" onClick={handleSubmit} block style={{textTransform:"none",fontSize:"1rem"}}>
 								Giriş Yap
 							</Button>
 						</Form>
 					</Card.Body>
 				</Card>
 			</Container>
+			</div>
 		</>
 	)
 }

@@ -53,6 +53,7 @@ const DataEntry = (props) => {
 		isInfo: false,
 		message: null
 	})
+	const [isLoading,setIsLoading] = useState(false)
 
 	useEffect(() => {
 		// change
@@ -104,6 +105,15 @@ const DataEntry = (props) => {
 	yerAdlari.map((yer) => YerOptions.push({ name: yer, value: yer }))
 
 	const validation = (newValue, row, column) => {
+		/*
+		if(row.id ==="Toplam Kjeldahl Azotu"){
+			return{
+				valid:false,
+				message:"Sayı giriniz"
+			}
+		}
+		*/
+	
 		if(newValue.includes(" ")){
 			return {
 				valid: false,
@@ -225,8 +235,7 @@ const DataEntry = (props) => {
 	)
 
 	const veriGonder = () => {
-		console.log("sa: ", selectedBolge)
-		console.log("as: ", selectedYer)
+		setIsLoading(true)
 		axios
 			.post("http://127.0.0.1:8000/api/veriGirisi", {
 				...parametreOptionsState,
@@ -271,6 +280,7 @@ const DataEntry = (props) => {
 				setEnlem("")
 				setBoylam("")
 				setSelectedYil("")
+				setIsLoading(false)
 			})
 			.catch(function (error) {
 				setAlert({
@@ -280,6 +290,7 @@ const DataEntry = (props) => {
 					isError: true,
 					message: error.response.status === 404 ? "Uygun formatta veri girişi yapınız." : "Server kaynaklı hatadan dolayı veri girişi yapılamadı."
 				})
+				setIsLoading(false)
 			})
 	}
 
@@ -357,7 +368,7 @@ const DataEntry = (props) => {
 						onClick={() => setOpen(!open)}
 						aria-controls="example-collapse-text"
 						aria-expanded={open}
-						variant="info"
+						variant="outline-primary"
 					>
 						Kurallar
 					</Button>
@@ -417,7 +428,7 @@ const DataEntry = (props) => {
 								})}
 							/>
 							<hr />
-							<Button onClick={veriGonder}>Gonder</Button>
+							<Button onClick={veriGonder} variant={"outline-info"}>{ isLoading ? <Spinner animation="border" /> : "Gönder"}</Button>
 
 							<Card.Footer className="text-muted">
 								{ alert.hasAlert ? (

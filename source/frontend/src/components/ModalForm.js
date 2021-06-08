@@ -26,15 +26,12 @@ export default class ModalForm extends Component {
       <Modal.Body>
           <Form.Group >
               <Form.Label>1. sınıf: </Form.Label>
-              <Form.Control type="number" onChange={(e) => this.handleChange({birinci: parseInt(e.target.value)})} value={this.state.birinci} placeholder="Değer giriniz."/>
+              <Form.Control type="number" step="0.1" onChange={(e) => this.handleChange({birinci: parseFloat(e.target.value)})} value={this.state.birinci} placeholder="Sınıf üst değeri giriniz."/>
               <Form.Label>2. sınıf: </Form.Label>
-              <Form.Control type="number" onChange={(e) => this.handleChange({ikinci:  parseInt(e.target.value)})} value={this.state.ikinci} placeholder="Değer giriniz."/> 
+              <Form.Control type="number" step="0.1" onChange={(e) => this.handleChange({ikinci:  parseFloat(e.target.value)})} value={this.state.ikinci} placeholder="Sınıf üst değeri giriniz."/> 
               <Form.Label>3. sınıf: </Form.Label>
-              <Form.Control type="number" onChange={(e) => this.handleChange({ucuncu:  parseInt(e.target.value)})} value={this.state.ucuncu} placeholder="Değer giriniz."/> 
-              <Form.Label>4. sınıf: </Form.Label>
-              <Form.Control type="number" onChange={(e) => this.handleChange({dorduncu:  parseInt(e.target.value)})} value={this.state.dorduncu} placeholder="Değer giriniz."/>            
+              <Form.Control type="number" step="0.1"  onChange={(e) => this.handleChange({ucuncu:  parseFloat(e.target.value)})} value={this.state.ucuncu} placeholder="Sınıf üst değeri giriniz."/> 
           </Form.Group>
-          
       </Modal.Body>
       <Modal.Footer>
           <Button  variant="outline-dark" type="submit" onClick={() => this.props.handleSubmit(this.state)}>
