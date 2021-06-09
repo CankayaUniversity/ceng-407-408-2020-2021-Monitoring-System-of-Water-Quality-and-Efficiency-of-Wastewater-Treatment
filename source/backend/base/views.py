@@ -66,9 +66,11 @@ class BlacklistTokenUpdateView(APIView):
 
 @api_view(["POST"])
 def postVeriGirisi(request):
+    insert_to_db = []
+
     # get parameters
-    readingTypeArray = clearReadingTypes("Deniz")
-    #print("len: ",readingTypeArray)
+    readingTypeArray = clearReadingTypes(request.data["table_type"])
+
     # find the number of parameters
     iler = []
     j=0
@@ -77,31 +79,35 @@ def postVeriGirisi(request):
         j += 1
 
     aylar = [["ocak","-01-01"], ["subat", "-02-01"], ["mart","-03-01"], ["nisan", "-04-01"], ["mayis", "-05-01"], ["haziran", "-06-01"], ["temmuz", "-07-01"], ["agustos", "-08-01"], ["eylul", "-09-01"], ["ekim", "-10-01"], ["kasim", "-11-01"], ["aralik", "-12-01"]]
+    
+    #find max unique_row_id
+    unique_row_ids = Reading.objects.values_list("unique_row_id",flat=True)
+    max_row_id = 0
+    for id in unique_row_ids:
+        if (id > max_row_id):
+            max_row_id = id
 
     # save data
     lc = Location.objects.get(bolge_adi= request.data["bolge_adi"],yer= request.data["yer"])
-    #print(lc)
-
-    for i in iler:
-        rt = ReadingType.objects.get(name= request.data[i]["id"])
-        #print(rt)
-        for ay in aylar:
-            dateValue = request.data["date"] + ay[1]
-
+    for ay in aylar:
+        dateValue = request.data["date"] + ay[1]
+        for i in iler:
+            rt = ReadingType.objects.get(name= request.data[i]["id"])
             if request.data[i][ay[0]] != None:
                 if request.data[i][ay[0]] == "":
                     request.data[i][ay[0]] = None
                 elif request.data[i][ay[0]][0] == "<":
-                    num = int(request.data[i][ay[0]][1:])
+                    num = float(request.data[i][ay[0]][1:])
                     request.data[i][ay[0]] = num - num * 0.01
                 elif request.data[i][ay[0]][0] == ">":
-                    num = int(request.data[i][ay[0]][1:])
+                    num = float(request.data[i][ay[0]][1:])
                     request.data[i][ay[0]] = num + num * 0.01
 
-            r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], date=dateValue) #araliklar
-            r.save()
-            #print(r.reading_value)
+            r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
+            insert_to_db.append(r)
+        max_row_id += 1
 
+    Reading.objects.bulk_create(insert_to_db)
     return Response()
 
 @api_view(["GET"])
