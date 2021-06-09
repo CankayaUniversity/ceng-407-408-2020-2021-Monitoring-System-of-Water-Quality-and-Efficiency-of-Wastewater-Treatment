@@ -41,7 +41,7 @@ class Reading(models.Model):
     reading_string_value = models.TextField(null = True) # Bunlardan sadece biri null olabilir, üstüne düşünmek lazım
     date = models.DateField()
     def __str__(self):
-        return self.table_type
+        return str(str(self.location) + ': ' + str(self.reading_type) + ' - ' + str(self.date))
         
     class Meta:
         verbose_name = 'Değer'
