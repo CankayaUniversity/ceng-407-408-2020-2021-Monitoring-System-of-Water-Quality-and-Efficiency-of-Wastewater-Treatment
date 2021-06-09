@@ -104,50 +104,57 @@ const DataEntry = (props) => {
 	bolgeAdlari.map((bolge) => BolgeOptions.push({ name: bolge, value: bolge }))
 	yerAdlari.map((yer) => YerOptions.push({ name: yer, value: yer }))
 
-	const validation = (newValue, row, column) => {
-		/*
-		if(row.id ==="Toplam Kjeldahl Azotu"){
-			return{
-				valid:false,
-				message:"Sayı giriniz"
-			}
-		}
-		*/
-	
+	const isNumber = (newValue) => {
 		if(newValue.includes(" ")){
-			return {
-				valid: false,
-				message: 'Geçersiz'
-			}
+			return false
 		}
 		if(newValue.startsWith("<") || newValue.startsWith(">")){
 			if(newValue.length === 1){
-				return {
-					valid: false,
-					message: 'Geçersiz'
-				}
+				return false
 			}
 			var num = Number(newValue.slice(1));
 			console.log("slc "+num)
 			if(isNaN(num)){
-				return {
-					valid: false,
-					message: 'Geçersiz'
-				}
+				return false
 			}
-			else // min max kontrolu
+			else
 				return true
 		}
 		var num = Number(newValue)
 		console.log(num)
 		if(isNaN(num)){
-			return {
-				valid: false,
-				message: 'Geçersiz'
+			return false
+		}
+		else
+			return true
+	}
+
+	const validation = (newValue, row, column) => {
+		if(row.id === "Açıklama")
+			return true
+
+		for (const i in parametreler){
+			if(row.id === parametreler[i]){
+				if(isNumber(newValue) === true){
+					return true
+					// min-max
+					// if(newValue > min && newValue < max)
+					// 	return ture
+					// else{
+					// 	return{
+					// 		valid:false,
+					// 		message:"Geçersiz"
+					// 	}
+					// }
+				}
+				else {
+					return{
+						valid:false,
+						message:"Geçersiz"
+					}
+				}
 			}
 		}
-		else // min max kontrolu
-			return true
 	}
 
 	const columns = [
