@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import GraphContainer from "./GraphContainer";
 import { Row, Col, Container, ButtonGroup, Button, Spinner, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
 import axios from "axios";
+import axiosInstance from '../axios';
 import SelectSearch, { fuzzySearch } from "react-select-search";
 import ReactToPdf from "react-to-pdf";
 import { FloatingButton, Item } from "react-floating-button";
@@ -50,13 +51,13 @@ const Visualize = (props) => {
 	useEffect(() => {
         // change
 		async function fetchLocations() {
-			const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}`);
+			const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`);
 			setBolgeAdlari(data)
 		}
 		fetchLocations();
 	}, []);
     async function fetchYer(bolge_adi) {
-        await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then(res =>
+        await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then(res =>
 			{
 				setYerAdlari(res.data)
 			}
@@ -65,7 +66,7 @@ const Visualize = (props) => {
     }
 	async function fetchParameters(yer) {
 		let parametreArray = [];
-		const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}`);
+		const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}`);
 		data.map((parametre) => {
 			parametreArray.push(parametre);
 		});
@@ -73,7 +74,7 @@ const Visualize = (props) => {
 	}
 	async function fetchYillar(parametre) {
 		const yilOptions = [];
-        const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}`);
+        const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}`);
         data.forEach((yil) => yilOptions.push({ name: yil, value: yil }));
 		yilOptions.splice(0, 0, { name: "Hepsi", value: "all" });
 		setYillar(yilOptions)

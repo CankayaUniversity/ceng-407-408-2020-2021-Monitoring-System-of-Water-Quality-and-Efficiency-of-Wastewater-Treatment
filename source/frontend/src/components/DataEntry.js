@@ -5,6 +5,7 @@ import cellEditFactory from "react-bootstrap-table2-editor"
 import ToolkitProvider, { CSVExport } from "react-bootstrap-table2-toolkit"
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css"
 import axios from "axios"
+import axiosInstance from '../axios';
 import SelectSearch, { fuzzySearch } from "react-select-search"
 
 const defineLocationType = (locationType) => {
@@ -58,12 +59,12 @@ const DataEntry = (props) => {
 	useEffect(() => {
 		// change
 		async function fetchLocations() {
-			const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
+			const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
 			setBolgeAdlari(data)
 		}
 		async function fetchParameters() {
 			let parametreArray = []
-			const { data } = await axios.get(`http://127.0.0.1:8000/api/readingtypes/${locationType}`)
+			const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/readingtypes/${locationType}`)
 			data.map((parametre) => {
 				console.log(parametre)
 				parametreArray.push(parametre)
@@ -95,7 +96,7 @@ const DataEntry = (props) => {
 		fetchParameters()
 	}, [])
 	async function fetchYer(bolge_adi) {
-		const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`)
+		const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`)
 		setYerAdlari(data)
 	}
 	const BolgeOptions = []
@@ -243,7 +244,7 @@ const DataEntry = (props) => {
 
 	const veriGonder = () => {
 		setIsLoading(true)
-		axios
+		axiosInstance
 			.post("http://127.0.0.1:8000/api/veriGirisi", {
 				...parametreOptionsState,
 				bolge_adi: selectedBolge,

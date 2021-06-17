@@ -1,7 +1,8 @@
 from django.shortcuts import render
 
 from .serializers import *
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from . import referansAraliklari
@@ -65,6 +66,7 @@ class BlacklistTokenUpdateView(APIView):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def postVeriGirisi(request):
     insert_to_db = []
 
@@ -111,6 +113,7 @@ def postVeriGirisi(request):
     return Response()
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getRoutes(request):
     routes = [
         'api/locations/',
@@ -127,6 +130,7 @@ def getRoutes(request):
     return Response(routes)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificReadingTypes(request, tip):
     return Response(clearReadingTypes(tip))
 
@@ -144,6 +148,7 @@ def clearReadingTypes(tip):
     return cleantypes
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getLocations(request):
     locations = Location.objects.all()
     serialize = LocationSerializer(locations, many=True)
@@ -151,6 +156,7 @@ def getLocations(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getReading(request):
     pass
     # reading = Reading.objects.all()
@@ -159,12 +165,14 @@ def getReading(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getReadingTypes(request):
     readingType = ReadingType.objects.all()
     serialize = ReadingTypeSerializer(readingType, many=True)
     return Response(serialize.data)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificLocations(request, tip):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -174,6 +182,7 @@ def getSpecificLocations(request, tip):
     return Response(uniqueloc)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificYer(request, tip, bolge):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -183,6 +192,7 @@ def getSpecificYer(request, tip, bolge):
     return Response(uniqueloc)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificParameters(request, tip, bolge, yer):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -197,6 +207,7 @@ def getSpecificParameters(request, tip, bolge, yer):
     return Response(cleantypes)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificYears(request, tip, bolge, yer, parametre):
     if(parametre == "all"):
         locations = (
@@ -501,6 +512,7 @@ def allParametreYear(bolge, yer, parametre, yil):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificReading(request, bolge, yer, parametre, yil):
     reading = Reading.objects.all()
 
@@ -573,6 +585,7 @@ def allBetweenDates(bolge, yer, parametre, sdata):
     return jsnObject
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
     start = yil1 + "-01-01"
     end = yil2 + "-12-30"
@@ -602,6 +615,7 @@ import csv
 from django.http import HttpResponse
 from . import generate_csv
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getDataCSV(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')

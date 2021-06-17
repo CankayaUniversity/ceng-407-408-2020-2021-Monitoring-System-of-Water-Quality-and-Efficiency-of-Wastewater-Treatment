@@ -3,6 +3,7 @@ import LineGraph from "./LineGraph";
 import BarGraph from "./BarGraph";
 import { Row, Col, Card, Spinner,Container,Button, Popover, OverlayTrigger, Table as TablePopover} from "react-bootstrap";
 import axios from "axios";
+import axiosInstance from '../axios';
 import Table from './Table'
 import AllYears from "./AllYears";
 import domToPdf from 'dom-to-pdf';
@@ -34,7 +35,7 @@ const GraphContainer = (props) => {
       let yıllarArray = [];
       const queries4 = queries[4].length > 1 ? queries[4][0] +"/"+ queries[4][1] : queries[4][0]
       console.log(`http://127.0.0.1:8000/api/reading/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`);
-      const { data } = await axios.get(
+      const { data } = await axiosInstance.get(
         `http://127.0.0.1:8000/api/reading/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`
       ).catch(error => console.log(error));
       setData(data)
@@ -82,7 +83,7 @@ const GraphContainer = (props) => {
       <Popover.Content>
         <div style={{fontWeight: "bolder", letterSpacing: "1px"}}>Referans Aralığı</div>
         <hr></hr>
-        {referans.length > 0 ? (
+        {referans?.length > 0 ? (
           // referans.map((referansItem, index) =>
           //   (<div >
           //       <p>{`${index + 1}. Sınıf`} - {referansItem} <span style={{backgroundColor: getColor(index+1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
@@ -119,7 +120,7 @@ const GraphContainer = (props) => {
   }
   async function csvIndir (){
     const queries4 = queries[4].length > 1 ? queries[4][0] +"/"+ queries[4][1] : queries[4][0]
-    const { data } = await axios.get(
+    const { data } = await axiosInstance.get(
       `http://127.0.0.1:8000/api/csv/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`
     ).catch(error => console.log(error));
   }

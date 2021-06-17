@@ -3,11 +3,13 @@ import {Jumbotron,Container,Image,Row,Col} from 'react-bootstrap'
 import {ReactComponent as IconLogo} from '../../src/visualPageJumbotron.svg'
 import MapView from '../components/MapView'
 import axios from 'axios'
+import axiosInstance from '../axios'
 const VisualizeMainScreen = () => {
   const [locations, setLocations] = useState([])
   useEffect(() => {
     async function fetchLocations(){
-      const {data} = await axios.get(`http://127.0.0.1:8000/api/locations/`)
+      const {data} = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/`)
+      console.log(data)
       setLocations(data)
     }
     fetchLocations()
