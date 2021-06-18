@@ -14,13 +14,9 @@ urlpatterns = [
     path('api/reading/<str:bolge>/<str:yer>/<str:parametre>/<str:yil1>/<str:yil2>/',views.getSpecificReadingBetweenDates,name="specificreadingbetween"),
     path('api/readingtypes/',views.getReadingTypes,name="readingtypes"),
     path('api/readingtypes/<str:tip>',views.getSpecificReadingTypes,name="specificreadingtypes"),
-<<<<<<< Updated upstream
-    path('api/csv', views.getDataCSV, name="datacsv")
-=======
     path('api/csv', views.getDataCSV, name="datacsv"),
     path('api/prophet', views.getProphetResults, name="prophetforecasts"),
     path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"),
->>>>>>> Stashed changes
 ]
 
 VERI_YUKLE = False # Bu True ise veri sql'e yüklenmeye başlar, uzun sürebilir!!!
