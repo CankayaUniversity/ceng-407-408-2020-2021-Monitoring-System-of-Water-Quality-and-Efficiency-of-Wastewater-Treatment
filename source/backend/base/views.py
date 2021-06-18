@@ -392,7 +392,8 @@ def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
 
 import csv
 from django.http import HttpResponse
-from . import generate_csv
+from . import generate_csv, prophet
+
 @api_view(["GET"])
 def getDataCSV(request):
     # Create the HttpResponse object with the appropriate CSV header.
@@ -403,3 +404,7 @@ def getDataCSV(request):
     generate_csv.get_data(writer)
 
     return response
+
+@api_view(["GET"])
+def getProphetResults(request):
+    return Response(prophet.run_prophet())
