@@ -390,9 +390,9 @@ def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
 
 # TODO(ag)
 
-import csv
+import csv, io
 from django.http import HttpResponse
-from . import generate_csv
+from . import generate_csv, arima
 
 @api_view(["GET"])
 def getDataCSV(request):
@@ -404,3 +404,16 @@ def getDataCSV(request):
     generate_csv.get_data(writer)
 
     return response
+
+@api_view(["GET"])
+def getArimaResults(request, tip, bolge, yer, start, end):
+    assert (tip in ['Akarsu', 'Göl', 'Arıtma', 'Deniz']), ("tip param is wrong: " + tip)
+
+    fd = io.StringIO()
+    writer = csv.writer(fd)
+    generate_csv.get_data(writer)
+    fd.seek(0)
+
+    data_dict = arima.run_arima(fd, bolge, yer, tip, start_date = start, end_date = end)
+    fd.close()
+    return Response(data_dict)

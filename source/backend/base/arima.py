@@ -7,10 +7,10 @@ def arima_predict(df, start_date, end_date, col_name):
     
     forecast_new = model.predict(start = pd.to_datetime(start_date), dynamic = False)
     forecast_new = pd.DataFrame(forecast_new, index = pd.date_range(start = start_date, end = end_date, freq='M'), columns = [col_name])
-    
+
     return forecast_new
 
-def run_arima(fd, bolge, yer, tip, start_date = '2021-01', end_date = '2021-11'):
+def run_arima(fd, bolge, yer, tip, start_date, end_date):
     assert (tip in ['Akarsu', 'Göl', 'Arıtma', 'Deniz']), ("tip param is wrong: " + tip)
     
     df = pd.read_csv(fd, low_memory = False)
@@ -60,22 +60,6 @@ def run_arima(fd, bolge, yer, tip, start_date = '2021-01', end_date = '2021-11')
     return forecast_data
 
 """
-bolge = 'Foça'
-yer   = 'Foça Atıksu Arıtma Tesisi Çıkış'
-tip   = 'Arıtma'
-
-bolge = 'Fethiye-Göcek'
-yer   = 'DSİ Kanalının Denize Dökülmeden Önceki Noktası'
-tip   = 'Akarsu'
-
-bolge = 'Göksu Deltası'
-yer   = 'Paradeniz Hurma'
-tip   = 'Göl'
-
-bolge = 'Belek'
-yer   = 'Çolaklı-Kumköy Derin Deniz Deşarj Noktası'
-tip   = 'Deniz'
-
 import io, pprint
 
 pp = pprint.PrettyPrinter(indent = 4)
@@ -98,5 +82,11 @@ def read_from_file_and_return_as_stringio(filename):
     return fake_file
 
 
+Tested with:
 
+127.0.0.1:8000/api/arima/Akarsu/Fethiye-Göcek/DSİ Kanalının Denize Dökülmeden Önceki Noktası/2021-01/2021-11/
+127.0.0.1:8000/api/arima/Arıtma/Foça/Foça Atıksu Arıtma Tesisi Çıkış/2021-01/2021-11/
+127.0.0.1:8000/api/arima/Göl/Göksu Deltası/Paradeniz Hurma/2021-01/2021-11/
+127.0.0.1:8000/api/arima/Deniz/Belek/Çolaklı-Kumköy Derin Deniz Deşarj Noktası/2021-01/2021-11/
 """
+
