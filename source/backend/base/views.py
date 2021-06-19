@@ -652,7 +652,7 @@ def getDataCsvWithParams(request, bolge: str, yer: str, yil: int):
     return response
 
 @api_view(["GET"])
-def getArimaResults(request, tip, bolge, yer, start, end):
+def getArimaResults(request, tip, bolge, yer):
     assert (tip in ['Akarsu', 'Göl', 'Arıtma', 'Deniz']), ("tip param is wrong: " + tip)
 
     fd = io.StringIO()
@@ -660,6 +660,6 @@ def getArimaResults(request, tip, bolge, yer, start, end):
     generate_csv.get_data(writer)
     fd.seek(0)
 
-    data_dict = arima.run_arima(fd, bolge, yer, tip, start_date = start, end_date = end)
+    data_dict = arima.run_arima(fd, bolge, yer, tip)
     fd.close()
     return Response(data_dict)

@@ -1,16 +1,16 @@
 import pandas as pd
 from pmdarima import auto_arima
 
-def arima_predict(df, start_date, end_date, col_name):
-    model = auto_arima(df, trace=True, error_action='ignore', suppress_warnings=True)
+def arima_predict(df, col_name):
+    model = auto_arima(df, trace = False, error_action = 'ignore', suppress_warnings = True)
     model.fit(df)
     
-    forecast_new = model.predict(start = pd.to_datetime(start_date), dynamic = False)
-    forecast_new = pd.DataFrame(forecast_new, index = pd.date_range(start = start_date, end = end_date, freq='M'), columns = [col_name])
+    forecast_new = model.predict(dynamic = False) # start = pd.to_datetime(start_date),
+    forecast_new = pd.DataFrame(forecast_new, index = range(10), columns = [col_name]) # pd.date_range(start = start_date, end = end_date, freq='M')
 
     return forecast_new
 
-def run_arima(fd, bolge, yer, tip, start_date, end_date):
+def run_arima(fd, bolge, yer, tip):
     assert (tip in ['Akarsu', 'Göl', 'Arıtma', 'Deniz']), ("tip param is wrong: " + tip)
     
     df = pd.read_csv(fd, low_memory = False)
@@ -41,7 +41,7 @@ def run_arima(fd, bolge, yer, tip, start_date, end_date):
 
     forecast_arr = []
     for col in cols_to_use:
-        res = arima_predict(df[col], start_date, end_date, col)
+        res = arima_predict(df[col], col)
         forecast_arr.append(res)
 
     forecast_data = {}
@@ -51,22 +51,17 @@ def run_arima(fd, bolge, yer, tip, start_date, end_date):
         predictions = []
         for ap in arima_predictions:
             assert (len(ap) == 2), ("Corrupt ARIMA prediction")
-            timestring = ap[0].isoformat()
-            prediction_value = ap[1]
-            predictions.append((timestring, prediction_value))
 
-        forecast_data[cols_to_use[column_idx]] = predictions
+            prediction_value = ap[1]
+            predictions.append(prediction_value)
+
+        column_name = cols_to_use[column_idx].replace('_', ' ')
+        forecast_data[column_name] = predictions
 
     return forecast_data
 
 """
 import io, pprint
-
-pp = pprint.PrettyPrinter(indent = 4)
-
-fd = read_from_file_and_return_as_stringio('../database_export.csv')
-pp.pprint(run_arima(fd, bolge, yer, tip))
-fd.close()
 
 def read_from_file_and_return_as_stringio(filename):
     content = ""
@@ -82,11 +77,21 @@ def read_from_file_and_return_as_stringio(filename):
     return fake_file
 
 
-Tested with:
+pp = pprint.PrettyPrinter(indent = 4)
 
-127.0.0.1:8000/api/arima/Akarsu/Fethiye-Göcek/DSİ Kanalının Denize Dökülmeden Önceki Noktası/2021-01/2021-11/
-127.0.0.1:8000/api/arima/Arıtma/Foça/Foça Atıksu Arıtma Tesisi Çıkış/2021-01/2021-11/
-127.0.0.1:8000/api/arima/Göl/Göksu Deltası/Paradeniz Hurma/2021-01/2021-11/
-127.0.0.1:8000/api/arima/Deniz/Belek/Çolaklı-Kumköy Derin Deniz Deşarj Noktası/2021-01/2021-11/
+fd = read_from_file_and_return_as_stringio('../database_export.csv')
+bolge = "Fethiye-Göcek"
+yer   = "DSİ Kanalının Denize Dökülmeden Önceki Noktası"
+tip   = "Akarsu"
+
+pp.pprint(run_arima(fd, bolge, yer, tip))
+fd.close()
 """
 
+
+# Tested with:
+#
+# 127.0.0.1:8000/api/arima/Akarsu/Fethiye-Göcek/DSİ Kanalının Denize Dökülmeden Önceki Noktası/2021-01/2021-11/
+# 127.0.0.1:8000/api/arima/Arıtma/Foça/Foça Atıksu Arıtma Tesisi Çıkış/2021-01/2021-11/
+# 127.0.0.1:8000/api/arima/Göl/Göksu Deltası/Paradeniz Hurma/2021-01/2021-11/
+# 127.0.0.1:8000/api/arima/Deniz/Belek/Çolaklı-Kumköy Derin Deniz Deşarj Noktası/2021-01/2021-11/
