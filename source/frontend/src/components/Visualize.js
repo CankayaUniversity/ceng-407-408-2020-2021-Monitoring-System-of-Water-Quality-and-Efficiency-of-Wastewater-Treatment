@@ -52,14 +52,14 @@ const Visualize = (props) => {
         // change
 		async function fetchLocations() {
 			const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`);
-			setBolgeAdlari(data)
+			setBolgeAdlari(data.sort())
 		}
 		fetchLocations();
 	}, []);
     async function fetchYer(bolge_adi) {
         await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then(res =>
 			{
-				setYerAdlari(res.data)
+				setYerAdlari(res.data.sort())
 			}
 		)
 
@@ -70,14 +70,14 @@ const Visualize = (props) => {
 		data.map((parametre) => {
 			parametreArray.push(parametre);
 		});
-		setParametreler(parametreArray);
+		setParametreler(parametreArray.sort());
 	}
 	async function fetchYillar(parametre) {
 		const yilOptions = [];
         const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}`);
         data.forEach((yil) => yilOptions.push({ name: yil, value: yil }));
 		yilOptions.splice(0, 0, { name: "Hepsi", value: "all" });
-		setYillar(yilOptions)
+		setYillar(yilOptions.sort())
     }
 	const BolgeOptions = [];
 	const YerOptions = [];
@@ -170,7 +170,7 @@ const Visualize = (props) => {
 					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedParametre === "all" && selectedYil[0] === "all")}>
 						Bar
 					</Button>
-					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= { selectedYil[0] === "all" || !selectedBolge || !selectedParametre || !selectedYer || !selectedYil }>
+					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= { selectedYil[0] === "all" || !selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedYil?.length > 1) }>
 						Çizgi
 					</Button>
 					<OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Tooltip!</Tooltip>} show={false}>

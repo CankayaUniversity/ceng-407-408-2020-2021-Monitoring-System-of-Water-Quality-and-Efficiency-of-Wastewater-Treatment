@@ -60,7 +60,7 @@ const DataEntry = (props) => {
 		// change
 		async function fetchLocations() {
 			const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
-			setBolgeAdlari(data)
+			setBolgeAdlari(data.sort())
 		}
 		async function fetchParameters() {
 			let parametreArray = []
@@ -69,7 +69,7 @@ const DataEntry = (props) => {
 				console.log(parametre)
 				parametreArray.push(parametre)
 			})
-			setParametreler(parametreArray)
+			setParametreler(parametreArray.sort())
 			const parametreOptions = []
 
 			parametreArray.map((parametre) =>
@@ -97,7 +97,7 @@ const DataEntry = (props) => {
 	}, [])
 	async function fetchYer(bolge_adi) {
 		const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`)
-		setYerAdlari(data)
+		setYerAdlari(data.sort())
 	}
 	const BolgeOptions = []
 	const YerOptions = []
