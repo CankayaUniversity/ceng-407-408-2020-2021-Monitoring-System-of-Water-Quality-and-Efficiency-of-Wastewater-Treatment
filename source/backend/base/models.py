@@ -33,4 +33,4 @@ class Reading(models.Model):
     reading_string_value = models.TextField(null = True) # Bunlardan sadece biri null olabilir, üstüne düşünmek lazım
     date = models.DateField()
     def __str__(self):
-        return self.table_type
+        return str(self.table_type) + ' - ' + str(self.location.bolge_adi) + ' - ' + str(self.location.yer) + ' - ' + str(self.reading_type.name) + ' = ' + str(self.reading_value)

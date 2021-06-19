@@ -15,9 +15,10 @@ def reading_list_to_dict_list(readings_list):
     data = {}
     data_list = []
     for reading in readings_list:
+        # print(reading.unique_row_id, reading)
         if (reading.unique_row_id != row_id): # if (reading.location != loc or reading.date != date) or (date == None and loc == None):
             if data: # dict not empty
-                row_id += 1
+                row_id = reading.unique_row_id
                 if len(data.keys()) == 1 and "Table Type" in data.keys():
                     pass
                 else:
@@ -26,6 +27,7 @@ def reading_list_to_dict_list(readings_list):
                     data["Yer"]   = loc.yer
                     data["Year"]  = date.year
                     data["Month"] = date.month
+                    data["Table Type"] = reading.table_type
                     data_list.append(data)
 
             data = {}
@@ -48,6 +50,7 @@ def reading_list_to_dict_list(readings_list):
         data["Yer"]   = loc.yer
         data["Year"]  = date.year
         data["Month"] = date.month
+        data["Table Type"] = reading.table_type
         data_list.append(data)
     return data_list
 
@@ -80,6 +83,6 @@ def get_data(csv_writer):
 
 def get_data_with_params(csv_writer, bolge: str, yer: str, yil: int):
     orm_response = Reading.objects.select_related('location', 'reading_type').filter(location__bolge_adi = bolge, location__yer = yer, date__year = yil)
-    reading_list = reading_list_to_dict_list(list(orm_response)) # TODO(ag) Fix result of this.
+    reading_list = reading_list_to_dict_list(list(orm_response))
 
     dict_list_to_csv(reading_list, csv_writer)
