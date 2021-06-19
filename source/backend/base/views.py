@@ -22,6 +22,8 @@ def getRoutes(request):
         'api/reading/<str:bolge>/<str:yer>/<str:parametre>/<str:yil1>/<str:yil2>',
         'api/readingtypes/',
         'api/readingtypes/<str:tip>',
+        'api/csv/',
+        'api/arima/<str:tip>/<str:bolge>/<str:yer>/<str:start>/<str:end>/',
     ]
     return Response(routes)
 
@@ -395,13 +397,35 @@ from django.http import HttpResponse
 from . import generate_csv, arima
 
 @api_view(["GET"])
-def getDataCSV(request):
+def getDataCsv(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="database_export.csv"'
 
     writer = csv.writer(response)
     generate_csv.get_data(writer)
+
+    return response
+
+@api_view(["GET"])
+def getDataCsv(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="database_export.csv"'
+
+    writer = csv.writer(response)
+    generate_csv.get_data(writer)
+
+    return response
+
+@api_view(["GET"])
+def getDataCsvWithParams(request, bolge: str, yer: str, yil: int):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="database_export.csv"'
+
+    writer = csv.writer(response)
+    generate_csv.get_data_with_params(writer, bolge, yer, yil)
 
     return response
 

@@ -14,7 +14,8 @@ urlpatterns = [
     path('api/reading/<str:bolge>/<str:yer>/<str:parametre>/<str:yil1>/<str:yil2>/',views.getSpecificReadingBetweenDates,name="specificreadingbetween"),
     path('api/readingtypes/',views.getReadingTypes,name="readingtypes"),
     path('api/readingtypes/<str:tip>',views.getSpecificReadingTypes,name="specificreadingtypes"),
-    path('api/csv/', views.getDataCSV, name="datacsv"),
+    path('api/csv/', views.getDataCsv, name="datacsv"),
+    path('api/csv/<str:bolge>/<str:yer>/<int:yil>/', views.getDataCsvWithParams, name="datacsvparams"),
     path('api/arima/<str:tip>/<str:bolge>/<str:yer>/<str:start>/<str:end>/', views.getArimaResults, name="dataarima"),
     # path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"), # TODO merge the GUI branch!!!
 ]

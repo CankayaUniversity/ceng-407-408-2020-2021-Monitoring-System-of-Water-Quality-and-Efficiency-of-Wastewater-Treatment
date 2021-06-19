@@ -77,3 +77,9 @@ def get_data(csv_writer):
     reading_list = reading_list_to_dict_list(list(orm_response))
 
     dict_list_to_csv(reading_list, csv_writer)
+
+def get_data_with_params(csv_writer, bolge: str, yer: str, yil: int):
+    orm_response = Reading.objects.select_related('location', 'reading_type').filter(location__bolge_adi = bolge, location__yer = yer, date__year = yil)
+    reading_list = reading_list_to_dict_list(list(orm_response)) # TODO(ag) Fix result of this.
+
+    dict_list_to_csv(reading_list, csv_writer)
