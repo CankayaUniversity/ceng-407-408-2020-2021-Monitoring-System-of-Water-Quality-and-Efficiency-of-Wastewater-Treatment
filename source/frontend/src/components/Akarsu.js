@@ -3,6 +3,7 @@ import GraphContainer from "./GraphContainer";
 import bolgeler from  '../bolgeler'
 import {Row,Col,Container,ButtonGroup,Button} from 'react-bootstrap'
 import axios from 'axios'
+import axiosInstance from '../axios'
 import SelectSearch from 'react-select-search'
 const Akarsu = (props) => {
   let locationType = "Akarsu"
@@ -23,7 +24,7 @@ const Akarsu = (props) => {
     async function fetchLocations(){
       let bolgearray = []
       let yerArray = []
-      const {data} = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
+      const {data} = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
       setLocations(data)
       data.map( bolge => {
         bolgearray.push(bolge[0]);
@@ -38,7 +39,7 @@ const Akarsu = (props) => {
     }
     async function fetchParameters(){
       let parametreArray = []
-      const {data} = await axios.get('http://127.0.0.1:8000/api/readingtypes/')
+      const {data} = await axiosInstance.get('http://127.0.0.1:8000/api/readingtypes/')
       
       data.map( parametre => {
         parametreArray.push(parametre.name);

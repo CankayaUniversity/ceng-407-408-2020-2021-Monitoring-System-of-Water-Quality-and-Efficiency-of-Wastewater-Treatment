@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import GraphContainer from "./GraphContainer";
 import { Row, Col, Container, ButtonGroup, Button, Spinner, Overlay, OverlayTrigger, Tooltip} from "react-bootstrap";
 import axios from "axios";
+import axiosInstance from '../axios';
 import SelectSearch, { fuzzySearch } from "react-select-search";
 import ReactToPdf from "react-to-pdf";
 import { FloatingButton, Item } from "react-floating-button";
@@ -36,56 +37,59 @@ const Visualize = (props) => {
 	const [parametreler, setParametreler] = useState([]);
 	const [yillar, setYillar] = useState([]);
 	//-----------------
-	const [selectedBolge, setSelectedBolge] = useState();
-	const [selectedYer, setSelectedYer] = useState();
-	const [selectedParametre, setSelectedParametre] = useState();
-	const [selectedYil, setSelectedYil] = useState();
+	const [selectedBolge, setSelectedBolge] = useState(false);
+	const [selectedYer, setSelectedYer] = useState(false);
+	const [selectedParametre, setSelectedParametre] = useState(false);
+	const [selectedYil, setSelectedYil] = useState(false);
 
 	const [queryInfo, setQueryInfo] = useState([]);
 	const [show, setShow] = useState(false);
   	const target = useRef(null);
-	
+
 	const [isDisabled, setisDisabled] = useState(false)
 	const ref = React.createRef();
 	useEffect(() => {
         // change
 		async function fetchLocations() {
-			const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}`);
-			setBolgeAdlari(data)
-		}
-		async function fetchParameters() {
-			let parametreArray = [];
-			const { data } = await axios.get(`http://127.0.0.1:8000/api/readingtypes/${locationType}`);
-			data.map((parametre) => {
-				parametreArray.push(parametre);
-			});
-			setParametreler(parametreArray);
+			const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`);
+			setBolgeAdlari(data.sort())
 		}
 		fetchLocations();
-		fetchParameters();
 	}, []);
     async function fetchYer(bolge_adi) {
-        const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`);
-        setYerAdlari(data)
+        await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then(res =>
+			{
+				setYerAdlari(res.data.sort())
+			}
+		)
+
     }
+	async function fetchParameters(yer) {
+		let parametreArray = [];
+		const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}`);
+		data.map((parametre) => {
+			parametreArray.push(parametre);
+		});
+		setParametreler(parametreArray.sort());
+	}
 	async function fetchYillar(parametre) {
 		const yilOptions = [];
-        const { data } = await axios.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}`);
+        const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}`);
         data.forEach((yil) => yilOptions.push({ name: yil, value: yil }));
 		yilOptions.splice(0, 0, { name: "Hepsi", value: "all" });
-		setYillar(yilOptions)
+		setYillar(yilOptions.sort())
     }
 	const BolgeOptions = [];
 	const YerOptions = [];
 	const parametreOptions = [];
-	
-	
+
+
 	bolgeAdlari.map((bolge) => BolgeOptions.push({ name: bolge, value: bolge }));
 	yerAdlari.map((yer) => YerOptions.push({ name: yer, value: yer }));
 	parametreler.map((parametre) => parametreOptions.push({ name: parametre, value: parametre }));
 	parametreOptions.splice(0, 0, { name: "Hepsi", value: "all" });
-	
-	
+
+
 
 	const showInfo = (chartType) => {
 		let temparray = [chartType, selectedBolge, selectedYer, selectedParametre, selectedYil];
@@ -114,7 +118,7 @@ const Visualize = (props) => {
 							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
 							placeholder="Yer"
 							filterOptions={fuzzySearch}
-							onChange={(e) => setSelectedYer(e)}
+							onChange={(e) => {setSelectedYer(e); fetchParameters(e);}}
 						/>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
@@ -163,10 +167,10 @@ const Visualize = (props) => {
 			</Container>
 			<Row className={"button-container"}>
 				<ButtonGroup aria-label="Basic example">
-					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }}>
+					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedParametre === "all" && selectedYil[0] === "all")}>
 						Bar
 					</Button>
-					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }}>
+					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= { selectedYil[0] === "all" || !selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedYil?.length > 1) }>
 						Çizgi
 					</Button>
 					<OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Tooltip!</Tooltip>} show={false}>
@@ -180,8 +184,8 @@ const Visualize = (props) => {
 			</Row>
 
 			<Container  fluid={queryInfo[0] === "Tablo"} className="graph-container">{queryInfo.length !== 0 ? <GraphContainer  queries={queryInfo} /> : null}</Container>
-			
-			
+
+
 		</>
 	);
 };

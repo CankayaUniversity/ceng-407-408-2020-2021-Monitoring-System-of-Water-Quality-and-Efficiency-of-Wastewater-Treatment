@@ -1,5 +1,5 @@
 import React from 'react'
-import {Table as CustomTable} from 'react-bootstrap'
+import {Table as CustomTable, Button} from 'react-bootstrap'
 
 const Table = (props) => {
   const { queries, data} = props
@@ -22,6 +22,7 @@ const Table = (props) => {
  })
  */
     return (
+      
         
             <CustomTable responsive  bordered hover size="sm" >
   <thead>
@@ -77,7 +78,6 @@ const Table = (props) => {
    
   </tbody>
 </CustomTable>
-        
     )
 }
 

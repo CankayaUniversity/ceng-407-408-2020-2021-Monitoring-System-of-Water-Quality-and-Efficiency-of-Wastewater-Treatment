@@ -11,6 +11,10 @@ class ReadingType(models.Model):
 
     def __str__(self):
         return self.name
+        
+    class Meta:
+        verbose_name = 'Parametre'
+        verbose_name_plural = 'Parametreler'
 
 class Location(models.Model):
     bolge_adi = models.CharField(max_length = 128)
@@ -21,6 +25,10 @@ class Location(models.Model):
     
     def __str__(self):
         return str(self.bolge_adi + ' - ' + self.yer)
+
+    class Meta:
+        verbose_name = 'Bölge'
+        verbose_name_plural = 'Bölgeler'
     
 class Reading(models.Model):
     reading_type = models.ForeignKey(ReadingType, on_delete = models.DO_NOTHING)
@@ -33,4 +41,8 @@ class Reading(models.Model):
     reading_string_value = models.TextField(null = True) # Bunlardan sadece biri null olabilir, üstüne düşünmek lazım
     date = models.DateField()
     def __str__(self):
-        return str(self.table_type) + ' - ' + str(self.location.bolge_adi) + ' - ' + str(self.location.yer) + ' - ' + str(self.reading_type.name) + ' = ' + str(self.reading_value)
+        return str(str(self.location) + ': ' + str(self.reading_type) + ' - ' + str(self.date))
+        
+    class Meta:
+        verbose_name = 'Değer'
+        verbose_name_plural = 'Değerler'

@@ -1,16 +1,16 @@
 import React,{useState,useEffect} from 'react'
 import {Line} from "react-chartjs-2";
 
-const LineGraph = ({data,label,unit,color,months, is_all,yillar}) => {
+const LineGraph = ({id, data,label,unit,color,months, is_all,yillar}) => {
     const [chartData,setChartData] = useState({})
     const chart =  ()=>{
-       
+
         setChartData({
             labels: convertMonths(months),
             datasets: [
               {
                 label: label +" - "+ unit,
-                data:  data.map( item => item == 0 ? null : item),
+                data:  data,
                 fill: false,
                 backgroundColor:  "rgba(103, 155, 163, 1)",
                 borderColor: 'rgba(50, 150, 250, 0.8)',
@@ -19,8 +19,8 @@ const LineGraph = ({data,label,unit,color,months, is_all,yillar}) => {
         })
 
     }
-    
-    
+
+
     useEffect(()=>{
         chart()
 
@@ -74,7 +74,7 @@ const LineGraph = ({data,label,unit,color,months, is_all,yillar}) => {
     }
     return (
         <>
-              <Line data={chartData}
+              <Line id={id} data={chartData}
                           options={{
                               maintainAspectRatio: false,
                               scales: {
@@ -90,7 +90,7 @@ const LineGraph = ({data,label,unit,color,months, is_all,yillar}) => {
                                           fontSize: 18
                                       },
                                       ticks:{
-                                         
+
                                           stepSize: 5
                                       }
 
@@ -102,20 +102,22 @@ const LineGraph = ({data,label,unit,color,months, is_all,yillar}) => {
                                       ticks:{
                                         fontSize:14
                                     },
-                                    
+
                                   }],
                                   yAxes: [{
                                     gridLines: {
                                         display: true
                                     } ,
                                     ticks:{
+                                      min: Math.min(...data) - Math.min(...data) * 0.2,
+                                      max:Math.max(...data) + Math.max(...data) * 0.2,
                                       fontSize:14
                                   },
-                                  
+
                                 }]
                               },
-                              
-                                    
+
+
 
                           }}/>
         </>

@@ -13,6 +13,7 @@ django-filter==2.4.0
 django-js-asset==1.2.2
 django-tailwind==1.0.0
 djangorestframework==3.12.2
+djangorestframework-simplejwt==4.6.0
 filelock==3.0.12
 Flask==1.1.2
 idna==2.10
@@ -21,6 +22,7 @@ itsdangerous==1.1.0
 itypes==1.2.0
 Jinja2==2.11.2
 MarkupSafe==1.1.1
+PyJWT==2.1.0
 pytz==2020.4
 ruamel.yaml==0.16.13
 ruamel.yaml.clib==0.2.2

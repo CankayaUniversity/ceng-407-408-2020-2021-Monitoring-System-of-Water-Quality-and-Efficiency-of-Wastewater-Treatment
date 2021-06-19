@@ -1,15 +1,119 @@
 from django.shortcuts import render
 
 from .serializers import *
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from django.contrib.auth import authenticate, login, logout
+from . import referansAraliklari
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
+from rest_framework import status
+from rest_framework.views import APIView
 
 # Create your views here.
 
-# #75C7CD #72CDBC #FADFAF #FAA4AC
-# #8BE7FF #95FA97 #FADEA8 #FA6464 (#FA7F7D)
+class LoginView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+class BlacklistTokenUpdateView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = ()
+
+    def post(self, request):
+        print("req :", request)
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# def is_decision_maker(user):
+#     if user.groups.filter(name= "veriGorsellestirici").exists():
+#         return True
+#     if user.groups.filter(name = "veriGirisci").exists():
+#         return False
+
+# @api_view(["POST"])
+# def handleLogin(request):
+#     username = request.data["username"]
+#     password = request.data["password"]
+
+#     user = authenticate(request, username = username, password = password)
+#     if user is not None:
+#         login(request, user)
+#         if is_decision_maker(user):
+#             veri = {
+#                 "username": username,
+#                 "group": "veriGorsellestirici"
+#             }
+#             return Response(data=veri)
+#         else:
+#             veri = {
+#                 "username": username,
+#                 "group": "veriGirisci"
+#             }
+#             return Response(data=veri)
+#     else:
+#         print("basarisiz")
+#     return Response()
+
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def postVeriGirisi(request):
+    insert_to_db = []
+
+    # get parameters
+    readingTypeArray = clearReadingTypes(request.data["table_type"])
+
+    # find the number of parameters
+    iler = []
+    j=0
+    for r in readingTypeArray:
+        iler.append(str(j))
+        j += 1
+
+    aylar = [["ocak","-01-01"], ["subat", "-02-01"], ["mart","-03-01"], ["nisan", "-04-01"], ["mayis", "-05-01"], ["haziran", "-06-01"], ["temmuz", "-07-01"], ["agustos", "-08-01"], ["eylul", "-09-01"], ["ekim", "-10-01"], ["kasim", "-11-01"], ["aralik", "-12-01"]]
+    
+    #find max unique_row_id
+    unique_row_ids = Reading.objects.values_list("unique_row_id",flat=True)
+    max_row_id = 0
+    for id in unique_row_ids:
+        if (id > max_row_id):
+            max_row_id = id
+
+    # save data
+    lc = Location.objects.get(bolge_adi= request.data["bolge_adi"],yer= request.data["yer"])
+    for ay in aylar:
+        dateValue = request.data["date"] + ay[1]
+        for i in iler:
+            rt = ReadingType.objects.get(name= request.data[i]["id"])
+            if request.data[i][ay[0]] != None:
+                if request.data[i][ay[0]] == "":
+                    request.data[i][ay[0]] = None
+                elif request.data[i][ay[0]][0] == "<":
+                    num = float(request.data[i][ay[0]][1:])
+                    request.data[i][ay[0]] = num - num * 0.01
+                elif request.data[i][ay[0]][0] == ">":
+                    num = float(request.data[i][ay[0]][1:])
+                    request.data[i][ay[0]] = num + num * 0.01
+
+            r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
+            insert_to_db.append(r)
+        max_row_id += 1
+
+    Reading.objects.bulk_create(insert_to_db)
+    return Response()
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getRoutes(request):
     routes = [
         'api/locations/',
@@ -28,6 +132,7 @@ def getRoutes(request):
     return Response(routes)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificReadingTypes(request, tip):
     return Response(clearReadingTypes(tip))
 
@@ -45,6 +150,7 @@ def clearReadingTypes(tip):
     return cleantypes
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getLocations(request):
     locations = Location.objects.all()
     serialize = LocationSerializer(locations, many=True)
@@ -52,6 +158,7 @@ def getLocations(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getReading(request):
     pass
     # reading = Reading.objects.all()
@@ -60,12 +167,14 @@ def getReading(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getReadingTypes(request):
     readingType = ReadingType.objects.all()
     serialize = ReadingTypeSerializer(readingType, many=True)
     return Response(serialize.data)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificLocations(request, tip):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -75,6 +184,7 @@ def getSpecificLocations(request, tip):
     return Response(uniqueloc)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificYer(request, tip, bolge):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -84,6 +194,7 @@ def getSpecificYer(request, tip, bolge):
     return Response(uniqueloc)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificParameters(request, tip, bolge, yer):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -98,6 +209,7 @@ def getSpecificParameters(request, tip, bolge, yer):
     return Response(cleantypes)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificYears(request, tip, bolge, yer, parametre):
     if(parametre == "all"):
         locations = (
@@ -138,21 +250,121 @@ def fillEmptyData(data,date):
                 filledDate.append(date[k])
                 k += 1
             else:
-                filledReading.append(0)
+                filledReading.append(None)
                 dataValue = splittedDate[0] + "-" + months[i] + "-" + splittedDate[2]
                 filledDate.append(dataValue)
         elif k>0:
-            filledReading.append(0)
+            filledReading.append(None)
             dataValue = splittedDate[0] + "-" + months[i] + "-" + splittedDate[2]
             filledDate.append(dataValue)
         else:
-            filledReading.append(0)
+            filledReading.append(None)
             filledDate.append(months[i])
     filledData = []
     filledData.append(filledReading)
     filledData.append(filledDate)
 
     return filledData
+
+def getReferenceAndColors(data, table_type, parametre):
+    referenceAndColors = []
+    referans = []
+    colors = []
+    print(parametre)
+    if table_type == "Akarsu":
+        for aralik in referansAraliklari.akarsuAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data[0]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    elif table_type == "Deniz":
+        for aralik in referansAraliklari.denizAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data[0]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    elif table_type == "Göl":
+        for aralik in referansAraliklari.gölAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data[0]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    elif table_type == "Arıtma":
+        for aralik in referansAraliklari.arıtmaAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data[0]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    else:
+        return None
+
+    if referans == None:
+        referenceAndColors.append(None)
+    else:
+        referenceAndColors.append(referans[0])
+
+    referenceAndColors.append(colors)
+
+    return referenceAndColors
+
+
+
 
 def JsonVeri(bolge, yer, parametre, yil):
     reading = Reading.objects.select_related("reading_type", "location").filter(
@@ -162,19 +374,19 @@ def JsonVeri(bolge, yer, parametre, yil):
         date__contains=yil,
     )
     serialize = TemizSerializer(reading, many=True)
-    
+
     if len(serialize.data) == 0:
         jsonObject = {
             "location": {
                 "numune_adi": "error",
                 "bolge_adi": bolge,
                 "yer": yer,
-                "utm_x": "error",
-                "utm_y": "error",
+                "dd_north": "error",
+                "dd_east": "error",
             },
             "reading_type": {"name": parametre},
             "table_type": "error",
-            "reading_value": [0,0,0,0,0,0,0,0,0,0,0,0],
+            "reading_value": [None,None,None,None,None,None,None,None,None,None,None,None],
             "date": [yil+"01-01", yil+"02-01", yil+"03-01", yil+"04-01", yil+"05-01", yil+"06-01", yil+"07-01", yil+"08-01", yil+"09-01", yil+"010-01", yil+"11-01", yil+"12-01", ],
         }
         return jsonObject
@@ -185,20 +397,23 @@ def JsonVeri(bolge, yer, parametre, yil):
         dateValues.append(item["date"])
 
     filledData = fillEmptyData(readingValues, dateValues)
+    referenceAndColors = getReferenceAndColors(filledData, serialize.data[0]["table_type"], serialize.data[0]["reading_type"]["name"])
     jsonObject = {
         "location": {
             "numune_adi": serialize.data[0]["location"]["numune_adi"],
             "bolge_adi": serialize.data[0]["location"]["bolge_adi"],
             "yer": serialize.data[0]["location"]["yer"],
-            "utm_x": serialize.data[0]["location"]["utm_x"],
-            "utm_y": serialize.data[0]["location"]["utm_y"],
+            "dd_north": serialize.data[0]["location"]["dd_north"],
+            "dd_east": serialize.data[0]["location"]["dd_east"],
         },
         "reading_type": {"name": serialize.data[0]["reading_type"]["name"]},
         "table_type": serialize.data[0]["table_type"],
         "reading_value": filledData[0],
         "date": filledData[1],
+        "referans": referenceAndColors[0],
+        "colors": referenceAndColors[1],
     }
-
+    print("done")
     return jsonObject
 
 def allParametre(bolge, yer, parametre, yil):
@@ -254,8 +469,8 @@ def allYear(bolge, yer, parametre, yil):
             "numune_adi": serialize.data[0]["location"]["numune_adi"],
             "bolge_adi": serialize.data[0]["location"]["bolge_adi"],
             "yer": serialize.data[0]["location"]["yer"],
-            "utm_x": serialize.data[0]["location"]["utm_x"],
-            "utm_y": serialize.data[0]["location"]["utm_y"],
+            "dd_north": serialize.data[0]["location"]["dd_north"],
+            "dd_east": serialize.data[0]["location"]["dd_east"],
         },
         "reading_type": {"name": serialize.data[0]["reading_type"]["name"]},
         "table_type": serialize.data[0]["table_type"],
@@ -273,7 +488,9 @@ def allYear(bolge, yer, parametre, yil):
             "Kasım": monthValues[10],
             "Aralık": monthValues[11],
         },
-        "date": dateValues
+        "date": dateValues,
+        "referans": jsn[0]['referans'],
+        # "colors": referenceAndColors[1],
     }
     return jsnObject
 
@@ -297,6 +514,7 @@ def allParametreYear(bolge, yer, parametre, yil):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificReading(request, bolge, yer, parametre, yil):
     reading = Reading.objects.all()
 
@@ -343,8 +561,8 @@ def allBetweenDates(bolge, yer, parametre, sdata):
             "numune_adi": sdata[0]["location"]["numune_adi"],
             "bolge_adi": sdata[0]["location"]["bolge_adi"],
             "yer": sdata[0]["location"]["yer"],
-            "utm_x": sdata[0]["location"]["utm_x"],
-            "utm_y": sdata[0]["location"]["utm_y"],
+            "dd_north": sdata[0]["location"]["dd_north"],
+            "dd_east": sdata[0]["location"]["dd_east"],
         },
         "reading_type": {"name": parametre},
         "table_type": sdata[0]["table_type"],
@@ -362,11 +580,14 @@ def allBetweenDates(bolge, yer, parametre, sdata):
             "Kasım": monthValues[10],
             "Aralık": monthValues[11],
         },
-        "date": dateValues
+        "date": dateValues,
+        "referans": jsn[0]['referans'],
+        # "colors": referenceAndColors[1],
     }
     return jsnObject
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
     start = yil1 + "-01-01"
     end = yil2 + "-12-30"
@@ -397,7 +618,8 @@ from django.http import HttpResponse
 from . import generate_csv, arima
 
 @api_view(["GET"])
-def getDataCsv(request):
+@permission_classes([IsAuthenticated])
+def getDataCSV(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="database_export.csv"'

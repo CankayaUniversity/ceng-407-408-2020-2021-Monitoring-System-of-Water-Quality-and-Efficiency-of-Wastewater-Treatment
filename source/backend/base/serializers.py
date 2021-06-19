@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Location, Reading, ReadingType
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,3 +46,12 @@ class SpecificDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reading
         fields = ['date']
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self,attr):
+        data = super().validate(attr)
+        if self.user.groups.filter(name= "veriGorsellestirici").exists():
+            data['group'] = "veriGorsellestirici"
+        if self.user.groups.filter(name = "veriGirisci").exists():
+            data['group'] = "veriGirisci"
+        return data
