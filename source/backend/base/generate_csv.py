@@ -60,7 +60,7 @@ def dict_list_to_csv(dict_list, csv_writer):
         count += 1
 
         # TODO(ag) for debugging, delete this later
-        # if count > 500:
+        # if count > 100:
         #     break
 
         for name in reading_type_names:

@@ -10,6 +10,8 @@ See the [wiki](https://github.com/CankayaUniversity/ceng-407-408-2020-2021-Monit
 
 ## Installing and Running the Project
 
+**IMPORTANT NOTE:** In this branch, the external libraries we use (`Prophet` and `Pystan`) require `Debian 11` or `Ubuntu 20.04` as officially supported operating systems. The instructions below don't have this disclaimer since everything other than these two libraries should work on all operating systems. So, if you're working on this branch, you need to run Ubuntu for development.
+
 ### For development
 Since we're planning to distribute the software as a single Docker Image, the instructions below are only needed during development.
 

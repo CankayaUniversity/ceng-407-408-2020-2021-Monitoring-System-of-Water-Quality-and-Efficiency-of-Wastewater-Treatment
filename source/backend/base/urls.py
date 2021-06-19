@@ -16,7 +16,7 @@ urlpatterns = [
     path('api/readingtypes/<str:tip>',views.getSpecificReadingTypes,name="specificreadingtypes"),
     path('api/csv', views.getDataCSV, name="datacsv"),
     path('api/prophet', views.getProphetResults, name="prophetforecasts"),
-    path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"),
+    # path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"),
 ]
 
 VERI_YUKLE = False # Bu True ise veri sql'e yüklenmeye başlar, uzun sürebilir!!!

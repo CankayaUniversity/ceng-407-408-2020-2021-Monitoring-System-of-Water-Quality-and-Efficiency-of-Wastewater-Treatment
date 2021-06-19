@@ -1,16 +1,19 @@
 import numpy as np
 import pandas as pd
-from fbprophet import Prophet
+from prophet import Prophet
 import io
 from . import generate_csv
+import csv
 
 def run_prophet(bolge = 'Foça', yer = 'Foça Atıksu Arıtma Tesisi Çıkış', tip = 'Arıtma'): # TODO
     # Get latest data as CSV
-    fd = io.StringIO
+    fd = io.StringIO()
     writer = csv.writer(fd)
     generate_csv.get_data(writer)
+    fd.seek(0)
 
     # Read df and split
+    # print("fd is:", fd.getvalue())
     df = pd.read_csv(fd, low_memory = False)
     df.columns = [c.replace(' ', '_') for c in df.columns]
     df.index = pd.to_datetime(df.index, yearfirst = True)
