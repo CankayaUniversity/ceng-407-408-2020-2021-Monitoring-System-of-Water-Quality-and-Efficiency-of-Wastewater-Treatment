@@ -15,8 +15,7 @@ urlpatterns = [
     path('api/readingtypes/',views.getReadingTypes,name="readingtypes"),
     path('api/readingtypes/<str:tip>',views.getSpecificReadingTypes,name="specificreadingtypes"),
     path('api/csv', views.getDataCSV, name="datacsv"),
-    path('api/prophet', views.getProphetResults, name="prophetforecasts"),
-    path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"),
+    # path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"), # TODO merge the GUI branch!!!
 ]
 
 VERI_YUKLE = False # Bu True ise veri sql'e yüklenmeye başlar, uzun sürebilir!!!
