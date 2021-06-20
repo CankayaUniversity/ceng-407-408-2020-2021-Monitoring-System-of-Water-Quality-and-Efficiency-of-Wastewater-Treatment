@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect,useState, useRef } from "react";
 import LineGraph from "./LineGraph";
 import BarGraph from "./BarGraph";
 import { Row, Col, Card, Spinner,Container,Button, Popover, OverlayTrigger, Table as TablePopover} from "react-bootstrap";
@@ -33,7 +33,8 @@ const GraphContainer = (props) => {
   const [errorMessage, setErrorMessage] = useState("")
 
   const [csvData,setCsvData] = useState("")
-  const csvLink = React.createRef()
+  const csvLink = useRef()
+  
 
   useEffect(() => {
     setIsParameterAll(queries[3] === "all")
@@ -127,7 +128,7 @@ const GraphContainer = (props) => {
     const queries4 = queries[4].length > 1 ? queries[4][0] +"/"+ queries[4][1] : queries[4][0]
      await axiosInstance.get(
       `http://127.0.0.1:8000/api/csv/${queries[1]}/${queries[2]}/${queries4}/`
-    ).then(res => setCsvData(res.data)).then(() => csvLink.current.link.click()).catch( error => alert(error))
+    ).then(res => setCsvData(res.data)).then(() => csvLink?.current?.link.click()).catch( error => alert(error))
   }
   async function getTahminiVeri(){
     setiIsTahminiLoading(true)
@@ -246,7 +247,6 @@ const GraphContainer = (props) => {
 
                    }
                     <Col sm={12} md={12} lg={12} xl={12}  style={{marginBottom:"2rem"}}>
-                    <Button onClick={saveCanvas} variant="outline-info">Grafiği indir</Button>
                    {queries[0] == "Tablo" ? (
                     <>
                       <Button style={{marginLeft:"1rem"}} onClick={csvIndir} variant="outline-info">CSV İndir</Button>
@@ -258,7 +258,9 @@ const GraphContainer = (props) => {
                         target="_blank" 
                       />
                     </>
-                   ) : ""}
+                   ) : (
+                    <Button onClick={saveCanvas} variant="outline-info">Grafiği indir</Button>
+                   )}
                     </Col>
              </Col>
          }
