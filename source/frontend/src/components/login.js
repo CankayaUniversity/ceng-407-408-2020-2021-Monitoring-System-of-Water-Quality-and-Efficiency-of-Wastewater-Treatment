@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import axios from "axios"
 import axiosInstance from '../axios';
 import { Redirect, useHistory } from "react-router-dom"
-import { Container, Button, Form, Card, CardImg } from "react-bootstrap"
+import { Container, Button, Form, Card, Alert } from "react-bootstrap"
 import App from "../App"
 import ReactLogo from '../logo.svg';
 
@@ -16,6 +16,7 @@ export default function Login() {
 	})
 
 	const [formData, updateFormData] = useState(initialFormData)
+	const [alert, setAlert] = useState("")
 
 	const handleChange = (e) => {
 		updateFormData({
@@ -25,22 +26,7 @@ export default function Login() {
 	}
 
 	const handleSubmit = (e) => {
-		e.preventDefault()
-		// console.log(formData)
-
-		// axios
-		// 	.post("http://127.0.0.1:8000/api/login", {
-		// 		username: formData.username,
-		// 		password: formData.password,
-		// 	})
-		// 	.then(function (response) {
-		// 		console.log(response)
-		// 		setIsLogged(true)
-		// 		setResponseData(response.data)
-		// 	})
-		// 	.catch(function (error) {
-		// 		console.log(error)
-		// 	})
+		e.preventDefault()	
 		axiosInstance
 			.post(`login/`, {
 				username: formData.username,
@@ -57,7 +43,7 @@ export default function Login() {
 				history.push("/");
 				//console.log(res);
 				//console.log(res.data);
-			});
+			}).catch(error => setAlert("Hatalı giriş."));
 	}
 
 	return isLogged ? (
@@ -72,18 +58,19 @@ export default function Login() {
 					<Card.Img variant="top" src={ReactLogo} />
 					<Card.Body>
 						<Form>
-							<Form.Group controlId="formBasicEmail">
+							<Form.Group controlId="formBasicEmail" >
 								<Form.Label style={{fontWeight:"bold"}}>Kullanıcı Adı</Form.Label>
-								<Form.Control type="username" name="username" placeholder="Kullanıcı Adı" onChange={handleChange} />
+								<Form.Control style={{border:"1px solid rgba(0,0,0,0.2)",borderRadius:"4px"}} isInvalid={alert} type="username" name="username" placeholder="Kullanıcı Adı" onChange={handleChange} error/>
 							</Form.Group>
 
 							<Form.Group controlId="formBasicPassword">
 								<Form.Label style={{fontWeight:"bold"}}>Şifre</Form.Label>
-								<Form.Control type="password" name="password" placeholder="Şifre" onChange={handleChange} />
+								<Form.Control style={{border:"1px solid rgba(0,0,0,0.2)", borderRadius:"4px"}} as="input" isInvalid={alert} type="password" name="password" placeholder="Şifre" onChange={handleChange} />
 							</Form.Group>
-							<Button variant="outline-info" type="submit" onClick={handleSubmit} block style={{textTransform:"none",fontSize:"1rem"}}>
+							<Button variant={`${alert ? "outline-danger" : "outline-info"}`} type="submit" onClick={handleSubmit} block style={{fontWeight:"semi-bold",textTransform:"none",fontSize:"1rem",border:"2px solid rgba(0,0,0,0.2)", borderRadius:"4px"}}>
 								Giriş Yap
 							</Button>
+
 						</Form>
 					</Card.Body>
 				</Card>
