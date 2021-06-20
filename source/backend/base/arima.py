@@ -19,6 +19,8 @@ def run_arima(fd, bolge, yer, tip):
     df = df.set_index('Tarih')
     df.index = pd.to_datetime(df.index, yearfirst = True)
 
+    
+
     df = df.loc[df['Table_Type'] == tip]
     df = df.loc[df['Yer'] == yer]
     df = df.loc[df['Bölge_Adı'] == bolge]
@@ -26,6 +28,7 @@ def run_arima(fd, bolge, yer, tip):
     cols_to_use = []
 
     if (tip == 'Akarsu'):
+
         cols_to_use = ['Fekal_Koliform', 'Toplam_Koliform', 'Toplam_Fosfor', 'Toplam_Kjeldahl_Azotu', 'Kimyasal_Oksijen_İhtiyacı', 'Nitrat_Azotu', 'Çözünmüş_Oksijen']
 
     elif (tip == 'Göl'):
@@ -39,6 +42,13 @@ def run_arima(fd, bolge, yer, tip):
 
     df = df[cols_to_use].dropna()
 
+    new_akarsu = df.copy()
+    for i in cols_to_use:
+        index = new_akarsu[(new_akarsu[i] < new_akarsu[i].quantile(0.005))| (new_akarsu[i] > new_akarsu[i].quantile(0.99))].index
+        new_akarsu.drop(index, inplace = True)
+
+    df = new_akarsu.copy()
+    
     forecast_arr = []
     for col in cols_to_use:
         res = arima_predict(df[col], col)
