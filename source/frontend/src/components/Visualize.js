@@ -183,7 +183,7 @@ const Visualize = (props) => {
 				</ButtonGroup>
 			</Row>
 
-			<Container  fluid={queryInfo[0] === "Tablo"} className="graph-container">{queryInfo.length !== 0 ? <GraphContainer  queries={queryInfo} /> : null}</Container>
+			<Container  fluid={queryInfo[0] === "Tablo"} className="graph-container">{queryInfo.length !== 0 ? <GraphContainer  queries={queryInfo} locationType={locationType} /> : null}</Container>
 
 
 		</>

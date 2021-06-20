@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.views import APIView
+import json
 
 # Create your views here.
 
@@ -66,7 +67,7 @@ class BlacklistTokenUpdateView(APIView):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def postVeriGirisi(request):
     insert_to_db = []
 
@@ -105,15 +106,15 @@ def postVeriGirisi(request):
                     num = float(request.data[i][ay[0]][1:])
                     request.data[i][ay[0]] = num + num * 0.01
 
-            r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
-            insert_to_db.append(r)
+                r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
+                insert_to_db.append(r)
         max_row_id += 1
 
     Reading.objects.bulk_create(insert_to_db)
     return Response()
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getRoutes(request):
     routes = [
         'api/locations/',
@@ -132,7 +133,7 @@ def getRoutes(request):
     return Response(routes)
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getSpecificReadingTypes(request, tip):
     return Response(clearReadingTypes(tip))
 
@@ -150,7 +151,7 @@ def clearReadingTypes(tip):
     return cleantypes
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getLocations(request):
     locations = Location.objects.all()
     serialize = LocationSerializer(locations, many=True)
@@ -158,7 +159,7 @@ def getLocations(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getReading(request):
     pass
     # reading = Reading.objects.all()
@@ -167,14 +168,14 @@ def getReading(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getReadingTypes(request):
     readingType = ReadingType.objects.all()
     serialize = ReadingTypeSerializer(readingType, many=True)
     return Response(serialize.data)
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getSpecificLocations(request, tip):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -184,7 +185,7 @@ def getSpecificLocations(request, tip):
     return Response(uniqueloc)
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getSpecificYer(request, tip, bolge):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -194,7 +195,7 @@ def getSpecificYer(request, tip, bolge):
     return Response(uniqueloc)
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getSpecificParameters(request, tip, bolge, yer):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -209,7 +210,7 @@ def getSpecificParameters(request, tip, bolge, yer):
     return Response(cleantypes)
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getSpecificYears(request, tip, bolge, yer, parametre):
     if(parametre == "all"):
         locations = (
@@ -514,7 +515,7 @@ def allParametreYear(bolge, yer, parametre, yil):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getSpecificReading(request, bolge, yer, parametre, yil):
     reading = Reading.objects.all()
 
@@ -587,7 +588,7 @@ def allBetweenDates(bolge, yer, parametre, sdata):
     return jsnObject
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
     start = yil1 + "-01-01"
     end = yil2 + "-12-30"
@@ -618,7 +619,7 @@ from django.http import HttpResponse
 from . import generate_csv, arima
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def getDataCSV(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -652,8 +653,25 @@ def getDataCsvWithParams(request, bolge: str, yer: str, yil: int):
     return response
 
 @api_view(["GET"])
-def getArimaResults(request, tip, bolge, yer):
+def getArimaResults(request, tip, bolge, yer, parametre):
     assert (tip in ['Akarsu', 'Göl', 'Arıtma', 'Deniz']), ("tip param is wrong: " + tip)
+
+    akarsuParams = ["Fekal Koliform", "Toplam Koliform", "Toplam Fosfor", "Toplam Kjeldahl Azotu", "Kimyasal Oksijen İhtiyacı", "Nitrat Azotu", "Çözünmüş Oksijen"]
+    arıtmaParams = ["Biyokimyasal Oksijen İhtiyacı", "Kimyasal Oksijen İhtiyacı", "Toplam Fosfor", "Toplam Azot"]
+    gölParams = ["Toplam Fosfor", "Toplam Azot", "Klorofil"]
+    denizParams = ["Toplam Koliform", "Fekal Koliform", "Amonyak", "Fekal Streptokok"]
+    if tip == 'Akarsu':
+        if parametre not in akarsuParams:
+            return HttpResponse(status=status.HTTP_406_NOT_ACCEPTABLE)
+    if tip == 'Deniz':
+        if parametre not in denizParams:
+            return Response()
+    if tip == 'Göl':
+        if parametre not in gölParams:
+            return Response()
+    if tip == 'Arıtma':
+        if parametre not in arıtmaParams:
+            return Response()
 
     fd = io.StringIO()
     writer = csv.writer(fd)
@@ -662,4 +680,126 @@ def getArimaResults(request, tip, bolge, yer):
 
     data_dict = arima.run_arima(fd, bolge, yer, tip)
     fd.close()
-    return Response(data_dict)
+
+    reading = Reading.objects.select_related("reading_type", "location").filter(
+        reading_type__name=parametre, location__bolge_adi=bolge, location__yer=yer
+    )
+    serialize = TemizSerializer(reading, many=True)
+
+    lastDate = serialize.data.pop()["date"].split("-")
+
+    dateValues = []
+    yil = lastDate[0]
+    ay = lastDate[1]
+    for i in range(10):
+        if ay == "12":
+            yil = str(int(yil) + 1)
+            ay = "01"
+        else:
+            ay = str(int(ay) + 1)
+        
+        if len(ay) < 2:
+            ay = "0" + ay
+        datestr = yil + "-" + ay + "-01"
+        dateValues.append(datestr)
+
+    referenceAndColors = []
+    referans = []
+    colors = []
+    
+    if tip == "Akarsu":
+        for aralik in referansAraliklari.akarsuAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data_dict[parametre]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    elif tip == "Deniz":
+        for aralik in referansAraliklari.denizAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data_dict[parametre]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    elif tip == "Göl":
+        for aralik in referansAraliklari.gölAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data_dict[parametre]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    elif tip == "Arıtma":
+        for aralik in referansAraliklari.arıtmaAralık:
+            if aralik[0] == parametre:
+                if len(aralik[1]) < 4:
+                    referans.append(None)
+                    colors.append("rgb(200, 255, 55)")
+                else:
+                    referans.append(aralik[1])
+                    print(referans)
+                    for value in data_dict[parametre]:
+                        if value == None:
+                            colors.append("rgb(255, 255, 255)")
+                        elif value < referans[0][0]:
+                            colors.append("rgb(102, 209, 242)")
+                        elif value < referans[0][1]:
+                            colors.append("rgb(197, 218, 141)")
+                        elif value < referans[0][2]:
+                            colors.append("rgb(240, 221, 137)")
+                        else:
+                            colors.append("rgb(245, 103, 126)")
+    else:
+        return None
+
+    if referans == None:
+        referenceAndColors.append(None)
+    else:
+        referenceAndColors.append(referans[0])
+
+    referenceAndColors.append(colors)
+
+    temiz_dict = {}
+    temiz_dict["reading_value"] = data_dict[parametre]
+    temiz_dict["date"] = dateValues
+    temiz_dict["colors"] = referenceAndColors[1]
+    temiz_dict["referans"] = referenceAndColors[0]
+    return Response(temiz_dict)

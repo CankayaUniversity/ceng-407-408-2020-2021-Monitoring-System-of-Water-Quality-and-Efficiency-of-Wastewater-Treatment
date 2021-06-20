@@ -26,9 +26,15 @@ const GraphContainer = (props) => {
 
   const [customReferances,setCustomReferances] = useState([])
 
+  const [isTahminiLoading, setiIsTahminiLoading] = useState(false)
+  const [tahminiData, setTahminiData] = useState({})
+  const [isYearAllCheck, setIsYearAllCheck] = useState([])
+  const [errorMessage, setErrorMessage] = useState("")
+
   useEffect(() => {
     setIsParameterAll(queries[3] === "all")
     setIsYearAll(queries[4][0] === "all" || queries[4].length === 2)
+    setIsYearAllCheck(queries[4][0] === "all")
     async function fetchData() {
       let tarihArray = [];
       let valueArray = [];
@@ -84,11 +90,6 @@ const GraphContainer = (props) => {
         <div style={{fontWeight: "bolder", letterSpacing: "1px"}}>Referans Aralığı</div>
         <hr></hr>
         {referans?.length > 0 ? (
-          // referans.map((referansItem, index) =>
-          //   (<div >
-          //       <p>{`${index + 1}. Sınıf`} - {referansItem} <span style={{backgroundColor: getColor(index+1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
-          //   </div>)
-          //   )
           <div>
             <p>{`1. Sınıf`} - {`<`}{referans[0]} <span style={{backgroundColor: getColor(1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
             <p>{`2. Sınıf`} - {referans[0]}{`-`}{referans[1]} <span style={{backgroundColor: getColor(2), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
@@ -124,6 +125,26 @@ const GraphContainer = (props) => {
       `http://127.0.0.1:8000/api/csv/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`
     ).catch(error => console.log(error));
   }
+  async function getTahminiVeri(){
+    setiIsTahminiLoading(true)
+    let tarihArray = [];
+    await axiosInstance.get(
+      `http://127.0.0.1:8000/api/arima/${props.locationType}/${queries[1]}/${queries[2]}/${queries[3]}/`
+    ).then(res => {
+        res.data.date.map(element => {
+        tarihArray.push(element.slice(5,7));
+       });
+       console.log(res)
+       setTarih(tarihArray)
+      setTahminiData(res.data)
+      setiIsTahminiLoading(false)
+    }).catch((error) => 
+      {
+        return error.response.status === 406 ? setErrorMessage("Seçilen parametre için tahmini değer bulunmamaktadır.") : ""
+      }
+    )
+   
+  }
   const submitReferans =(e) => {
     setCustomReferances(Object.values(e))
   }
@@ -149,7 +170,7 @@ const GraphContainer = (props) => {
                                     {queries[0] === "Cizgi" ?
                                       <LineGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
                                       :
-                                      <BarGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} />
+                                      <BarGraph id={`graphId-${index}`} data={item.reading_value}  label={`${item.location.numune_adi} - ${item.location.bolge_adi} - ${item.location.yer} - ${item.reading_type.name}`} colors={item.colors} months={tarih} isParameterAll />
                                   }
                                   </Card>
                               </OverlayTrigger>
@@ -166,9 +187,26 @@ const GraphContainer = (props) => {
                        <AllYears id="graphId" data={data}/>
                        </Card>
                         </OverlayTrigger>
+                        {
+                          Object.entries(tahminiData)?.length > 0  ? (
+                            <OverlayTrigger trigger="hover" placement="right" overlay={customReferances.length > 0 ? popover(customReferances) : popover(tahminiData.referans)}>
+                              <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
+                              <h6 style={{textAlign:"center"}}>{`Tahmini Değerler - ${data.location.bolge_adi} - ${data.location.yer} - ${data.reading_type.name} - gelecek 10 ay`}</h6>
+                                <BarGraph id="graphId" data={tahminiData.reading_value}  unit={`${queries[3]}`} submitReferans={submitReferans} colors={tahminiData.colors}  months={tarih} is_all={isAll} yillar={yillar}/>
+                              </Card>
+                             </OverlayTrigger>
+                          ):""
+                        }
+                        {
+                          isYearAllCheck && !Object.entries(tahminiData)?.length > 0 ?  (
+                            <Col sm={12} md={12} lg={12} xl={12}>
+                              <Button variant={`${errorMessage ? "outline-danger" : "outline-info"}`} block onClick={() => getTahminiVeri()}>{ isTahminiLoading && !errorMessage ? <Spinner animation="border" /> : errorMessage ? errorMessage : "Tahmini Veri"}</Button>
+                            </Col>
+                          ): ""
+                        }
                         <Col sm={12} md={12} lg={12} xl={12}>
-                        <MapView specificLocation={ {"bolgeAdi":data.location.bolge_adi, "yerAdi":data.location.yer, "position": [data.location.dd_east,data.location.dd_north]}}/>
-                     </Col>
+                          <MapView specificLocation={ {"bolgeAdi":data.location.bolge_adi, "yerAdi":data.location.yer, "position": [data.location.dd_east,data.location.dd_north]}}/>
+                        </Col>
                       </>
                     ):
                         (
@@ -176,7 +214,7 @@ const GraphContainer = (props) => {
                           <>
                             <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
                               <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                                <LineGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
+                                <LineGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[3]} - ${queries[4]}` } unit={`${queries[3]}`} color={"rgba(50,150,250,1)"} months={tarih} is_all={isAll} yillar={yillar}/>
                               </Card>
                             </OverlayTrigger>
                             <Col sm={12} md={12} lg={12} xl={12}>
@@ -187,7 +225,7 @@ const GraphContainer = (props) => {
                         <>
                           <OverlayTrigger trigger="hover" placement="right" overlay={customReferances.length > 0 ? popover(customReferances) : popover(data.referans)}>
                             <Card  className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
-                              <BarGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[4]}` } unit={`${queries[3]}`} colors={data.colors} submitReferans={submitReferans} months={tarih} is_all={isAll} yillar={yillar}/>
+                              <BarGraph id="graphId" data={data.reading_value} label={`${queries[1]} - ${queries[2]} - ${queries[3]} - ${queries[4]}` } unit={`${queries[3]}`} colors={data.colors} submitReferans={submitReferans} months={tarih} is_all={isAll} yillar={yillar}/>
                             </Card>
                             </OverlayTrigger>
                             <Col sm={12} md={12} lg={12} xl={12}>
@@ -203,7 +241,7 @@ const GraphContainer = (props) => {
                         )
 
                    }
-                   <Button onClick={saveCanvas} variant="outline-primary" size="sm">İndir</Button>
+                   <Button onClick={saveCanvas} variant="outline-primary" style={{marginBottom:"2rem"}}>Grafiği indir</Button>
                    {queries[0] == "Tablo" ? <Button style={{marginLeft:"1rem"}} onClick={csvIndir}>CSV İndir</Button> : ""}
              </Col>
          }

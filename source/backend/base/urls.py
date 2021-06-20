@@ -20,7 +20,7 @@ urlpatterns = [
     path('api/readingtypes/',views.getReadingTypes,name="readingtypes"),
     path('api/readingtypes/<str:tip>',views.getSpecificReadingTypes,name="specificreadingtypes"),
     path('api/csv/<str:bolge>/<str:yer>/<int:yil>/', views.getDataCsvWithParams, name="datacsvparams"),
-    path('api/arima/<str:tip>/<str:bolge>/<str:yer>/', views.getArimaResults, name="dataarima"),
+    path('api/arima/<str:tip>/<str:bolge>/<str:yer>/<str:parametre>/', views.getArimaResults, name="dataarima"),
 
     path('api/csv', views.getDataCSV, name="datacsv"),
     path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"),

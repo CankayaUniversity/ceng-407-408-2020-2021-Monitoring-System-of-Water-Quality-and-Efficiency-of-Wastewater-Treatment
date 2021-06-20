@@ -3,7 +3,7 @@ import {Bar} from "react-chartjs-2";
 import ModalForm from './ModalForm'
 import {Button} from 'react-bootstrap'
 
-const BarGraph = ({id,data,label,unit,colors,months,submitReferans, is_all,yillar}) => {
+const BarGraph = ({id,data,label,unit,colors,months,submitReferans, is_all,yillar , isParameterAll}) => {
     const [chartData,setChartData] = useState({})
     const [colorsState, setColorsState] = useState(colors)
     const [isOpen, setIsOpen] = useState(false)
@@ -150,7 +150,7 @@ const BarGraph = ({id,data,label,unit,colors,months,submitReferans, is_all,yilla
                           <div>
         {/* other components */}
 
-        <Button onClick={openModal} variant="outline-info" size="sm">Referans Aralıklarını Özelleştir</Button>
+        { !isParameterAll ? <Button onClick={openModal} variant="outline-info" size="sm">Referans Aralıklarını Özelleştir</Button> : ""} 
 
         { isOpen ? 
           <ModalForm 
