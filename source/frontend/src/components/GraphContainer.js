@@ -3,6 +3,7 @@ import LineGraph from "./LineGraph";
 import BarGraph from "./BarGraph";
 import { Row, Col, Card, Spinner,Container,Button, Popover, OverlayTrigger, Table as TablePopover} from "react-bootstrap";
 import axios from "axios";
+import {CSVLink} from 'react-csv'
 import axiosInstance from '../axios';
 import Table from './Table'
 import AllYears from "./AllYears";
@@ -30,6 +31,9 @@ const GraphContainer = (props) => {
   const [tahminiData, setTahminiData] = useState({})
   const [isYearAllCheck, setIsYearAllCheck] = useState([])
   const [errorMessage, setErrorMessage] = useState("")
+
+  const [csvData,setCsvData] = useState("")
+  const csvLink = React.createRef()
 
   useEffect(() => {
     setIsParameterAll(queries[3] === "all")
@@ -121,9 +125,9 @@ const GraphContainer = (props) => {
   }
   async function csvIndir (){
     const queries4 = queries[4].length > 1 ? queries[4][0] +"/"+ queries[4][1] : queries[4][0]
-    const { data } = await axiosInstance.get(
-      `http://127.0.0.1:8000/api/csv/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`
-    ).catch(error => console.log(error));
+     await axiosInstance.get(
+      `http://127.0.0.1:8000/api/csv/${queries[1]}/${queries[2]}/${queries4}/`
+    ).then(res => setCsvData(res.data)).then(() => csvLink.current.link.click()).catch( error => alert(error))
   }
   async function getTahminiVeri(){
     setiIsTahminiLoading(true)
@@ -241,8 +245,21 @@ const GraphContainer = (props) => {
                         )
 
                    }
-                   <Button onClick={saveCanvas} variant="outline-primary" style={{marginBottom:"2rem"}}>Grafiği indir</Button>
-                   {queries[0] == "Tablo" ? <Button style={{marginLeft:"1rem"}} onClick={csvIndir}>CSV İndir</Button> : ""}
+                    <Col sm={12} md={12} lg={12} xl={12}  style={{marginBottom:"2rem"}}>
+                    <Button onClick={saveCanvas} variant="outline-info">Grafiği indir</Button>
+                   {queries[0] == "Tablo" ? (
+                    <>
+                      <Button style={{marginLeft:"1rem"}} onClick={csvIndir} variant="outline-info">CSV İndir</Button>
+                        <CSVLink
+                        data={csvData}
+                        filename="data.csv"
+                        className="hidden"
+                        ref={csvLink}
+                        target="_blank" 
+                      />
+                    </>
+                   ) : ""}
+                    </Col>
              </Col>
          }
          </Row>
