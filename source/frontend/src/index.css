@@ -59,6 +59,7 @@ main{
 }
 .dropdownContainer.container-fluid .row .select-search {
   margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 .dropdownContainer.container-fluid .row {
  
@@ -315,4 +316,8 @@ main{
 .container .card img{
   width: 50%;
   height: 50%;
+}
+
+.dropdownContainer.container-fluid .input-group .input-group-prepend{
+  width: 10rem;
 }
