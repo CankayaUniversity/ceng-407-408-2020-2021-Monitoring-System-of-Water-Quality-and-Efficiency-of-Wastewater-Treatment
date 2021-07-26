@@ -28,8 +28,7 @@ const defineLocationType = (locationType) => {
 }
 
 const DataEntry = (props) => {
-	// let locationType = defineLocationType(props.location.pathname.substring(1));
-	let locationType = defineLocationType("akarsu")
+	let locationType = defineLocationType(props.location.pathname.substring(1));
 	console.log(props.location.pathname.substring(6))
 
 	const [Locations, setLocations] = useState()
