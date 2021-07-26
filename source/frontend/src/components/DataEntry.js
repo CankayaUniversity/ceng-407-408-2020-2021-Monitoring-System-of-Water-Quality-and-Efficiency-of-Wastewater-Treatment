@@ -311,12 +311,17 @@ const DataEntry = (props) => {
 								options={BolgeOptions}
 								search
 								value={selectedBolge || ""}
-								emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
+								emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Aradığınız Seçenek Bulunamadı.</div>}
 								placeholder="Bölge"
 								filterOptions={fuzzySearch}
 								onChange={(e) => {
 									setSelectedBolge(e)
 									fetchYer(e)
+									setSelectedYer("")
+									setSelectedNumuneKodu("")
+									setEnlem("")
+									setBoylam("")
+									setSelectedYil("")
 								}}
 							/>
 						) : (
@@ -332,10 +337,16 @@ const DataEntry = (props) => {
 							options={YerOptions}
 							search
 							value={selectedYer || ""}
-							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
+							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Aradığınız Seçenek Bulunamadı.</div>}
 							placeholder="Yer"
 							filterOptions={fuzzySearch}
-							onChange={(e) => setSelectedYer(e)}
+							onChange={(e) => {
+								setSelectedYer(e)
+								setSelectedNumuneKodu("")
+								setEnlem("")
+								setBoylam("")
+								setSelectedYil("")
+							}}
 						/>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>

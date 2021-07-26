@@ -43,6 +43,7 @@ const Visualize = (props) => {
 	const [selectedYil, setSelectedYil] = useState(false);
 
 	const [queryInfo, setQueryInfo] = useState([]);
+	const [isClicked, setIsClicked] = useState(false);
 	const [show, setShow] = useState(false);
   	const target = useRef(null);
 
@@ -94,6 +95,7 @@ const Visualize = (props) => {
 	const showInfo = (chartType) => {
 		let temparray = [chartType, selectedBolge, selectedYer, selectedParametre, selectedYil];
 		setQueryInfo(temparray);
+		setIsClicked(true);
 	};
 	return (
 		<>
@@ -103,45 +105,49 @@ const Visualize = (props) => {
 						{bolgeAdlari.length !== 0 ? (
 							<SelectSearch
 								options={BolgeOptions}
+								value={selectedBolge}
 								search
-								emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
+								emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Aradığınız Seçenek Bulunamadı.</div>}
 								placeholder="Bölge"
 								filterOptions={fuzzySearch}
-								onChange={(e) => {setSelectedBolge(e); fetchYer(e)}}
+								onChange={(e) => {setSelectedBolge(e); setSelectedYer(false); setSelectedParametre(false); setSelectedYil(false); fetchYer(e); setIsClicked(false);}}
 							/>
 						) : <Container><Row style={{alignSelf:"flex-end",justifyContent:"center", alignItems:"flex-end"}} ><Spinner  className={"select-search"} animation="border" variant="primary" /></Row></Container>}
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
 						<SelectSearch
 							options={YerOptions}
+							value={selectedYer}
 							search
-							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
+							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Aradığınız Seçenek Bulunamadı.</div>}
 							placeholder="Yer"
 							filterOptions={fuzzySearch}
-							onChange={(e) => {setSelectedYer(e); fetchParameters(e);}}
+							onChange={(e) => {setSelectedYer(e); setSelectedParametre(false); setSelectedYil(false); fetchParameters(e); setIsClicked(false);}}
 						/>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
 						<SelectSearch
 							options={parametreOptions}
+							value={selectedParametre}
 							search
-							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
+							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Aradığınız Seçenek Bulunamadı.</div>}
 							placeholder="Parametre"
 							filterOptions={fuzzySearch}
-							onChange={(e) => {setSelectedParametre(e); fetchYillar(e);}}
+							onChange={(e) => {setSelectedParametre(e); setSelectedYil(false); fetchYillar(e); setIsClicked(false);}}
 						/>
 					</Col>
 					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
 						<SelectSearch
 							ref={target}
 							options={yillar}
+							value={selectedYil}
 							search
-							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Not found renderer</div>}
+							emptyMessage={() => <div style={{ textAlign: "center", fontSize: "0.8em" }}>Aradığınız Seçenek Bulunamadı.</div>}
 							placeholder="Yıl"
 							multiple
 							printOptions="on-focus"
 							filterOptions={fuzzySearch}
-							onChange={(e) => {e.length > 2 ? setShow(true) : setShow(false) ; setSelectedYil(e);}}
+							onChange={(e) => {e.length > 2 ? setShow(true) : setShow(false) ; setSelectedYil(e); setIsClicked(false);}}
 						/>
 						 <Overlay target={target.current} show={show} placement="bottom">
 								{({ placement, arrowProps, show: _show, popper, ...props }) => (
@@ -183,7 +189,7 @@ const Visualize = (props) => {
 				</ButtonGroup>
 			</Row>
 
-			<Container  fluid={queryInfo[0] === "Tablo"} className="graph-container">{queryInfo.length !== 0 ? <GraphContainer  queries={queryInfo} locationType={locationType} /> : null}</Container>
+			<Container  fluid={queryInfo[0] === "Tablo"} className="graph-container">{queryInfo.length !== 0 && isClicked ? <GraphContainer  queries={queryInfo} locationType={locationType} /> : null}</Container>
 
 
 		</>
