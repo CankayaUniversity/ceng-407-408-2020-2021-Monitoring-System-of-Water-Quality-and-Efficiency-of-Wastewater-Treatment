@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react"
 import BootstrapTable from "react-bootstrap-table-next"
-import { Container, Row, Col, Card, Button, Spinner, FormControl, InputGroup , Alert, Collapse} from "react-bootstrap"
+import { Container, Row, Col, Card, Button, Spinner, FormControl, InputGroup , Alert, Collapse, ButtonGroup, Overlay} from "react-bootstrap"
 import cellEditFactory from "react-bootstrap-table2-editor"
 import ToolkitProvider, { CSVExport } from "react-bootstrap-table2-toolkit"
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css"
@@ -29,11 +29,12 @@ const defineLocationType = (locationType) => {
 
 const DataEntry = (props) => {
 	let locationType = defineLocationType(props.location.pathname.substring(1));
-	console.log(props.location.pathname.substring(6))
+	// console.log(props.location.pathname.substring(6))
 
 	const [Locations, setLocations] = useState()
 	const [bolgeAdlari, setBolgeAdlari] = useState([])
 	const [yerAdlari, setYerAdlari] = useState([])
+	const [months, setMonths] = useState([]);
 	//-----------------
 	const [selectedBolge, setSelectedBolge] = useState("")
 	const [selectedYer, setSelectedYer] = useState("")
@@ -43,6 +44,18 @@ const DataEntry = (props) => {
 	const [selectedYil, setSelectedYil] = useState("")
 	const [enlem, setEnlem] = useState()
 	const [boylam, setBoylam] = useState()
+	const [isClicked, setIsClicked] = useState(false)
+	const [showYil, setShowYil] = useState(false);
+	const [showKod, setShowKod] = useState(false);
+	const [showEnlem, setShowEnlem] = useState(false);
+	const [showBoylam, setShowBoylam] = useState(false);
+	const [showAlert, setShowAlert] = useState(false);
+	const targetYil = useRef(null);
+	const targetKod = useRef(null);
+	const targetEnlem = useRef(null);
+	const targetBoylam = useRef(null);
+	const [field, setField] = useState("");
+	const [yillar, setYillar] = useState([]);
 
 	const [open, setOpen] = useState(false);
 
@@ -54,6 +67,8 @@ const DataEntry = (props) => {
 		message: null
 	})
 	const [isLoading,setIsLoading] = useState(false)
+
+	const stringParameters = ['Açıklama', 'Renk', 'Koku', 'Renk / Koku']
 
 	useEffect(() => {
 		// change
@@ -96,6 +111,7 @@ const DataEntry = (props) => {
 	}, [])
 	async function fetchYer(bolge_adi) {
 		const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`)
+		console.log(data)
 		setYerAdlari(data.sort())
 	}
 	const BolgeOptions = []
@@ -130,7 +146,7 @@ const DataEntry = (props) => {
 	}
 
 	const validation = (newValue, row, column) => {
-		if(row.id === "Açıklama")
+		if(stringParameters.includes(row.id))
 			return true
 
 		for (const i in parametreler){
@@ -166,72 +182,288 @@ const DataEntry = (props) => {
 			dataField: "ocak",
 			text: "OCAK",
 			align: "center",
+			editable: () => {
+				if (months.includes('01'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('01')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "subat",
 			text: "SUBAT",
 			align: "center",
+			editable: () => {
+				if (months.includes('02'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('02')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "mart",
 			text: "MART",
 			align: "center",
+			editable: () => {
+				if (months.includes('03'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('03')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "nisan",
 			text: "NISAN",
 			align: "center",
+			editable: () => {
+				if (months.includes('04'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('04')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "mayis",
 			text: "MAYIS",
 			align: "center",
+			editable: () => {
+				if (months.includes('05'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('05')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "haziran",
 			text: "HAZIRAN",
 			align: "center",
+			editable: () => {
+				if (months.includes('06'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('06')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "temmuz",
 			text: "TEMMUZ",
 			align: "center",
+			editable: () => {
+				if (months.includes('07'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('07')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "agustos",
 			text: "AGUSTOS",
 			align: "center",
+			editable: () => {
+				if (months.includes('08'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('08')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "eylul",
 			text: "EYLUL",
 			align: "center",
+			editable: () => {
+				if (months.includes('09'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('09')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "ekim",
 			text: "EKIM",
 			align: "center",
+			editable: () => {
+				if (months.includes('10'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('10')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "kasim",
 			text: "KASIM",
 			align: "center",
+			editable: () => {
+				if (months.includes('11'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('11')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 		{
 			dataField: "aralik",
 			text: "ARALIK",
 			align: "center",
+			editable: () => {
+				if (months.includes('12'))
+					return false
+				else
+					return true
+			},
+			style: (cell, row, rowIndex, colIndex) => {
+				if (months.includes('12')) {
+					if (rowIndex % 2 === 0) {
+					return {
+						backgroundColor: '#7E7E7E'
+					};
+					}
+					return {
+						backgroundColor: '#B0B0B0'
+					};
+				}
+			},
 			validator: validation.bind(this)
 		},
 	]
@@ -243,6 +475,7 @@ const DataEntry = (props) => {
 
 	const veriGonder = () => {
 		setIsLoading(true)
+		setShowAlert(true)
 		axiosInstance
 			.post("http://127.0.0.1:8000/api/veriGirisi", {
 				...parametreOptionsState,
@@ -288,6 +521,7 @@ const DataEntry = (props) => {
 				setBoylam("")
 				setSelectedYil("")
 				setIsLoading(false)
+				setIsClicked(false)
 			})
 			.catch(function (error) {
 				setAlert({
@@ -300,12 +534,74 @@ const DataEntry = (props) => {
 				setIsLoading(false)
 			})
 	}
+	
+	async function fetchAylar(selectedYil) {
+		const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${selectedYil}`)
+		const mdata = await data
+		setMonths(mdata["months"])
+		setSelectedNumuneKodu(mdata["numune_adi"])
+    }
+
+	async function fetchYillar(e) {
+		let yer = e
+        const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}/Sıcaklık/`);
+		console.log(data)
+		setYillar(data.sort())
+    }
+
+	function handleBlurYil(f,e){
+		if(selectedYil < Number(yillar[0]) || selectedYil > (Number(yillar[yillar.length-1]) + 1)){
+			console.log('invalid')
+			setSelectedYil('')
+			setShowYil(true)
+		}
+		else{
+			console.log('valid')
+			setShowYil(false)
+		}
+	}
+	function handleBlurKod(f,e){
+		var format = /[!-\/:-@[-`{-~]/;
+		if(format.test(selectedNumuneKodu)){
+			console.log('invalid')
+			setSelectedNumuneKodu('')
+			setShowKod(true)
+		}
+		else{
+			console.log('valid')
+			setShowKod(false)
+		}
+	}
+	function handleBlurEnlem(f,e){
+		var num = Number(enlem)
+		if(isNaN(num)){
+			console.log('invalid')
+			setEnlem('')
+			setShowEnlem(true)
+		}
+		else{
+			console.log('valid')
+			setShowEnlem(false)
+		}
+	}
+	function handleBlurBoylam(f,e){
+		var num = Number(boylam)
+		if(isNaN(num)){
+			console.log('invalid')
+			setBoylam('')
+			setShowBoylam(true)
+		}
+		else{
+			console.log('valid')
+			setShowBoylam(false)
+		}
+	}
 
 	return (
 		<div>
 			<Container fluid className={"dropdownContainer"}>
 				<Row>
-					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
+					<Col xs={12} sm={12} md={6} lg={4} xl={4}>
 						{bolgeAdlari.length !== 0 ? (
 							<SelectSearch
 								options={BolgeOptions}
@@ -322,6 +618,8 @@ const DataEntry = (props) => {
 									setEnlem("")
 									setBoylam("")
 									setSelectedYil("")
+									setIsClicked(false)
+									setShowAlert(false)
 								}}
 							/>
 						) : (
@@ -332,7 +630,7 @@ const DataEntry = (props) => {
 							</Container>
 						)}
 					</Col>
-					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
+					<Col xs={12} sm={12} md={6} lg={4} xl={4}>
 						<SelectSearch
 							options={YerOptions}
 							search
@@ -346,40 +644,55 @@ const DataEntry = (props) => {
 								setEnlem("")
 								setBoylam("")
 								setSelectedYil("")
+								setIsClicked(false)
+								fetchYillar(e)
+								setShowAlert(false)
 							}}
 						/>
 					</Col>
-					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
-						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
-							<InputGroup.Prepend>
-								<InputGroup.Text>Enlem (Lat)</InputGroup.Text>
-							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setEnlem(e.target.value)} value={enlem || ""}/>
-						</InputGroup>
-						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
-							<InputGroup.Prepend>
-								<InputGroup.Text>Boylam (Long)</InputGroup.Text>
-							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setBoylam(e.target.value)} value={boylam || ""} />
-						</InputGroup>
-					</Col>
-					<Col xs={12} sm={12} md={6} lg={3} xl={3}>
-						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
-							<InputGroup.Prepend>
-								<InputGroup.Text>Numune Kodu</InputGroup.Text>
-							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setSelectedNumuneKodu(e.target.value)} value={selectedNumuneKodu || ""} />
-						</InputGroup>
-						<InputGroup className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
+					<Col xs={12} sm={12} md={12} lg={4} xl={4}>
+						<InputGroup ref={targetYil} className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
 							<InputGroup.Prepend>
 								<InputGroup.Text>Yıl</InputGroup.Text>
 							</InputGroup.Prepend>
-							<FormControl onChange={(e) => setSelectedYil(e.target.value)} value={selectedYil || ""}/>
+							<FormControl onChange={(e) => {
+								setSelectedYil(e.target.value)
+								setSelectedNumuneKodu("")
+								setEnlem("")
+								setBoylam("")
+								setIsClicked(false)
+								setShowAlert(false)
+							}} value={selectedYil || ""} onBlur={handleBlurYil.bind(this)}/>
 						</InputGroup>
+						<Overlay target={targetYil.current} show={showYil} placement="bottom">
+							{({ placement, arrowProps, show: _showYil, popper, ...props }) => (
+							<div
+								{...props}
+								style={{
+								backgroundColor: 'rgba(255, 100, 100, 0.85)',
+								margin: ".3rem 0rem",
+								padding: '8px 16px',
+								color: 'white',
+								borderRadius: 3,
+								width:"300px",
+								boxShadow:"0 .0625rem .125rem rgba(0, 0, 0, 0.15)",
+								...props.style,
+								}}
+							>
+								Uygun yıl giriniz.
+							</div>
+							)}
+						</Overlay>
 					</Col>
 				</Row>
 			</Container>
-
+			<Row className={"button-container"}>
+				<ButtonGroup aria-label="Basic example">
+					<Button onClick={() => {setIsClicked(true); fetchAylar(selectedYil)}} style={{ maxWidth:'10rem',fontWeight: "500", fontSize: "15px" }} disabled={!selectedBolge || !selectedYer || !selectedYil}>
+						Tabloyu Getir
+					</Button>
+				</ButtonGroup>
+			</Row>
 			<Container>
 				<Container style={{ display:"flex", justifyContent:"center", alignItems:"center" }}>
 					<Button
@@ -402,64 +715,162 @@ const DataEntry = (props) => {
 						</Card.Body>
 					</Card>
 				</Collapse>
+				<div>
+					{ (alert.hasAlert && showAlert) ? (
+						<Alert  style={{marginTop:"2rem"}} variant={alert.isSucces ? "success" : "danger"}>
+							{alert.message}
+						</Alert>
+					): ""
+					}
+				</div>
 			</Container>
+			{
+				isClicked ?
+				
+				<Container fluid>
+					<Container className='input-container'>
+						<Row>
+							{/* <Col xs={12} sm={12} md={12} lg={4} xl={4}>
+								<InputGroup ref={targetKod} className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
+									<InputGroup.Prepend>
+										<InputGroup.Text>Numune Kodu</InputGroup.Text>
+									</InputGroup.Prepend>
+									<FormControl onChange={(e) => setSelectedNumuneKodu(e.target.value)} value={selectedNumuneKodu || ""} onBlur={handleBlurKod.bind(this)}/>
+								</InputGroup>
+								<Overlay target={targetKod.current} show={showKod} placement="bottom">
+									{({ placement, arrowProps, show: _showKod, popper, ...props }) => (
+									<div
+										{...props}
+										style={{
+										backgroundColor: 'rgba(255, 100, 100, 0.85)',
+										margin: ".3rem 0rem",
+										padding: '8px 16px',
+										color: 'white',
+										borderRadius: 3,
+										width:"300px",
+										boxShadow:"0 .0625rem .125rem rgba(0, 0, 0, 0.15)",
+										...props.style,
+										}}
+									>
+										Uygun numune kodu giriniz.
+									</div>
+									)}
+								</Overlay>
+							</Col> */}
+							<Col xs={12} sm={12} md={6} lg={6} xl={6}>
+								<InputGroup ref={targetEnlem} className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
+									<InputGroup.Prepend>
+										<InputGroup.Text>Enlem (Lat)</InputGroup.Text>
+									</InputGroup.Prepend>
+									<FormControl onChange={(e) => setEnlem(e.target.value)} value={enlem || ""} onBlur={handleBlurEnlem.bind(this)}/>
+								</InputGroup>
+								<Overlay target={targetEnlem.current} show={showEnlem} placement="bottom">
+									{({ placement, arrowProps, show: _showEnlem, popper, ...props }) => (
+									<div
+										{...props}
+										style={{
+										backgroundColor: 'rgba(255, 100, 100, 0.85)',
+										margin: ".3rem 0rem",
+										padding: '8px 16px',
+										color: 'white',
+										borderRadius: 3,
+										width:"300px",
+										boxShadow:"0 .0625rem .125rem rgba(0, 0, 0, 0.15)",
+										...props.style,
+										}}
+									>
+										Uygun enlem giriniz.
+									</div>
+									)}
+								</Overlay>
+							</Col>
+							<Col xs={12} sm={12} md={6} lg={6} xl={6}>
+								<InputGroup ref={targetBoylam} className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
+									<InputGroup.Prepend>
+										<InputGroup.Text>Boylam (Long)</InputGroup.Text>
+									</InputGroup.Prepend>
+									<FormControl onChange={(e) => setBoylam(e.target.value)} value={boylam || ""} onBlur={handleBlurBoylam.bind(this)}/>
+								</InputGroup>
+								<Overlay target={targetBoylam.current} show={showBoylam} placement="bottom">
+									{({ placement, arrowProps, show: _showBoylam, popper, ...props }) => (
+									<div
+										{...props}
+										style={{
+										backgroundColor: 'rgba(255, 100, 100, 0.85)',
+										margin: ".3rem 0rem",
+										padding: '8px 16px',
+										color: 'white',
+										borderRadius: 3,
+										width:"300px",
+										boxShadow:"0 .0625rem .125rem rgba(0, 0, 0, 0.15)",
+										...props.style,
+										}}
+									>
+										Uygun boylam giriniz.
+									</div>
+									)}
+								</Overlay>
+							</Col>
+						</Row>
+					</Container>
+					<Row>
+						<Col sm={12} md={12} lg={12} xl={12} id="dataCard">
+							<Card className="my-3 p-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
+								<BootstrapTable
+									caption={<CaptionElement />}
+									keyField="id"
+									columns={columns}
+									data={parametreOptionsState}
+									bootstrap4={true}
+									striped={true}
+									bordered={true}
+									hover={true}
+									condensed={true}
+									cellEdit={cellEditFactory({
+										mode: "click",
+										blurToSave: false, //true
+										onStartEdit: (row, column, rowIndex, columnIndex) => {
+											console.log("start to edit!!!")
+										},
+										beforeSaveCell: (oldValue, newValue, row, column) => {
+											console.log("Before Saving Cell!! o: " + oldValue + "- n: " + newValue)
+											console.log("r- ", row)
+											console.log("c- ", column)
+										},
+										afterSaveCell: (oldValue, newValue, row, column) => {
+											console.log("After Saving Cell!! o: " + oldValue + "- n: " + newValue)
+											// const updatedRow = Object.entries(row).map(([k, v]) => v === "" ? {k:null} : {k:v})
+											// console.log("uprow: ",updatedRow)
+											console.log("r- ", row)
+											console.log("c- ", column)
+											setParametreOptions((previousParametreOptions) => {
+												return previousParametreOptions.map((object) => (object.id === row.id ? row : object))
 
-			<Container fluid>
-				<Row>
-					<Col sm={12} md={12} lg={12} xl={12} id="dataCard">
-						<Card className="my-3 p-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
-							<BootstrapTable
-								caption={<CaptionElement />}
-								keyField="id"
-								columns={columns}
-								data={parametreOptionsState}
-								bootstrap4={true}
-								striped={true}
-								bordered={true}
-								hover={true}
-								condensed={true}
-								cellEdit={cellEditFactory({
-									mode: "click",
-									blurToSave: false, //true
-									onStartEdit: (row, column, rowIndex, columnIndex) => {
-										console.log("start to edit!!!")
-									},
-									beforeSaveCell: (oldValue, newValue, row, column) => {
-										console.log("Before Saving Cell!! o: " + oldValue + "- n: " + newValue)
-										console.log("r- ", row)
-										console.log("c- ", column)
-									},
-									afterSaveCell: (oldValue, newValue, row, column) => {
-										console.log("After Saving Cell!! o: " + oldValue + "- n: " + newValue)
-										// const updatedRow = Object.entries(row).map(([k, v]) => v === "" ? {k:null} : {k:v})
-										// console.log("uprow: ",updatedRow)
-										console.log("r- ", row)
-										console.log("c- ", column)
-										setParametreOptions((previousParametreOptions) => {
-											return previousParametreOptions.map((object) => (object.id === row.id ? row : object))
+											})
+											setTimeout(() => {
+												console.log(parametreOptionsState)
+											}, 500)
+										},
+									})}
+								/>
+								<hr />
+								<Button onClick={veriGonder} variant={"outline-info"} disabled={!selectedBolge || !selectedYer || !selectedYil || !selectedNumuneKodu || !enlem || !boylam}>{ isLoading ? <Spinner animation="border" /> : "Gönder"}</Button>
 
-										})
-										setTimeout(() => {
-											console.log(parametreOptionsState)
-										}, 500)
-									},
-								})}
-							/>
-							<hr />
-							<Button onClick={veriGonder} variant={"outline-info"}>{ isLoading ? <Spinner animation="border" /> : "Gönder"}</Button>
-
-							<Card.Footer className="text-muted">
-								{ alert.hasAlert ? (
-										<Alert  variant={alert.isSucces ? "success" : "danger"}>
-											{alert.message}
-										</Alert>
-								): ""
-								}
-							</Card.Footer>
-						</Card>
-					</Col>
-				</Row>
-			</Container>
+								{/* <Card.Footer className="text-muted">
+									{ alert.hasAlert ? (
+											<Alert  variant={alert.isSucces ? "success" : "danger"}>
+												{alert.message}
+											</Alert>
+									): ""
+									}
+								</Card.Footer> */}
+							</Card>
+						</Col>
+					</Row>
+				</Container>
+				:
+				<></>
+			}
 		</div>
 	)
 }

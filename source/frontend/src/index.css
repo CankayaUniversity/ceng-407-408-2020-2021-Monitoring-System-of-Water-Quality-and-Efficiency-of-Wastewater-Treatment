@@ -34,9 +34,10 @@ main{
 }
 .login-container{
   background-color: rgb(102,209,242);
-  .btn {
-    text-transform: unset !important;
-  }
+}
+
+.login-container .btn {
+  text-transform: unset !important;
 }
 .chartjs-render-monitor{
   height: 400px !important;
@@ -320,4 +321,16 @@ main{
 
 .dropdownContainer.container-fluid .input-group .input-group-prepend{
   width: 10rem;
+}
+
+.dropdownContainer.container-fluid .input-group{
+  margin-top: 2rem;
+}
+
+.container .container .btn{
+  margin-top: 2rem;
+}
+
+.container-fluid .input-container.container {
+  margin-top: 2rem;
 }

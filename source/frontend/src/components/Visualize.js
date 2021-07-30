@@ -75,7 +75,7 @@ const Visualize = (props) => {
 	}
 	async function fetchYillar(parametre) {
 		const yilOptions = [];
-        const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}`);
+        const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}/`);
         data.forEach((yil) => yilOptions.push({ name: yil, value: yil }));
 		yilOptions.splice(0, 0, { name: "Hepsi", value: "all" });
 		setYillar(yilOptions.sort())
@@ -83,11 +83,12 @@ const Visualize = (props) => {
 	const BolgeOptions = [];
 	const YerOptions = [];
 	const parametreOptions = [];
+	const stringParameters = ['Açıklama', 'Renk', 'Koku', 'Renk / Koku']
 
 
 	bolgeAdlari.map((bolge) => BolgeOptions.push({ name: bolge, value: bolge }));
 	yerAdlari.map((yer) => YerOptions.push({ name: yer, value: yer }));
-	parametreler.map((parametre) => parametreOptions.push({ name: parametre, value: parametre }));
+	parametreler.map((parametre) => stringParameters.includes(parametre) ? "" : parametreOptions.push({ name: parametre, value: parametre }));
 	parametreOptions.splice(0, 0, { name: "Hepsi", value: "all" });
 
 
@@ -173,7 +174,7 @@ const Visualize = (props) => {
 			</Container>
 			<Row className={"button-container"}>
 				<ButtonGroup aria-label="Basic example">
-					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedParametre === "all" && selectedYil[0] === "all")}>
+					<Button onClick={() => showInfo("Bar")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= {!selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedParametre === "all" && (selectedYil?.length > 1)) || (selectedParametre === "all" && selectedYil.includes("all")) || (selectedYil?.length > 2) || ((selectedYil?.length == 2) && selectedYil.includes("all"))}>
 						Bar
 					</Button>
 					<Button onClick={() => showInfo("Cizgi")} style={{ fontWeight: "500", fontSize: "15px" }} disabled= { selectedYil[0] === "all" || !selectedBolge || !selectedParametre || !selectedYer || !selectedYil || (selectedYil?.length > 1) }>

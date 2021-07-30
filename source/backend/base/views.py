@@ -73,6 +73,7 @@ def postVeriGirisi(request):
 
     # get parameters
     readingTypeArray = clearReadingTypes(request.data["table_type"])
+    stringParameters = ['Açıklama', 'Renk', 'Koku', 'Renk / Koku']
 
     # find the number of parameters
     iler = []
@@ -96,21 +97,26 @@ def postVeriGirisi(request):
         dateValue = request.data["date"] + ay[1]
         for i in iler:
             rt = ReadingType.objects.get(name= request.data[i]["id"])
-            if request.data[i][ay[0]] != None:
-                if request.data[i][ay[0]] == "":
-                    request.data[i][ay[0]] = None
-                elif request.data[i][ay[0]][0] == "<":
-                    num = float(request.data[i][ay[0]][1:])
-                    request.data[i][ay[0]] = num - num * 0.01
-                elif request.data[i][ay[0]][0] == ">":
-                    num = float(request.data[i][ay[0]][1:])
-                    request.data[i][ay[0]] = num + num * 0.01
-
-                r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
+            if (str(rt) in stringParameters):
+                print(str(rt))
+                r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_string_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
                 insert_to_db.append(r)
-        max_row_id += 1
+            else:
+                if request.data[i][ay[0]] != None:
+                    if request.data[i][ay[0]] == "":
+                        request.data[i][ay[0]] = None
+                    elif request.data[i][ay[0]][0] == "<":
+                        num = float(request.data[i][ay[0]][1:])
+                        request.data[i][ay[0]] = num - num * 0.01
+                    elif request.data[i][ay[0]][0] == ">":
+                        num = float(request.data[i][ay[0]][1:])
+                        request.data[i][ay[0]] = num + num * 0.01
 
-    Reading.objects.bulk_create(insert_to_db)
+                    r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
+                    insert_to_db.append(r)
+        max_row_id += 1
+    print('insert db')
+    # Reading.objects.bulk_create(insert_to_db)
     return Response()
 
 @api_view(["GET"])
@@ -238,32 +244,38 @@ def getSpecificYears(request, tip, bolge, yer, parametre):
 
     return Response(dateValues)
 
-def fillEmptyData(data,date):
+def fillEmptyData(data,date,stringData):
     months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", ]
     k=0
     filledReading = []
+    filledReadingString = []
     filledDate = []
     for i in range(12):
         if k < len(date):
             splittedDate = date[k].split("-")
             if(splittedDate[1] == months[i]):
                 filledReading.append(data[k])
+                filledReadingString.append(stringData[k])
                 filledDate.append(date[k])
                 k += 1
             else:
                 filledReading.append(None)
+                filledReadingString.append(None)
                 dataValue = splittedDate[0] + "-" + months[i] + "-" + splittedDate[2]
                 filledDate.append(dataValue)
         elif k>0:
             filledReading.append(None)
+            filledReadingString.append(None)
             dataValue = splittedDate[0] + "-" + months[i] + "-" + splittedDate[2]
             filledDate.append(dataValue)
         else:
             filledReading.append(None)
+            filledReadingString.append(None)
             filledDate.append(months[i])
     filledData = []
     filledData.append(filledReading)
     filledData.append(filledDate)
+    filledData.append(filledReadingString)
 
     return filledData
 
@@ -392,12 +404,14 @@ def JsonVeri(bolge, yer, parametre, yil):
         }
         return jsonObject
     readingValues = []
+    readingStringValues = []
     dateValues = []
     for item in serialize.data:
         readingValues.append(item["reading_value"])
+        readingStringValues.append(item["reading_string_value"])
         dateValues.append(item["date"])
 
-    filledData = fillEmptyData(readingValues, dateValues)
+    filledData = fillEmptyData(readingValues, dateValues, readingStringValues)
     referenceAndColors = getReferenceAndColors(filledData, serialize.data[0]["table_type"], serialize.data[0]["reading_type"]["name"])
     jsonObject = {
         "location": {
@@ -410,6 +424,7 @@ def JsonVeri(bolge, yer, parametre, yil):
         "reading_type": {"name": serialize.data[0]["reading_type"]["name"]},
         "table_type": serialize.data[0]["table_type"],
         "reading_value": filledData[0],
+        "reading_string_value": filledData[2],
         "date": filledData[1],
         "referans": referenceAndColors[0],
         "colors": referenceAndColors[1],
@@ -803,3 +818,26 @@ def getArimaResults(request, tip, bolge, yer, parametre):
     temiz_dict["colors"] = referenceAndColors[1]
     temiz_dict["referans"] = referenceAndColors[0]
     return Response(temiz_dict)
+
+
+@api_view(["GET"])
+def getSpecificMonths(request, tip, bolge, yer, yil):
+    dates = (
+        Reading.objects.select_related("reading_type", "location")
+        .filter(table_type=tip, location__bolge_adi=bolge, location__yer=yer, date__contains=yil)
+    )
+    serialize = SpecificDateSerializer(dates, many=True)
+    numuneKodu = (
+        Reading.objects.select_related("reading_type", "location")
+        .filter(table_type=tip, location__bolge_adi=bolge, location__yer=yer).values_list("location__numune_adi", flat=True)
+    )
+    dateValues = []
+    for item in serialize.data:
+        if not dateValues.__contains__(item["date"][5:7]):
+            dateValues.append(item["date"][5:7])
+    print(numuneKodu[0])
+    jsn ={
+        "numune_adi": numuneKodu[0],
+        "months": dateValues,
+    }
+    return Response(jsn)

@@ -3,6 +3,7 @@ import {Table as CustomTable, Button} from 'react-bootstrap'
 
 const Table = (props) => {
   const { queries, data} = props
+  const stringParameters = ['Açıklama', 'Renk', 'Koku', 'Renk / Koku']
   /*
   const staticMonthArray = ["01","02","03","04","05","06","07","08","09","10","11","12", ]
   const dataMonths = ["-"]
@@ -66,7 +67,12 @@ const Table = (props) => {
           <tr>
             <td style={{fontWeight:"bold"}}>{dataItem.reading_type.name}</td>
             {
+              console.log(dataItem.reading_type.name),
+              !stringParameters.includes(dataItem.reading_type.name) ?
               dataItem.reading_value.map( value => (
+                <td>{value}</td>
+              )) : 
+              dataItem.reading_string_value.map( value => (
                 <td>{value}</td>
               ))
             }
@@ -75,7 +81,14 @@ const Table = (props) => {
       )
 
     }
-   
+   {/* <tr>
+      <td style={{fontWeight:"bold"}}>Açıklama</td>
+      {
+        data["Açıklama"].reading_string_value.map( value => (
+          <td>{value}</td>
+        ))
+      }
+    </tr> */}
   </tbody>
 </CustomTable>
     )

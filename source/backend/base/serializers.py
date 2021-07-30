@@ -28,7 +28,7 @@ class TemizSerializer(serializers.ModelSerializer):
     location = LocationSerializer(read_only=True)
     class Meta:
         model = Reading
-        fields = ['location','reading_type','table_type','reading_value','date']
+        fields = ['location','reading_type','table_type','reading_value','reading_string_value','date']
 
 class SpecificReadingTypeSerializer(serializers.ModelSerializer):
     reading_type = TemizReadingTypeSerializer(read_only=True)
