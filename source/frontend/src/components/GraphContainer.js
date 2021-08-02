@@ -95,6 +95,21 @@ const GraphContainer = (props) => {
         <div style={{fontWeight: "bolder", letterSpacing: "1px"}}>Referans Aralığı</div>
         <hr></hr>
         {referans?.length > 0 ? (
+          queries[3] === "Çözünmüş Oksijen" ? 
+          <div>
+            <p>{`1. Sınıf`} - {`>`}{referans[0]} <span style={{backgroundColor: getColor(1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`2. Sınıf`} - {referans[0]}{`-`}{referans[1]} <span style={{backgroundColor: getColor(2), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`3. Sınıf`} - {referans[1]}{`-`}{referans[2]} <span style={{backgroundColor: getColor(3), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`4. Sınıf`} - {`<`}{referans[2]} <span style={{backgroundColor: getColor(4), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+          </div>
+          : queries[3] === "pH" ?
+          <div>
+            <p>{`1. Sınıf`} - 6.5 - 8.5 <span style={{backgroundColor: getColor(1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`2. Sınıf`} - 6.5 - 8.5 <span style={{backgroundColor: getColor(2), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`3. Sınıf`} - 6.0 - 9.0 <span style={{backgroundColor: getColor(3), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+            <p>{`4. Sınıf`} - 6.0 - 9.0 dışında <span style={{backgroundColor: getColor(4), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
+          </div>
+          : 
           <div>
             <p>{`1. Sınıf`} - {`<`}{referans[0]} <span style={{backgroundColor: getColor(1), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>
             <p>{`2. Sınıf`} - {referans[0]}{`-`}{referans[1]} <span style={{backgroundColor: getColor(2), borderRadius:"20px",width:"10px",height:"10px",display:"inline-block"}}></span></p>

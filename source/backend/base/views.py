@@ -284,7 +284,33 @@ def getReferenceAndColors(data, table_type, parametre):
     referans = []
     colors = []
     print(parametre)
-    if table_type == "Akarsu":
+    if parametre == "pH":
+        referans.append([1, 1, 1.5, 1.5])
+        for value in data[0]:
+            if value == None:
+                colors.append("rgb(255, 255, 255)")
+            elif abs(value - 7) < referans[0][0]:
+                colors.append("rgb(102, 209, 242)")
+            elif abs(value - 7) < referans[0][1]:
+                colors.append("rgb(197, 218, 141)")
+            elif abs(value - 7) < referans[0][2]:
+                colors.append("rgb(240, 221, 137)")
+            else:
+                colors.append("rgb(245, 103, 126)")
+    elif parametre == "Çözünmüş Oksijen":
+        referans.append([90,70,40,40])
+        for value in data[0]:
+            if value == None:
+                colors.append("rgb(255, 255, 255)")
+            elif value > referans[0][0]:
+                colors.append("rgb(102, 209, 242)")
+            elif value > referans[0][1]:
+                colors.append("rgb(197, 218, 141)")
+            elif value > referans[0][2]:
+                colors.append("rgb(240, 221, 137)")
+            else:
+                colors.append("rgb(245, 103, 126)")
+    elif table_type == "Akarsu":
         for aralik in referansAraliklari.akarsuAralık:
             if aralik[0] == parametre:
                 if len(aralik[1]) < 4:

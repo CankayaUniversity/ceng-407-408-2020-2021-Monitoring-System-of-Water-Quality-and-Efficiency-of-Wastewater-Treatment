@@ -9,7 +9,7 @@ akarsuAralık = [
     ["Toplam Koliform", [100, 20000, 100000, 100000]],
     ["Tuzluluk", []],
     ["Nitrat Azotu", [5, 10, 20, 20]],
-    ["Çözünmüş Oksijen", []],
+    ["Çözünmüş Oksijen", [90,70,40,40]],
     ["Biyokimyasal Oksijen İhtiyacı", [4, 8, 20, 20]],
     ["Toplam Pestisit", [0.001, 0.01, 0.1, 0.1]],
     ["Debi (Saniye)", []],
@@ -21,8 +21,7 @@ akarsuAralık = [
     ["Sıcaklık", [25, 25, 30, 30]],
     ["Toplam Çözünmüş Madde", [500, 1500, 5000, 5000]],
     ["Askıda Katı Madde", [35]],
-    # ["pH", [1, 1, 1.5, 1.5]],
-    ["pH", []],
+    ["pH", [1, 1, 1.5, 1.5]],
     ["Orto Fosfat", [0.5, 0.16, 0.65, 0.65]],
     ["Açıklama", []],
 ]
