@@ -6,6 +6,8 @@ import {Card} from "react-bootstrap";
 function MapView({specificLocation, locations}) {
 
     return (
+        specificLocation?.position[0] === null || specificLocation?.position[1] === null ? '' :
+        (
         <Card className='my-3 p-3' style={{boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"}}>
             <Card.Title style={{textAlign:"center"}}>{`${specificLocation ? specificLocation.bolgeAdi + " - "+ specificLocation.yerAdi : "Su Kalite Numuneleri"}`}</Card.Title>
                   <MapContainer center={[39.07375, 34.88199]} zoom={6} style={{height:400, width:"100%"}}>
@@ -36,7 +38,7 @@ function MapView({specificLocation, locations}) {
 
       </MapContainer>              
      </Card>
-
+        )
 
     )
 
