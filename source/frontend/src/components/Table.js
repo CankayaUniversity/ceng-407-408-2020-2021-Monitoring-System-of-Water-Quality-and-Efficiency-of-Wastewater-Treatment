@@ -3,6 +3,7 @@ import {Table as CustomTable, Button} from 'react-bootstrap'
 
 const Table = (props) => {
   const { queries, data} = props
+  console.log(data)
   const stringParameters = ['Açıklama', 'Renk', 'Koku', 'Renk / Koku']
   /*
   const staticMonthArray = ["01","02","03","04","05","06","07","08","09","10","11","12", ]
@@ -43,7 +44,7 @@ const Table = (props) => {
     </tr>
     <tr>
       <th style={{fontWeight:"bold"}}>Koordinatlar</th>
-      <th colSpan="11" style={{textAlign:"center"}}>{data[0].location.utm_x ? data[0].location.utm_x : "Girilmemiş" } - {data[0].location.utm_y ? data[0].location.utm_y : "Girilmemiş"}</th>
+      <th colSpan="11" style={{textAlign:"center"}}>{data[0].location.dd_east ? data[0].location.dd_east : "Girilmemiş" } - {data[0].location.dd_north ? data[0].location.dd_north : "Girilmemiş"}</th>
     </tr>
     <tr>
       <th style={{fontWeight:"bold", color:"black"}}>tarih</th>

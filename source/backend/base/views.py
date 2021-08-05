@@ -631,8 +631,12 @@ def allBetweenDates(bolge, yer, parametre, sdata):
 @api_view(["GET"])
 #@permission_classes([IsAuthenticated])
 def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
-    start = yil1 + "-01-01"
-    end = yil2 + "-12-30"
+    if int(yil1) < int(yil2):
+        start = yil1 + "-01-01"
+        end = yil2 + "-12-30"
+    else:
+        start = yil2 + "-01-01"
+        end = yil1 + "-12-30"
     reading = Reading.objects.select_related("reading_type", "location").filter(
         location__bolge_adi=bolge, location__yer=yer, date__range=[start, end],
     )
