@@ -23,6 +23,9 @@ urlpatterns = [
     path('api/csv/<str:bolge>/<str:yer>/<int:yil>/', views.getDataCsvWithParams, name="datacsvparams"),
     path('api/arima/<str:tip>/<str:bolge>/<str:yer>/<str:parametre>/', views.getArimaResults, name="dataarima"),
 
+    path('api/referans/<int:yil>/<str:tip>',views.getReference,name="referans"),
+    path('api/postreferans/',views.postReference,name="postreferans"),
+
     path('api/csv', views.getDataCSV, name="datacsv"),
     path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"),
 

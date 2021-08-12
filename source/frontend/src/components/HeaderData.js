@@ -3,7 +3,7 @@ import {Navbar,Nav,Container,Form,FormControl,Button} from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
 import {ReactComponent as IconLogo} from '../../src/logo.svg'
 import { Link } from 'react-router-dom'
-const Header = () => {
+const HeaderData = () => {
 
     return (
         <header style={{marginBottom: "16px"}}>
@@ -28,9 +28,6 @@ const Header = () => {
                   <LinkContainer to={"/aritma"}>
                       <Nav.Link >Arıtma</Nav.Link>
                   </LinkContainer>
-                  <LinkContainer to={"/referans"}>
-                      <Nav.Link >Referans</Nav.Link>
-                  </LinkContainer>
                   <LinkContainer to={"/logout"}>
                     <Button variant="outline-secondary" size="sm">
                       Çıkış
@@ -47,4 +44,4 @@ const Header = () => {
 
 }
 
-export default Header;
+export default HeaderData;

@@ -5,36 +5,36 @@ import {Button} from 'react-bootstrap'
 
 const BarGraph = ({id,data,label,unit,colors,months,submitReferans, is_all,yillar , isParameterAll}) => {
     const [chartData,setChartData] = useState({})
-    const [colorsState, setColorsState] = useState(colors)
-    const [isOpen, setIsOpen] = useState(false)
-    const openModal = () => setIsOpen(true)
-    const closeModal = () => setIsOpen(false)
-    const  handleSubmit =(comingData) => {
-        let customColors =[]
-        data.map(dataItem => {
-            if(dataItem == null || dataItem == undefined)
-                customColors.push("rgb(0, 0, 0)")
-            else if(dataItem <= comingData.birinci)
-                customColors.push("rgb(102, 209, 242)")
-            else if(dataItem <= comingData.ikinci)
-                customColors.push("rgb(197, 218, 141)")     
-            else if(dataItem <= comingData.ucuncu)
-                customColors.push("rgb(240, 221, 137)") 
-            else
-                customColors.push("rgb(245, 103, 126)")                     
-        })
-        console.log(customColors)
-        setColorsState([...customColors])
-        submitReferans(comingData)
-        setIsOpen(false)
-    }
+    // const [colorsState, setColorsState] = useState(colors)
+    // const [isOpen, setIsOpen] = useState(false)
+    // const openModal = () => setIsOpen(true)
+    // const closeModal = () => setIsOpen(false)
+    // const  handleSubmit =(comingData) => {
+    //     let customColors =[]
+    //     data.map(dataItem => {
+    //         if(dataItem == null || dataItem == undefined)
+    //             customColors.push("rgb(0, 0, 0)")
+    //         else if(dataItem <= comingData.birinci)
+    //             customColors.push("rgb(102, 209, 242)")
+    //         else if(dataItem <= comingData.ikinci)
+    //             customColors.push("rgb(197, 218, 141)")     
+    //         else if(dataItem <= comingData.ucuncu)
+    //             customColors.push("rgb(240, 221, 137)") 
+    //         else
+    //             customColors.push("rgb(245, 103, 126)")                     
+    //     })
+    //     console.log(customColors)
+    //     setColorsState([...customColors])
+    //     submitReferans(comingData)
+    //     setIsOpen(false)
+    // }
     const chart =  ()=>{
         setChartData({
             labels: convertMonths(months),
             datasets: [{
                 //label: label + " - " + unit + " ( mg/L )",
                 label: label ,
-                backgroundColor: colors.length < 2 ? ["rgba(52, 92, 96, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"] : colorsState,
+                backgroundColor: colors === null ? ["rgba(52, 92, 96, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"] : colors,
                 borderColor: "transparent",
                 borderWidth: 2,
                 // hoverBackgroundColor: ["rgba(52, 92, 96, 1)", "rgba(60, 48, 89, 1)", "rgba(204, 68, 68, 1)", "rgba(226, 180, 100, 1)", "rgba(182, 216, 107, 1)", "rgba(103, 155, 163, 1)", "rgba(36, 102, 112, 1)", "rgba(156, 214, 190, 1)", "rgba(219, 105, 105, 1)", "rgba(163, 103, 131, 1)", "rgba(255, 175, 59, 1)", "rgba(182, 73, 38, 1)"],
@@ -50,7 +50,7 @@ const BarGraph = ({id,data,label,unit,colors,months,submitReferans, is_all,yilla
     useEffect(()=>{
         chart()
 
-    },[colorsState])
+    },[])
    
     const convertMonths = (months) =>{
         const labels = []
@@ -150,7 +150,7 @@ const BarGraph = ({id,data,label,unit,colors,months,submitReferans, is_all,yilla
                           <div>
         {/* other components */}
 
-        { !isParameterAll ? <Button onClick={openModal} variant="outline-info" size="sm">Referans Aralıklarını Özelleştir</Button> : ""} 
+        {/* { !isParameterAll ? <Button onClick={openModal} variant="outline-info" size="sm">Referans Aralıklarını Özelleştir</Button> : ""} 
 
         { isOpen ? 
           <ModalForm 
@@ -160,7 +160,7 @@ const BarGraph = ({id,data,label,unit,colors,months,submitReferans, is_all,yilla
           /> 
           : 
           null 
-        }
+        } */}
       </div>
 
         </>

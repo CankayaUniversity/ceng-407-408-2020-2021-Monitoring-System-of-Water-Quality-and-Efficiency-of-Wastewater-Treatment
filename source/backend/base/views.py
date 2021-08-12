@@ -70,7 +70,7 @@ class BlacklistTokenUpdateView(APIView):
 #@permission_classes([IsAuthenticated])
 def postVeriGirisi(request):
     insert_to_db = []
-
+    print(request.data)
     # get parameters
     readingTypeArray = clearReadingTypes(request.data["table_type"])
     stringParameters = ['Açıklama', 'Renk', 'Koku', 'Renk / Koku']
@@ -98,9 +98,9 @@ def postVeriGirisi(request):
         for i in iler:
             rt = ReadingType.objects.get(name= request.data[i]["id"])
             if (str(rt) in stringParameters):
-                print(str(rt))
-                r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_string_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
-                insert_to_db.append(r)
+                if request.data[i][ay[0]] != None:
+                    r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_string_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
+                    insert_to_db.append(r)
             else:
                 if request.data[i][ay[0]] != None:
                     if request.data[i][ay[0]] == "":
@@ -115,7 +115,7 @@ def postVeriGirisi(request):
                     r = Reading(reading_type= rt, table_type=request.data["table_type"], location= lc,  reading_value= request.data[i][ay[0]], unique_row_id= max_row_id + 1, date=dateValue) #araliklar
                     insert_to_db.append(r)
         max_row_id += 1
-    print('insert db')
+    print(insert_to_db)
     # Reading.objects.bulk_create(insert_to_db)
     return Response()
 
@@ -280,127 +280,197 @@ def fillEmptyData(data,date,stringData):
     return filledData
 
 def getReferenceAndColors(data, table_type, parametre):
+    stringParameters = ['Açıklama', 'Renk', 'Koku', 'Renk / Koku', 'Debi (Saniye)']
     referenceAndColors = []
+    if parametre in stringParameters:
+        referenceAndColors.append(None)
+        referenceAndColors.append(None)
+        return referenceAndColors
     referans = []
     colors = []
-    print(parametre)
-    if parametre == "pH":
-        referans.append([1, 1, 1.5, 1.5])
-        for value in data[0]:
+    year = data[1][1][:4]
+    if int(year) < 2021:
+        y_year = 2021
+        references = Reference.objects.filter(yonetmelik_yili=y_year, su_tipi=table_type)
+        serialize = ReferenceSerializer(references, many=True)
+        p = str(parametre).replace(" ", "_")
+        print(p)
+        aralik = []
+        for i in range(5):
+            if serialize.data[i][p] != None:
+                referans.append(serialize.data[i][p])
+    print(referans.__len__())
+    # if parametre == "pH":
+    #     referans.append([1, 1, 1.5, 1.5])
+    #     for value in data[0]:
+    #         if value == None:
+    #             colors.append("rgb(255, 255, 255)")
+    #         elif abs(value - 7) < referans[0][0]:
+    #             colors.append("rgb(102, 209, 242)")
+    #         elif abs(value - 7) < referans[0][1]:
+    #             colors.append("rgb(197, 218, 141)")
+    #         elif abs(value - 7) < referans[0][2]:
+    #             colors.append("rgb(240, 221, 137)")
+    #         else:
+    #             colors.append("rgb(245, 103, 126)")
+    # elif parametre == "Çözünmüş Oksijen":
+    #     referans.append([90,70,40,40])
+    #     for value in data[0]:
+    #         if value == None:
+    #             colors.append("rgb(255, 255, 255)")
+    #         elif value > referans[0][0]:
+    #             colors.append("rgb(102, 209, 242)")
+    #         elif value > referans[0][1]:
+    #             colors.append("rgb(197, 218, 141)")
+    #         elif value > referans[0][2]:
+    #             colors.append("rgb(240, 221, 137)")
+    #         else:
+    #             colors.append("rgb(245, 103, 126)")
+    sinifColors = ["rgb(100, 210, 240)","rgb(200, 220, 140)","rgb(240, 220, 135)","rgb(245, 180, 100)","rgb(245, 100, 125)"]
+    for value in data[0]:
+        if referans.__len__() != 0:
             if value == None:
                 colors.append("rgb(255, 255, 255)")
-            elif abs(value - 7) < referans[0][0]:
-                colors.append("rgb(102, 209, 242)")
-            elif abs(value - 7) < referans[0][1]:
-                colors.append("rgb(197, 218, 141)")
-            elif abs(value - 7) < referans[0][2]:
-                colors.append("rgb(240, 221, 137)")
             else:
-                colors.append("rgb(245, 103, 126)")
-    elif parametre == "Çözünmüş Oksijen":
-        referans.append([90,70,40,40])
-        for value in data[0]:
-            if value == None:
-                colors.append("rgb(255, 255, 255)")
-            elif value > referans[0][0]:
-                colors.append("rgb(102, 209, 242)")
-            elif value > referans[0][1]:
-                colors.append("rgb(197, 218, 141)")
-            elif value > referans[0][2]:
-                colors.append("rgb(240, 221, 137)")
-            else:
-                colors.append("rgb(245, 103, 126)")
-    elif table_type == "Akarsu":
-        for aralik in referansAraliklari.akarsuAralık:
-            if aralik[0] == parametre:
-                if len(aralik[1]) < 4:
-                    referans.append(None)
-                    colors.append("rgb(200, 255, 55)")
-                else:
-                    referans.append(aralik[1])
-                    print(referans)
-                    for value in data[0]:
-                        if value == None:
-                            colors.append("rgb(255, 255, 255)")
-                        elif value < referans[0][0]:
-                            colors.append("rgb(102, 209, 242)")
-                        elif value < referans[0][1]:
-                            colors.append("rgb(197, 218, 141)")
-                        elif value < referans[0][2]:
-                            colors.append("rgb(240, 221, 137)")
-                        else:
-                            colors.append("rgb(245, 103, 126)")
-    elif table_type == "Deniz":
-        for aralik in referansAraliklari.denizAralık:
-            if aralik[0] == parametre:
-                if len(aralik[1]) < 4:
-                    referans.append(None)
-                    colors.append("rgb(200, 255, 55)")
-                else:
-                    referans.append(aralik[1])
-                    print(referans)
-                    for value in data[0]:
-                        if value == None:
-                            colors.append("rgb(255, 255, 255)")
-                        elif value < referans[0][0]:
-                            colors.append("rgb(102, 209, 242)")
-                        elif value < referans[0][1]:
-                            colors.append("rgb(197, 218, 141)")
-                        elif value < referans[0][2]:
-                            colors.append("rgb(240, 221, 137)")
-                        else:
-                            colors.append("rgb(245, 103, 126)")
-    elif table_type == "Göl":
-        for aralik in referansAraliklari.gölAralık:
-            if aralik[0] == parametre:
-                if len(aralik[1]) < 4:
-                    referans.append(None)
-                    colors.append("rgb(200, 255, 55)")
-                else:
-                    referans.append(aralik[1])
-                    print(referans)
-                    for value in data[0]:
-                        if value == None:
-                            colors.append("rgb(255, 255, 255)")
-                        elif value < referans[0][0]:
-                            colors.append("rgb(102, 209, 242)")
-                        elif value < referans[0][1]:
-                            colors.append("rgb(197, 218, 141)")
-                        elif value < referans[0][2]:
-                            colors.append("rgb(240, 221, 137)")
-                        else:
-                            colors.append("rgb(245, 103, 126)")
-    elif table_type == "Arıtma":
-        for aralik in referansAraliklari.arıtmaAralık:
-            if aralik[0] == parametre:
-                if len(aralik[1]) < 4:
-                    referans.append(None)
-                    colors.append("rgb(200, 255, 55)")
-                else:
-                    referans.append(aralik[1])
-                    print(referans)
-                    for value in data[0]:
-                        if value == None:
-                            colors.append("rgb(255, 255, 255)")
-                        elif value < referans[0][0]:
-                            colors.append("rgb(102, 209, 242)")
-                        elif value < referans[0][1]:
-                            colors.append("rgb(197, 218, 141)")
-                        elif value < referans[0][2]:
-                            colors.append("rgb(240, 221, 137)")
-                        else:
-                            colors.append("rgb(245, 103, 126)")
-    else:
-        return None
+                flag = True
+                for i in range(referans.__len__()):
+                    if value < referans[i]:
+                        flag = False
+                        colors.append(sinifColors[i])
+                        break
+                if flag:
+                    colors.append("rgb(245, 100, 125)")
+        # else:
+        #     colors.append("rgb(255, 255, 255)")
 
-    if referans == None:
+    if referans.__len__() == 0:
         referenceAndColors.append(None)
     else:
-        referenceAndColors.append(referans[0])
+        referenceAndColors.append(referans)
 
-    referenceAndColors.append(colors)
+    if colors.__len__() == 0:
+        referenceAndColors.append(None)
+    else:
+        referenceAndColors.append(colors)
 
     return referenceAndColors
+    # if parametre == "pH":
+    #     referans.append([1, 1, 1.5, 1.5])
+    #     for value in data[0]:
+    #         if value == None:
+    #             colors.append("rgb(255, 255, 255)")
+    #         elif abs(value - 7) < referans[0][0]:
+    #             colors.append("rgb(102, 209, 242)")
+    #         elif abs(value - 7) < referans[0][1]:
+    #             colors.append("rgb(197, 218, 141)")
+    #         elif abs(value - 7) < referans[0][2]:
+    #             colors.append("rgb(240, 221, 137)")
+    #         else:
+    #             colors.append("rgb(245, 103, 126)")
+    # elif parametre == "Çözünmüş Oksijen":
+    #     referans.append([90,70,40,40])
+    #     for value in data[0]:
+    #         if value == None:
+    #             colors.append("rgb(255, 255, 255)")
+    #         elif value > referans[0][0]:
+    #             colors.append("rgb(102, 209, 242)")
+    #         elif value > referans[0][1]:
+    #             colors.append("rgb(197, 218, 141)")
+    #         elif value > referans[0][2]:
+    #             colors.append("rgb(240, 221, 137)")
+    #         else:
+    #             colors.append("rgb(245, 103, 126)")
+    # elif table_type == "Akarsu":
+    #     for aralik in referansAraliklari.akarsuAralık:
+    #         if aralik[0] == parametre:
+    #             if len(aralik[1]) < 4:
+    #                 referans.append(None)
+    #                 colors.append("rgb(200, 255, 55)")
+    #             else:
+    #                 referans.append(aralik[1])
+    #                 print(referans)
+    #                 for value in data[0]:
+    #                     if value == None:
+    #                         colors.append("rgb(255, 255, 255)")
+    #                     elif value < referans[0][0]:
+    #                         colors.append("rgb(102, 209, 242)")
+    #                     elif value < referans[0][1]:
+    #                         colors.append("rgb(197, 218, 141)")
+    #                     elif value < referans[0][2]:
+    #                         colors.append("rgb(240, 221, 137)")
+    #                     else:
+    #                         colors.append("rgb(245, 103, 126)")
+    # elif table_type == "Deniz":
+    #     for aralik in referansAraliklari.denizAralık:
+    #         if aralik[0] == parametre:
+    #             if len(aralik[1]) < 4:
+    #                 referans.append(None)
+    #                 colors.append("rgb(200, 255, 55)")
+    #             else:
+    #                 referans.append(aralik[1])
+    #                 print(referans)
+    #                 for value in data[0]:
+    #                     if value == None:
+    #                         colors.append("rgb(255, 255, 255)")
+    #                     elif value < referans[0][0]:
+    #                         colors.append("rgb(102, 209, 242)")
+    #                     elif value < referans[0][1]:
+    #                         colors.append("rgb(197, 218, 141)")
+    #                     elif value < referans[0][2]:
+    #                         colors.append("rgb(240, 221, 137)")
+    #                     else:
+    #                         colors.append("rgb(245, 103, 126)")
+    # elif table_type == "Göl":
+    #     for aralik in referansAraliklari.gölAralık:
+    #         if aralik[0] == parametre:
+    #             if len(aralik[1]) < 4:
+    #                 referans.append(None)
+    #                 colors.append("rgb(200, 255, 55)")
+    #             else:
+    #                 referans.append(aralik[1])
+    #                 print(referans)
+    #                 for value in data[0]:
+    #                     if value == None:
+    #                         colors.append("rgb(255, 255, 255)")
+    #                     elif value < referans[0][0]:
+    #                         colors.append("rgb(102, 209, 242)")
+    #                     elif value < referans[0][1]:
+    #                         colors.append("rgb(197, 218, 141)")
+    #                     elif value < referans[0][2]:
+    #                         colors.append("rgb(240, 221, 137)")
+    #                     else:
+    #                         colors.append("rgb(245, 103, 126)")
+    # elif table_type == "Arıtma":
+    #     for aralik in referansAraliklari.arıtmaAralık:
+    #         if aralik[0] == parametre:
+    #             if len(aralik[1]) < 4:
+    #                 referans.append(None)
+    #                 colors.append("rgb(200, 255, 55)")
+    #             else:
+    #                 referans.append(aralik[1])
+    #                 print(referans)
+    #                 for value in data[0]:
+    #                     if value == None:
+    #                         colors.append("rgb(255, 255, 255)")
+    #                     elif value < referans[0][0]:
+    #                         colors.append("rgb(102, 209, 242)")
+    #                     elif value < referans[0][1]:
+    #                         colors.append("rgb(197, 218, 141)")
+    #                     elif value < referans[0][2]:
+    #                         colors.append("rgb(240, 221, 137)")
+    #                     else:
+    #                         colors.append("rgb(245, 103, 126)")
+    # else:
+    #     return None
+
+    # if referans == None:
+    #     referenceAndColors.append(None)
+    # else:
+    #     referenceAndColors.append(referans[0])
+
+    # referenceAndColors.append(colors)
+
+    # return referenceAndColors
 
 
 
@@ -439,6 +509,7 @@ def JsonVeri(bolge, yer, parametre, yil):
 
     filledData = fillEmptyData(readingValues, dateValues, readingStringValues)
     referenceAndColors = getReferenceAndColors(filledData, serialize.data[0]["table_type"], serialize.data[0]["reading_type"]["name"])
+    print(referenceAndColors[1])
     jsonObject = {
         "location": {
             "numune_adi": serialize.data[0]["location"]["numune_adi"],
@@ -558,7 +629,6 @@ def allParametreYear(bolge, yer, parametre, yil):
 @api_view(["GET"])
 #@permission_classes([IsAuthenticated])
 def getSpecificReading(request, bolge, yer, parametre, yil):
-    reading = Reading.objects.all()
 
     # butun parametreler + butun yillar
     if parametre == "all" and yil == "all":
@@ -871,3 +941,215 @@ def getSpecificMonths(request, tip, bolge, yer, yil):
         "months": dateValues,
     }
     return Response(jsn)
+
+@api_view(["GET"])
+#@permission_classes([IsAuthenticated])
+def getReference(request, yil, tip):
+    references = Reference.objects.filter(yonetmelik_yili=yil, su_tipi=tip)
+    parametreler = [
+        "Amonyum_Azotu",
+        "Elektriksel_İletkenlik",
+        "Toplam_Koliform",
+        "Tuzluluk",
+        "Nitrat_Azotu",
+        "Çözünmüş_Oksijen",
+        "Biyokimyasal_Oksijen_İhtiyacı",
+        "Toplam_Pestisit",
+        "Debi",
+        "Kimyasal_Oksijen_İhtiyacı",
+        "Nitrit_Azotu",
+        "Toplam_Kjeldahl_Azotu",
+        "Fekal_Koliform",
+        "Toplam_Fosfor",
+        "Sıcaklık",
+        "Toplam_Çözünmüş_Madde",
+        "Askıda_Katı_Madde",
+        "Orto_Fosfat",
+        "Fekal_Streptokok",
+        "Amonyak",
+        "Toplam_Fenol",
+        "Klorofil",
+        "Toplam_Azot",
+        "Işık_Geçirgenliği",
+        "Yağ",
+        "pH",
+        "Renk",
+        "Renk_Koku",
+        "Koku",
+    ]
+    jsnArray = []
+
+    if not references:
+        for p in parametreler:
+            jsn = {
+                'id': p,
+                'Sınıf_1': None,
+                'Sınıf_2': None,
+                'Sınıf_3': None,
+                'Sınıf_4': None,
+                'Sınıf_5': None,
+            }
+            jsnArray.append(jsn)
+        return Response(jsnArray)
+
+    serialize = ReferenceSerializer(references, many=True)
+    for p in parametreler:
+        valueArray = []
+        for i in range(5):
+            print(serialize.data[i][p])
+            valueArray.append(serialize.data[i][p])
+        jsn = {
+            'id': p,
+            'Sınıf_1': valueArray[0],
+            'Sınıf_2': valueArray[1],
+            'Sınıf_3': valueArray[2],
+            'Sınıf_4': valueArray[3],
+            'Sınıf_5': valueArray[4],
+        }
+        jsnArray.append(jsn)
+    return Response(jsnArray)
+
+@api_view(["POST"])
+#@permission_classes([IsAuthenticated])
+def postReference(request):
+    siniflar = ['Sınıf_1','Sınıf_2','Sınıf_3','Sınıf_4','Sınıf_5']
+    params = []
+    data = []
+    iler = []
+    for i in range(29):
+        iler.append(str(i))
+    
+    for i in iler:
+        params.append(request.data[i]['id'])
+        values = []
+        for s in siniflar:
+            values.append(request.data[i][s])
+        jsn = {
+            request.data[i]['id']: values
+        }
+        data.append(jsn)
+
+    parametreler = [
+			"Amonyum_Azotu",
+			"Elektriksel_İletkenlik",
+			"Toplam_Koliform",
+			"Tuzluluk",
+			"Nitrat_Azotu",
+			"Çözünmüş_Oksijen",
+			"Biyokimyasal_Oksijen_İhtiyacı",
+			"Toplam_Pestisit",
+			"Debi",
+			"Kimyasal_Oksijen_İhtiyacı",
+			"Nitrit_Azotu",
+			"Toplam_Kjeldahl_Azotu",
+			"Fekal_Koliform",
+			"Toplam_Fosfor",
+			"Sıcaklık",
+			"Toplam_Çözünmüş_Madde",
+			"Askıda_Katı_Madde",
+			"Orto_Fosfat",
+			"Fekal_Streptokok",
+			"Amonyak",
+			"Toplam_Fenol",
+			"Klorofil",
+			"Toplam_Azot",
+			"Işık_Geçirgenliği",
+			"Yağ",
+			"pH",
+			"Renk",
+			"Renk_Koku",
+			"Koku",
+		]
+    sinifArray = []
+    for i in range(5):
+        k = 0
+        sinifValues = []
+        for p in parametreler:
+            sinifValues.append(data[k][p][i])
+            k = k+1
+        sinifArray.append(sinifValues)
+    
+    sinifStrings = ['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf']
+
+    references = Reference.objects.filter(yonetmelik_yili=request.data["yonetmelik_yili"], su_tipi=request.data["table_type"])
+    if not references:
+        #create new
+        insert_to_db = []
+        for i in range(5):
+            r = Reference(
+                yonetmelik_yili = request.data["yonetmelik_yili"],
+                su_tipi = request.data["table_type"],
+                sinif = sinifStrings[i],
+
+                Amonyum_Azotu = sinifArray[i][0],
+                Elektriksel_İletkenlik = sinifArray[i][1],
+                Toplam_Koliform = sinifArray[i][2],
+                Tuzluluk = sinifArray[i][3],
+                Nitrat_Azotu = sinifArray[i][4],
+                Çözünmüş_Oksijen = sinifArray[i][5],
+                Biyokimyasal_Oksijen_İhtiyacı = sinifArray[i][6],
+                Toplam_Pestisit = sinifArray[i][7],
+                Debi = sinifArray[i][8],
+                Kimyasal_Oksijen_İhtiyacı = sinifArray[i][9],
+                Nitrit_Azotu = sinifArray[i][10],
+                Toplam_Kjeldahl_Azotu = sinifArray[i][11],
+                Fekal_Koliform = sinifArray[i][12],
+                Toplam_Fosfor = sinifArray[i][13],
+                Sıcaklık = sinifArray[i][14],
+                Toplam_Çözünmüş_Madde = sinifArray[i][15],
+                Askıda_Katı_Madde = sinifArray[i][16],
+                Orto_Fosfat = sinifArray[i][17],
+                Fekal_Streptokok = sinifArray[i][18],
+                Amonyak = sinifArray[i][19],
+                Toplam_Fenol = sinifArray[i][20],
+                Klorofil = sinifArray[i][21],
+                Toplam_Azot = sinifArray[i][22],
+                Işık_Geçirgenliği = sinifArray[i][23],
+                Yağ = sinifArray[i][24],
+                pH = sinifArray[i][25],
+                Renk = sinifArray[i][26],
+                Renk_Koku = sinifArray[i][27],
+                Koku = sinifArray[i][28],
+            )
+            insert_to_db.append(r)
+        Reference.objects.bulk_create(insert_to_db)
+        return Response()
+    else:
+        #update
+        for i in range(5):
+            r = Reference.objects.get(
+                yonetmelik_yili = request.data["yonetmelik_yili"],
+                su_tipi = request.data["table_type"],
+                sinif = sinifStrings[i],
+            )
+            r.Amonyum_Azotu = sinifArray[i][0]
+            r.Elektriksel_İletkenlik = sinifArray[i][1]
+            r.Toplam_Koliform = sinifArray[i][2]
+            r.Tuzluluk = sinifArray[i][3]
+            r.Nitrat_Azotu = sinifArray[i][4]
+            r.Çözünmüş_Oksijen = sinifArray[i][5]
+            r.Biyokimyasal_Oksijen_İhtiyacı = sinifArray[i][6]
+            r.Toplam_Pestisit = sinifArray[i][7]
+            r.Debi = sinifArray[i][8]
+            r.Kimyasal_Oksijen_İhtiyacı = sinifArray[i][9]
+            r.Nitrit_Azotu = sinifArray[i][10]
+            r.Toplam_Kjeldahl_Azotu = sinifArray[i][11]
+            r.Fekal_Koliform = sinifArray[i][12]
+            r.Toplam_Fosfor = sinifArray[i][13]
+            r.Sıcaklık = sinifArray[i][14]
+            r.Toplam_Çözünmüş_Madde = sinifArray[i][15]
+            r.Askıda_Katı_Madde = sinifArray[i][16]
+            r.Orto_Fosfat = sinifArray[i][17]
+            r.Fekal_Streptokok = sinifArray[i][18]
+            r.Amonyak = sinifArray[i][19]
+            r.Toplam_Fenol = sinifArray[i][20]
+            r.Klorofil = sinifArray[i][21]
+            r.Toplam_Azot = sinifArray[i][22]
+            r.Işık_Geçirgenliği = sinifArray[i][23]
+            r.Yağ = sinifArray[i][24]
+            r.pH = sinifArray[i][25]
+            r.Renk = sinifArray[i][26]
+            r.Renk_Koku = sinifArray[i][27]
+            r.Koku = sinifArray[i][28]
+            r.save()
+        return Response()

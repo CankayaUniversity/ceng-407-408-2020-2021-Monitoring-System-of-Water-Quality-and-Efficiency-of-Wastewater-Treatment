@@ -46,3 +46,44 @@ class Reading(models.Model):
     class Meta:
         verbose_name = 'Değer'
         verbose_name_plural = 'Değerler'
+
+class Reference(models.Model):
+    yonetmelik_yili = models.CharField(max_length = 15, null = True, blank=True)
+    su_tipi = models.CharField(max_length = 15, null = True, blank=True)
+    sinif = models.CharField(max_length = 15, null = True, blank=True)
+    Amonyum_Azotu = models.FloatField(max_length = 15, null = True, blank=True)
+    Elektriksel_İletkenlik = models.FloatField(max_length = 15, null = True, blank=True)
+    Toplam_Koliform = models.FloatField(max_length = 15, null = True, blank=True)
+    Tuzluluk = models.FloatField(max_length = 15, null = True, blank=True)
+    Nitrat_Azotu = models.FloatField(max_length = 15, null = True, blank=True)
+    Çözünmüş_Oksijen = models.FloatField(max_length = 15, null = True, blank=True)
+    Biyokimyasal_Oksijen_İhtiyacı = models.FloatField(max_length = 15, null = True, blank=True)
+    Toplam_Pestisit = models.FloatField(max_length = 15, null = True, blank=True)
+    Debi = models.FloatField(max_length = 15, null = True, blank=True)
+    Kimyasal_Oksijen_İhtiyacı = models.FloatField(max_length = 15, null = True, blank=True)
+    Nitrit_Azotu = models.FloatField(max_length = 15, null = True, blank=True)
+    Toplam_Kjeldahl_Azotu = models.FloatField(max_length = 15, null = True, blank=True)
+    Fekal_Koliform = models.FloatField(max_length = 15, null = True, blank=True)
+    Toplam_Fosfor = models.FloatField(max_length = 15, null = True, blank=True)
+    Sıcaklık = models.FloatField(max_length = 15, null = True, blank=True)
+    Toplam_Çözünmüş_Madde = models.FloatField(max_length = 15, null = True, blank=True)
+    Askıda_Katı_Madde = models.FloatField(max_length = 15, null = True, blank=True)
+    Orto_Fosfat = models.FloatField(max_length = 15, null = True, blank=True)
+    Fekal_Streptokok = models.FloatField(max_length = 15, null = True, blank=True)
+    Amonyak = models.FloatField(max_length = 15, null = True, blank=True)
+    Toplam_Fenol = models.FloatField(max_length = 15, null = True, blank=True)
+    Klorofil = models.FloatField(max_length = 15, null = True, blank=True)
+    Toplam_Azot = models.FloatField(max_length = 15, null = True, blank=True)
+    Işık_Geçirgenliği = models.FloatField(max_length = 15, null = True, blank=True)
+    Yağ = models.FloatField(max_length = 15, null = True, blank=True)
+    pH = models.CharField(max_length = 15, null = True, blank=True)
+    Renk = models.CharField(max_length = 15, null = True, blank=True)
+    Renk_Koku = models.CharField(max_length = 15, null = True, blank=True)
+    Koku = models.CharField(max_length = 15, null = True, blank=True)
+    
+    def __str__(self):
+        return str(self.yonetmelik_yili + ': ' + self.su_tipi + ' - ' + self.sinif)
+
+    class Meta:
+        verbose_name = 'Referans Aralık'
+        verbose_name_plural = 'Referans Aralıkları'

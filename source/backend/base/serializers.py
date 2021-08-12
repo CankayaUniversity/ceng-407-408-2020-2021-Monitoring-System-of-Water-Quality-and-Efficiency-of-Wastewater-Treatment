@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Location, Reading, ReadingType
+from .models import Location, Reading, ReadingType, Reference
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -55,3 +55,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         if self.user.groups.filter(name = "veriGirisci").exists():
             data['group'] = "veriGirisci"
         return data
+
+class ReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reference
+        fields = '__all__'
