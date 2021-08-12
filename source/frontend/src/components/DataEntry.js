@@ -42,19 +42,10 @@ const DataEntry = (props) => {
 	const [parametreOptionsState, setParametreOptions] = useState([])
 	const [selectedNumuneKodu, setSelectedNumuneKodu] = useState("")
 	const [selectedYil, setSelectedYil] = useState("")
-	const [enlem, setEnlem] = useState()
-	const [boylam, setBoylam] = useState()
 	const [isClicked, setIsClicked] = useState(false)
 	const [showYil, setShowYil] = useState(false);
-	const [showKod, setShowKod] = useState(false);
-	const [showEnlem, setShowEnlem] = useState(false);
-	const [showBoylam, setShowBoylam] = useState(false);
 	const [showAlert, setShowAlert] = useState(false);
 	const targetYil = useRef(null);
-	const targetKod = useRef(null);
-	const targetEnlem = useRef(null);
-	const targetBoylam = useRef(null);
-	const [field, setField] = useState("");
 	const [yillar, setYillar] = useState([]);
 
 	const [open, setOpen] = useState(false);
@@ -481,9 +472,6 @@ const DataEntry = (props) => {
 				...parametreOptionsState,
 				bolge_adi: selectedBolge,
 				yer: selectedYer,
-				numune_adi: selectedNumuneKodu,
-				utm_x: enlem,
-				utm_y: boylam,
 				date: selectedYil,
 				table_type: locationType,
 			})
@@ -517,8 +505,6 @@ const DataEntry = (props) => {
 				setSelectedBolge("")
 				setSelectedYer("")
 				setSelectedNumuneKodu("")
-				setEnlem("")
-				setBoylam("")
 				setSelectedYil("")
 				setIsLoading(false)
 				setIsClicked(false)
@@ -560,42 +546,6 @@ const DataEntry = (props) => {
 			setShowYil(false)
 		}
 	}
-	function handleBlurKod(f,e){
-		var format = /[!-\/:-@[-`{-~]/;
-		if(format.test(selectedNumuneKodu)){
-			console.log('invalid')
-			setSelectedNumuneKodu('')
-			setShowKod(true)
-		}
-		else{
-			console.log('valid')
-			setShowKod(false)
-		}
-	}
-	function handleBlurEnlem(f,e){
-		var num = Number(enlem)
-		if(isNaN(num)){
-			console.log('invalid')
-			setEnlem('')
-			setShowEnlem(true)
-		}
-		else{
-			console.log('valid')
-			setShowEnlem(false)
-		}
-	}
-	function handleBlurBoylam(f,e){
-		var num = Number(boylam)
-		if(isNaN(num)){
-			console.log('invalid')
-			setBoylam('')
-			setShowBoylam(true)
-		}
-		else{
-			console.log('valid')
-			setShowBoylam(false)
-		}
-	}
 
 	return (
 		<div>
@@ -615,8 +565,6 @@ const DataEntry = (props) => {
 									fetchYer(e)
 									setSelectedYer("")
 									setSelectedNumuneKodu("")
-									setEnlem("")
-									setBoylam("")
 									setSelectedYil("")
 									setIsClicked(false)
 									setShowAlert(false)
@@ -641,8 +589,6 @@ const DataEntry = (props) => {
 							onChange={(e) => {
 								setSelectedYer(e)
 								setSelectedNumuneKodu("")
-								setEnlem("")
-								setBoylam("")
 								setSelectedYil("")
 								setIsClicked(false)
 								fetchYillar(e)
@@ -658,8 +604,6 @@ const DataEntry = (props) => {
 							<FormControl onChange={(e) => {
 								setSelectedYil(e.target.value)
 								setSelectedNumuneKodu("")
-								setEnlem("")
-								setBoylam("")
 								setIsClicked(false)
 								setShowAlert(false)
 							}} value={selectedYil || ""} onBlur={handleBlurYil.bind(this)}/>
@@ -728,91 +672,6 @@ const DataEntry = (props) => {
 				isClicked ?
 				
 				<Container fluid>
-					<Container className='input-container'>
-						<Row>
-							{/* <Col xs={12} sm={12} md={12} lg={4} xl={4}>
-								<InputGroup ref={targetKod} className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
-									<InputGroup.Prepend>
-										<InputGroup.Text>Numune Kodu</InputGroup.Text>
-									</InputGroup.Prepend>
-									<FormControl onChange={(e) => setSelectedNumuneKodu(e.target.value)} value={selectedNumuneKodu || ""} onBlur={handleBlurKod.bind(this)}/>
-								</InputGroup>
-								<Overlay target={targetKod.current} show={showKod} placement="bottom">
-									{({ placement, arrowProps, show: _showKod, popper, ...props }) => (
-									<div
-										{...props}
-										style={{
-										backgroundColor: 'rgba(255, 100, 100, 0.85)',
-										margin: ".3rem 0rem",
-										padding: '8px 16px',
-										color: 'white',
-										borderRadius: 3,
-										width:"300px",
-										boxShadow:"0 .0625rem .125rem rgba(0, 0, 0, 0.15)",
-										...props.style,
-										}}
-									>
-										Uygun numune kodu giriniz.
-									</div>
-									)}
-								</Overlay>
-							</Col> */}
-							<Col xs={12} sm={12} md={6} lg={6} xl={6}>
-								<InputGroup ref={targetEnlem} className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
-									<InputGroup.Prepend>
-										<InputGroup.Text>Enlem (Lat)</InputGroup.Text>
-									</InputGroup.Prepend>
-									<FormControl onChange={(e) => setEnlem(e.target.value)} value={enlem || ""} onBlur={handleBlurEnlem.bind(this)}/>
-								</InputGroup>
-								<Overlay target={targetEnlem.current} show={showEnlem} placement="bottom">
-									{({ placement, arrowProps, show: _showEnlem, popper, ...props }) => (
-									<div
-										{...props}
-										style={{
-										backgroundColor: 'rgba(255, 100, 100, 0.85)',
-										margin: ".3rem 0rem",
-										padding: '8px 16px',
-										color: 'white',
-										borderRadius: 3,
-										width:"300px",
-										boxShadow:"0 .0625rem .125rem rgba(0, 0, 0, 0.15)",
-										...props.style,
-										}}
-									>
-										Uygun enlem giriniz.
-									</div>
-									)}
-								</Overlay>
-							</Col>
-							<Col xs={12} sm={12} md={6} lg={6} xl={6}>
-								<InputGroup ref={targetBoylam} className="mb-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
-									<InputGroup.Prepend>
-										<InputGroup.Text>Boylam (Long)</InputGroup.Text>
-									</InputGroup.Prepend>
-									<FormControl onChange={(e) => setBoylam(e.target.value)} value={boylam || ""} onBlur={handleBlurBoylam.bind(this)}/>
-								</InputGroup>
-								<Overlay target={targetBoylam.current} show={showBoylam} placement="bottom">
-									{({ placement, arrowProps, show: _showBoylam, popper, ...props }) => (
-									<div
-										{...props}
-										style={{
-										backgroundColor: 'rgba(255, 100, 100, 0.85)',
-										margin: ".3rem 0rem",
-										padding: '8px 16px',
-										color: 'white',
-										borderRadius: 3,
-										width:"300px",
-										boxShadow:"0 .0625rem .125rem rgba(0, 0, 0, 0.15)",
-										...props.style,
-										}}
-									>
-										Uygun boylam giriniz.
-									</div>
-									)}
-								</Overlay>
-							</Col>
-						</Row>
-					</Container>
 					<Row>
 						<Col sm={12} md={12} lg={12} xl={12} id="dataCard">
 							<Card className="my-3 p-3" style={{ boxShadow: "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px" }}>
@@ -854,7 +713,7 @@ const DataEntry = (props) => {
 									})}
 								/>
 								<hr />
-								<Button onClick={veriGonder} variant={"outline-info"} disabled={!selectedBolge || !selectedYer || !selectedYil || !selectedNumuneKodu || !enlem || !boylam}>{ isLoading ? <Spinner animation="border" /> : "Gönder"}</Button>
+								<Button onClick={veriGonder} variant={"outline-info"} disabled={!selectedBolge || !selectedYer || !selectedYil || !selectedNumuneKodu}>{ isLoading ? <Spinner animation="border" /> : "Gönder"}</Button>
 
 								{/* <Card.Footer className="text-muted">
 									{ alert.hasAlert ? (
