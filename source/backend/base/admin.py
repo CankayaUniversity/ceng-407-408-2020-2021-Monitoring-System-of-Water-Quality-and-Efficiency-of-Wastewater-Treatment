@@ -16,3 +16,4 @@ class ReadingTypeAdmin(admin.ModelAdmin):
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Reading, ReadingAdmin)
 admin.site.register(ReadingType, ReadingTypeAdmin)
+admin.site.register(Reference)
