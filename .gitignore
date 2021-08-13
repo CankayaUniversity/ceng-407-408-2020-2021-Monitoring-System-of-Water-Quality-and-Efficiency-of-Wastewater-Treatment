@@ -45,3 +45,4 @@ source/backend/base/migrations/__pycache__/*.pyc
 *.exe
 *.7z
 *.bak
+*.htm

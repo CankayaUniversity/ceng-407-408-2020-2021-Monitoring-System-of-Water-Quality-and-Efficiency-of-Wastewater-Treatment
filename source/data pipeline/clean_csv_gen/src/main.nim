@@ -40,11 +40,11 @@ proc extract_tableinfo(input: string): TableInfo =
   let tableData = input.split("_")
 
   result.ttype = case tableData[0]:
-    of "Akarsu", "AKARSU":   TableType.Akarsu
-    of "Arıtma", "ARITMA":   TableType.Aritma
-    of "Göl", "Gol", "GÖL":  TableType.Gol
-    of "Deniz", "DENİZ":     TableType.Deniz
-    of "Yeraltı", "YERALTI": TableType.Yeralti
+    of "Akarsu", "AKARSU", "akarsu":    TableType.Akarsu
+    of "Arıtma", "ARITMA", "arıtma":    TableType.Aritma
+    of "Göl", "Gol", "GÖL", "göl":      TableType.Gol
+    of "Deniz", "DENİZ", "deniz":       TableType.Deniz
+    of "Yeraltı", "YERALTI", "yeraltı": TableType.Yeralti
     else: raise newException(ValueError, "Weird table type:" & tableData[0])
 
   result.year  = parseUInt(tableData[1])
@@ -79,6 +79,7 @@ proc process_line(line: string): Option[Entry] =
     resultingEntry: Entry
     data_parsed:    string
     optionalData:   Option[float64]
+
     filePath    = entryData[0]
     tableName   = entryData[1]
     tableInfo   = extract_tableinfo(tableName)
@@ -125,7 +126,9 @@ proc newRow(entries: seq[Entry]): string =
   try:
     key = entryTable[Feature.numune]
   except:
-    echo "Error ----- " & $entries
+    var condition = ("SINIR DEĞER" in entries[0].data) or (". SINIF" in entries[0].data)
+    if not condition:
+      echo "Error ----- " & $entries
     return ""
 
   if not dirty_to_clean_code.hasKey(key):

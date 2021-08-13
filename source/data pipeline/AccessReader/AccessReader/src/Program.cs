@@ -4,6 +4,7 @@ using System.Data.Odbc;
 using System.IO;
 using System.Collections.Generic; // List<T>, HashSet<T>, ...
 using System.Globalization;       // CultureInfo
+using System.Text;
 
 namespace AccessReader
 {
@@ -12,6 +13,7 @@ namespace AccessReader
         static string folder = "A:\\mdb_databases";
         static StreamWriter writer = new StreamWriter(folder + "\\tsv.txt");
         static StreamWriter empty_writer = new StreamWriter(folder + "\\tsv_empty.txt");
+
         static void Main(string[] args)
         {
             // string cwd = Directory.GetCurrentDirectory();
@@ -32,7 +34,7 @@ namespace AccessReader
                 // allUniqueColumnNames.UnionWith(columnSet);
             }
 
-            // var sortedNBY = new SortedSet<string>();
+            //var sortedNBY = new SortedSet<string>();
             //sorted.UnionWith(allUniqueNBY);
             //foreach (var nby in sorted)
             //{
@@ -104,7 +106,8 @@ namespace AccessReader
         {
             var connectionStr = "Driver={Microsoft Access Driver (*.mdb, *.accdb)}; Dbq=" + filePath + "; Uid = Admin; Pwd =;";
 
-            Console.WriteLine("Connection string is: " + connectionStr);
+            // Console.WriteLine("Connection string is: " + connectionStr);
+            Console.WriteLine("Current access file: " + filePath);
 
             var tableNames = GetTableNames(connectionStr);
 
@@ -122,6 +125,9 @@ namespace AccessReader
                     // The same is true for table names that contain $.
                     continue;
                 }
+
+                // A small optimization to not call everytime we read data.
+                StringBuilder sb = new StringBuilder();
 
                 using (OdbcConnection connection = new OdbcConnection(connectionStr))
                 {
@@ -166,17 +172,23 @@ namespace AccessReader
                                     Console.WriteLine("Error: No " + colName + " field.");
                                 }
 
-                                var toPrint = filePath + "\t" + tblname + "\t(" + rowCount + ")\t" + colName + "\t" + colType + "\t" + content;
+                                content.Replace('\r', ' '); // We don't want newlines in the content
+                                content.Replace('\n', ' ');
+                                content = content.Trim();   // Some rows contain a lot of whitespace and no content. We forgot to check for those!
+
                                 if (content != "" && content != "-" && colName != "No" && colName != "Kimlik")
                                 {
-                                    content.Replace('\r', ' '); // We don't want newlines in the content
-                                    content.Replace('\n', ' '); // We don't want newlines in the content
-                                    writer.WriteLine(toPrint);
+                                    var toPrint = filePath + "\t" + tblname + "\t(" + rowCount + ")\t" + colName + "\t" + colType + "\t" + content;
+                                    sb.Append(toPrint);
+                                    sb.AppendLine();
                                 }
-                                else
+
+                                // No need to log the empty stuff anymore.
+                                /* else
                                 {
                                     empty_writer.WriteLine(toPrint);
                                 }
+                                */
                             }
                             rowCount += 1;
                         }
@@ -190,6 +202,8 @@ namespace AccessReader
                         Console.WriteLine(e);
                     }
                 }
+
+                writer.Write(sb.ToString()); // The optimization
             }
             return (null, null); //(columnSet, numuneBolgeYerCombos);
         }
