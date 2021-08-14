@@ -46,3 +46,4 @@ source/backend/base/migrations/__pycache__/*.pyc
 *.7z
 *.bak
 *.htm
+*.zip
