@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import axios from 'axios'
 import axiosInstance from '../axios'
-import { Redirect, useHistory } from 'react-router-dom'
-import { Container, Button, Form, Card, Alert } from 'react-bootstrap'
+import { useHistory } from 'react-router-dom'
+import { Container, Button, Form, Card } from 'react-bootstrap'
 import App from '../App'
 import ReactLogo from '../logo.svg'
 

@@ -33,7 +33,7 @@ class BlacklistTokenUpdateView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def postVeriGirisi(request):
     insert_to_db = []
     
@@ -86,7 +86,7 @@ def postVeriGirisi(request):
     return Response()
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getRoutes(request):
     routes = [
     'api/locations/',
@@ -113,7 +113,7 @@ def getRoutes(request):
     return Response(routes)
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getSpecificReadingTypes(request, tip):
     return Response(clearReadingTypes(tip))
 
@@ -131,21 +131,21 @@ def clearReadingTypes(tip):
     return cleantypes
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getLocations(request):
     locations = Location.objects.all()
     serialize = LocationSerializer(locations, many=True)
     return Response(serialize.data)
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getReadingTypes(request):
     readingType = ReadingType.objects.all()
     serialize = ReadingTypeSerializer(readingType, many=True)
     return Response(serialize.data)
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getSpecificLocations(request, tip):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -155,7 +155,7 @@ def getSpecificLocations(request, tip):
     return Response(uniqueloc)
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getSpecificYer(request, tip, bolge):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -165,7 +165,7 @@ def getSpecificYer(request, tip, bolge):
     return Response(uniqueloc)
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getSpecificParameters(request, tip, bolge, yer):
     locations = (
         Reading.objects.select_related("reading_type", "location")
@@ -180,7 +180,7 @@ def getSpecificParameters(request, tip, bolge, yer):
     return Response(cleantypes)
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getSpecificYears(request, tip, bolge, yer, parametre):
     if(parametre == "all"):
         locations = (
@@ -260,7 +260,6 @@ def getReferenceAndColors(data, table_type, parametre):
         if int(y) not in cleanYears:
             cleanYears.append(int(y))
     cleanYears.sort(reverse=True)
-    print(cleanYears)
     year = data[1][1][:4]
     for y in cleanYears:
         if int(year) > y:
@@ -485,7 +484,7 @@ def allParametreYear(bolge, yer, parametre, yil):
 
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getSpecificReading(request, bolge, yer, parametre, yil):
 
     # butun parametreler + butun yillar
@@ -557,7 +556,7 @@ def allBetweenDates(bolge, yer, parametre, sdata):
     return jsnObject
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getSpecificReadingBetweenDates(request, bolge, yer, parametre, yil1, yil2):
     if int(yil1) < int(yil2):
         start = yil1 + "-01-01"
@@ -592,7 +591,7 @@ from django.http import HttpResponse
 from . import generate_csv, arima
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getDataCSV(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -686,6 +685,7 @@ def getArimaResults(request, tip, bolge, yer, parametre):
         if int(y) not in cleanYears:
             cleanYears.append(int(y))
     cleanYears.sort()
+    print(cleanYears)
     y_year = cleanYears[cleanYears.__len__() - 1]
 
     references = Reference.objects.filter(yonetmelik_yili=y_year, su_tipi=tip)
@@ -783,7 +783,7 @@ def getSpecificMonths(request, tip, bolge, yer, yil):
     return Response(jsn)
 
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def getReference(request, yil, tip):
     references = Reference.objects.filter(yonetmelik_yili=yil, su_tipi=tip)
     parametreler = [
@@ -850,7 +850,7 @@ def getReference(request, yil, tip):
     return Response(jsnArray)
 
 @api_view(["POST"])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def postReference(request):
     siniflar = ['Sınıf_1','Sınıf_2','Sınıf_3','Sınıf_4','Sınıf_5']
     params = []

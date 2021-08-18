@@ -24,6 +24,7 @@ yarn-error.log*
 
 # Backend stuff 
 *.sqlite3
+*.env
 *.csv
 source/backend/backend/__pycache__/*.pyc
 source/backend/base/__pycache__/*.pyc

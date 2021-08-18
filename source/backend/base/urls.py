@@ -33,7 +33,7 @@ urlpatterns = [
     path('api/veriGirisi',views.postVeriGirisi,name="postVeriGirisi"),
 
     path('api/login/',views.LoginView.as_view(),name="login"),
-    path('api/user/logout/blacklist/',views.BlacklistTokenUpdateView.as_view(),name="logout"),
+    path('api/user/logout/blacklist/',views.BlacklistTokenUpdateView.as_view(),name="blacklist"),
     
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

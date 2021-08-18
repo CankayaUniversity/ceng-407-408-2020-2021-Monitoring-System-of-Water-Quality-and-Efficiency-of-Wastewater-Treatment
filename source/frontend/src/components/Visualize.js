@@ -34,7 +34,7 @@ const Visualize = (props) => {
   const [isClicked, setIsClicked] = useState(false)
   const [show, setShow] = useState(false)
   const target = useRef(null)
-  const ref = React.createRef()
+  
   useEffect(() => {
     async function fetchLocations() {
       const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
@@ -191,7 +191,7 @@ const Visualize = (props) => {
               (selectedParametre === 'all' && selectedYil?.length > 1) ||
               (selectedParametre === 'all' && selectedYil.includes('all')) ||
               selectedYil?.length > 2 ||
-              (selectedYil?.length == 2 && selectedYil.includes('all'))
+              (selectedYil?.length === 2 && selectedYil.includes('all'))
             }>
             Bar
           </Button>
@@ -206,7 +206,7 @@ const Visualize = (props) => {
               <Button
                 onClick={() => showInfo('Tablo')}
                 style={{ fontWeight: '500', fontSize: '15px' }}
-                disabled={selectedParametre === 'all' && selectedYil?.length == 1 && selectedYil[0] !== 'all' ? false : true}>
+                disabled={selectedParametre === 'all' && selectedYil?.length === 1 && selectedYil[0] !== 'all' ? false : true}>
                 Tablo
               </Button>
             </span>

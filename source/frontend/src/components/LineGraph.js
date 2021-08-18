@@ -67,6 +67,12 @@ const LineGraph = ({ id, data, label, unit, months, is_all, yillar }) => {
     })
     return labels
   }
+  function findMin(){
+    if (Math.min(...data) >= 0)
+      return 0
+    else
+      return (Math.min(...data) - ((Math.max(...data) - Math.min(...data)) / 10))
+  }
   return (
     <>
       <Line
@@ -77,7 +83,6 @@ const LineGraph = ({ id, data, label, unit, months, is_all, yillar }) => {
           scales: {
             yAxes: [
               {
-                stacked: true,
                 gridLines: {
                   display: true,
                   color: 'rgba(0,0,0,0.1)',
@@ -88,7 +93,10 @@ const LineGraph = ({ id, data, label, unit, months, is_all, yillar }) => {
                   fontSize: 18,
                 },
                 ticks: {
-                  stepSize: 5,
+                  stepSize: (Math.max(...data) - Math.min(...data)) / 10,
+                  min: findMin(),
+                  max: Math.max(...data) + ((Math.max(...data) - Math.min(...data)) / 10),
+                  fontSize: 14,
                 },
               },
             ],
@@ -98,18 +106,6 @@ const LineGraph = ({ id, data, label, unit, months, is_all, yillar }) => {
                   display: true,
                 },
                 ticks: {
-                  fontSize: 14,
-                },
-              },
-            ],
-            yAxes: [
-              {
-                gridLines: {
-                  display: true,
-                },
-                ticks: {
-                  min: Math.min(...data) - Math.min(...data) * 0.2,
-                  max: Math.max(...data) + Math.max(...data) * 0.2,
                   fontSize: 14,
                 },
               },

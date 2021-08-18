@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Row, Col, InputGroup, FormControl, Container, Card, Alert, Button, Spinner, Overlay, ButtonGroup } from 'react-bootstrap'
+import { Row, Col, InputGroup, FormControl, Container, Card, Alert, Button, Spinner, Collapse, Overlay, ButtonGroup } from 'react-bootstrap'
 import BootstrapTable from 'react-bootstrap-table-next'
 import cellEditFactory from 'react-bootstrap-table2-editor'
 import axiosInstance from '../axios'
 import SelectSearch, { fuzzySearch } from 'react-select-search'
 
-function Referans(props) {
+function Referans() {
   const [parametreOptionsState, setParametreOptions] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
@@ -14,6 +14,7 @@ function Referans(props) {
   const [selectedYonetmelikYili, setSelectedYonetmelikYili] = useState('')
   const [selectedSuTipi, setSelectedSuTipi] = useState('')
   const [showYil, setShowYil] = useState(false)
+  const [open, setOpen] = useState(false)
   const [alert, setAlert] = useState({
     hasAlert: false,
     isError: false,
@@ -74,45 +75,14 @@ function Referans(props) {
     setParametreOptions(data)
   }
 
-  const isNumber = (newValue) => {
-    if (newValue.includes(' ')) {
-      return false
-    }
-    if (newValue.startsWith('<') || newValue.startsWith('>')) {
-      if (newValue.length === 1) {
-        return false
-      }
-      var num = Number(newValue.slice(1))
-      console.log('slc ' + num)
-      if (isNaN(num)) {
-        return false
-      } else return true
-    }
-    var num = Number(newValue)
-    console.log(num)
-    if (isNaN(num)) {
-      return false
-    } else return true
-  }
-
   const validation = (newValue, row, column) => {
-    if (isNumber(newValue) === true) {
-      return true
-      // min-max
-      // if(newValue > min && newValue < max)
-      // 	return ture
-      // else{
-      // 	return{
-      // 		valid:false,
-      // 		message:"Geçersiz"
-      // 	}
-      // }
-    } else {
+    var num = Number(newValue)
+    if (isNaN(num)) {
       return {
         valid: false,
         message: 'Geçersiz',
       }
-    }
+    } else return true
   }
 
   let columns = [
@@ -155,7 +125,6 @@ function Referans(props) {
   const veriGonder = () => {
     setIsLoading(true)
     setShowAlert(true)
-    console.log(...parametreOptionsState)
     axiosInstance
       .post('http://127.0.0.1:8000/api/postreferans/', {
         ...parametreOptionsState,
@@ -211,11 +180,9 @@ function Referans(props) {
   function handleBlurYil(f, e) {
     var num = Number(selectedYonetmelikYili)
     if (isNaN(num)) {
-      console.log('invalid')
       setSelectedYonetmelikYili('')
       setShowYil(true)
     } else {
-      console.log('valid')
       setShowYil(false)
     }
   }
@@ -288,6 +255,39 @@ function Referans(props) {
           </Button>
         </ButtonGroup>
       </Row>
+      <Container>
+        <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Button onClick={() => setOpen(!open)} aria-controls="example-collapse-text" aria-expanded={open} variant="outline-primary">
+            Kurallar
+          </Button>
+        </Container>
+      </Container>
+      <Collapse in={open}>
+          <Card id="example-collapse-text" style={{ boxShadow: 'rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px' }}>
+            <Card.Body className="text-center">
+              Girilen değerler <strong>harf</strong>, nokta dışında <strong>noktalama işaretleri</strong>, <strong>boşluk</strong> ve{' '}
+              <strong>özel karakterler</strong> {`(&,@,#,% vs.)`} <strong>içeremez.</strong>
+              <br></br>
+              Eksi değer girmek için değerin başına "-" koymalısınız. Kesirli sayı girmek için "." kullanmalısınız.
+              <br></br>
+              <br></br>
+              Referans Aralıkları <strong>Yönetmelik Yılı</strong> kısmında girilen değerden <strong>sonraki</strong> yıllar için geçerlidir.
+              <br></br>
+              Eğer Yönetmelik yılı <strong>2015</strong> girilir ise <strong>2015 yılı ve öncesi</strong> yıllardaki değerler bu referans aralıklarından <strong>etkilenmezken</strong>,
+              <br></br>
+              <strong>2015 yılı ve sonrası</strong> yıllardaki değerler bu referans aralıklarına göre renklendirir.
+              <br></br>
+              <br></br>
+              Eğer Referans Değer aralıkları <strong>{`[<1, >1]`}</strong> ve toplam 2 sınıftan oluşuyor ise, <strong>1. Sınıf = 1</strong> olacak şekilde girilmeli <strong>2. Sınıfı</strong> sistem kendisi algılıyor.
+              <br></br>
+              Eğer Referans Değer aralıkları <strong>{`[<1 , 2 , >2]`}</strong> ve toplam 3 sınıftan oluşuyor ise, <strong>1. Sınıf = 1 , 2. Sınıf = 2</strong> olacak şekilde girilmeli <strong>3. Sınıfı</strong> sistem kendisi algılıyor.
+              <br></br>
+              Eğer Referans Değer aralıkları <strong>{`[<1 , 2 , 3 , >3]`}</strong> ve toplam 4 sınıftan oluşuyor ise, <strong>1. Sınıf = 1 , 2. Sınıf = 2 , 3. Sınıf = 3</strong> olacak şekilde girilmeli <strong>4. Sınıfı</strong> sistem kendisi algılıyor.
+              <br></br>
+              Eğer Referans Değer aralıkları <strong>{`[<1 , 2 , 3 , 4 , >4]`}</strong> ve toplam 5 sınıftan oluşuyor ise, <strong>1. Sınıf = 1 , 2. Sınıf = 2 , 3. Sınıf = 3 , 4. Sınıf = 4</strong> olacak şekilde girilmeli <strong>5. Sınıfı</strong> sistem kendisi algılıyor.
+            </Card.Body>
+          </Card>
+        </Collapse>
       <div>
         {alert.hasAlert && showAlert ? (
           <Container>
@@ -321,9 +321,6 @@ function Referans(props) {
                       setParametreOptions((previousParametreOptions) => {
                         return previousParametreOptions.map((object) => (object.id === row.id ? row : object))
                       })
-                      setTimeout(() => {
-                        console.log(parametreOptionsState)
-                      }, 500)
                     },
                   })}
                 />

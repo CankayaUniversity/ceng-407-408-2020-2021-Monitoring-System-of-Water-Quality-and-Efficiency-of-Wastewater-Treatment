@@ -91,7 +91,6 @@ const DataEntry = (props) => {
   }, [])
   async function fetchYer(bolge_adi) {
     const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`)
-    console.log(data)
     setYerAdlari(data.sort())
   }
   const BolgeOptions = []
@@ -109,13 +108,11 @@ const DataEntry = (props) => {
         return false
       }
       var num = Number(newValue.slice(1))
-      console.log('slc ' + num)
       if (isNaN(num)) {
         return false
       } else return true
     }
     var num = Number(newValue)
-    console.log(num)
     if (isNaN(num)) {
       return false
     } else return true
@@ -490,17 +487,14 @@ const DataEntry = (props) => {
   async function fetchYillar(e) {
     let yer = e
     const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}/Sıcaklık/`)
-    console.log(data)
     setYillar(data.sort())
   }
 
   function handleBlurYil(f, e) {
     if (selectedYil < Number(yillar[0]) || selectedYil > Number(yillar[yillar.length - 1]) + 1) {
-      console.log('invalid')
       setSelectedYil('')
       setShowYil(true)
     } else {
-      console.log('valid')
       setShowYil(false)
     }
   }
@@ -653,9 +647,6 @@ const DataEntry = (props) => {
                       setParametreOptions((previousParametreOptions) => {
                         return previousParametreOptions.map((object) => (object.id === row.id ? row : object))
                       })
-                      setTimeout(() => {
-                        console.log(parametreOptionsState)
-                      }, 500)
                     },
                   })}
                 />

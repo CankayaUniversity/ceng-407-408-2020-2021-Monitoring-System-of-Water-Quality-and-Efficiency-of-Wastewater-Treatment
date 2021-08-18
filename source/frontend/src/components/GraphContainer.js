@@ -50,7 +50,6 @@ const GraphContainer = (props) => {
           yıllarArray.push(item.slice(0, 4))
         })
       }
-      console.log(data)
       setTarih(tarihArray)
       setYillar(yıllarArray)
       setLoading(false)
@@ -193,18 +192,6 @@ const GraphContainer = (props) => {
               ) : (
                 ''
               )}
-              {/* <p>
-                {`2. Sınıf`} - 6.5 - 8.5{' '}
-                <span style={{ backgroundColor: getColor(2), borderRadius: '20px', width: '10px', height: '10px', display: 'inline-block' }}></span>
-              </p>
-              <p>
-                {`3. Sınıf`} - 6.0 - 9.0{' '}
-                <span style={{ backgroundColor: getColor(3), borderRadius: '20px', width: '10px', height: '10px', display: 'inline-block' }}></span>
-              </p>
-              <p>
-                {`4. Sınıf`} - 6.0 - 9.0 dışında{' '}
-                <span style={{ backgroundColor: getColor(4), borderRadius: '20px', width: '10px', height: '10px', display: 'inline-block' }}></span>
-              </p> */}
             </div>
           ) : (
             <div>
@@ -261,22 +248,6 @@ const GraphContainer = (props) => {
               ) : (
                 ''
               )}
-              {/* <p>
-                {`2. Sınıf - ${referans[0]}-${referans[1]} `}
-                <span style={{ backgroundColor: getColor(2), borderRadius: '20px', width: '10px', height: '10px', display: 'inline-block' }}></span>
-              </p>
-              <p>
-                {`3. Sınıf - ${referans[1]}-${referans[2]} `}
-                <span style={{ backgroundColor: getColor(3), borderRadius: '20px', width: '10px', height: '10px', display: 'inline-block' }}></span>
-              </p>
-              <p>
-                {`4. Sınıf - ${referans[2]}-${referans[3]} `}
-                <span style={{ backgroundColor: getColor(4), borderRadius: '20px', width: '10px', height: '10px', display: 'inline-block' }}></span>
-              </p>
-              <p>
-                {`5. Sınıf - >${referans[3]} `}
-                <span style={{ backgroundColor: getColor(5), borderRadius: '20px', width: '10px', height: '10px', display: 'inline-block' }}></span>
-              </p> */}
             </div>
           )
         ) : (
@@ -318,7 +289,6 @@ const GraphContainer = (props) => {
         res.data.date.map((element) => {
           tarihArray.push(element.slice(5, 7))
         })
-        console.log(res)
         setTarih(tarihArray)
         setTahminiData(res.data)
         setiIsTahminiLoading(false)
@@ -448,7 +418,7 @@ const GraphContainer = (props) => {
                     />
                   </Col>
                 </>
-              ) : queries[0] == 'Bar' ? (
+              ) : queries[0] === 'Bar' ? (
                 <>
                   <OverlayTrigger trigger="hover" placement="right" overlay={popover(data.referans)}>
                     <Card className="my-3 p-3" style={{ boxShadow: 'rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px' }}>
@@ -487,7 +457,7 @@ const GraphContainer = (props) => {
                 </Card>
               )}
               <Col sm={12} md={12} lg={12} xl={12} style={{ marginBottom: '2rem' }}>
-                {queries[0] == 'Tablo' ? (
+                {queries[0] === 'Tablo' ? (
                   <>
                     <Button style={{ marginLeft: '1rem' }} onClick={csvIndir} variant="outline-info">
                       CSV İndir

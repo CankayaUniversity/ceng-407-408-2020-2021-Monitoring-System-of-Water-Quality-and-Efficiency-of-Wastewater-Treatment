@@ -61,7 +61,6 @@ const AllYears = (props) => {
     scales: {
       yAxes: [
         {
-          stacked: true,
           gridLines: {
             display: true,
             color: 'rgba(0,0,0,0.1)',
@@ -72,7 +71,7 @@ const AllYears = (props) => {
             fontSize: 18,
           },
           ticks: {
-            stepSize: 5,
+            fontSize: 14,
           },
         },
       ],
@@ -86,19 +85,8 @@ const AllYears = (props) => {
           },
         },
       ],
-      yAxes: [
-        {
-          gridLines: {
-            display: true,
-          },
-          ticks: {
-            fontSize: 14,
-          },
-        },
-      ],
     },
   }
-
   return <>{loading ? <h1>Loading</h1> : <Bar id={props.id} data={data} width={null} height={null} options={options} />}</>
 }
 
