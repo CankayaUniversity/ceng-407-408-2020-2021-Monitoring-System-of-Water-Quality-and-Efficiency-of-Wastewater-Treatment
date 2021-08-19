@@ -54,12 +54,12 @@ const DataEntry = (props) => {
 
   useEffect(() => {
     async function fetchLocations() {
-      const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
+      const { data } = await axiosInstance.get(`/locations/${locationType}`)
       setBolgeAdlari(data.sort())
     }
     async function fetchParameters() {
       let parametreArray = []
-      const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/readingtypes/${locationType}`)
+      const { data } = await axiosInstance.get(`/readingtypes/${locationType}`)
       data.map((parametre) => {
         parametreArray.push(parametre)
       })
@@ -90,7 +90,7 @@ const DataEntry = (props) => {
     fetchParameters()
   }, [])
   async function fetchYer(bolge_adi) {
-    const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`)
+    const { data } = await axiosInstance.get(`/locations/${locationType}/${bolge_adi}`)
     setYerAdlari(data.sort())
   }
   const BolgeOptions = []
@@ -424,7 +424,7 @@ const DataEntry = (props) => {
     setIsLoading(true)
     setShowAlert(true)
     axiosInstance
-      .post('http://127.0.0.1:8000/api/veriGirisi', {
+      .post('/veriGirisi', {
         ...parametreOptionsState,
         bolge_adi: selectedBolge,
         yer: selectedYer,
@@ -478,7 +478,7 @@ const DataEntry = (props) => {
   }
 
   async function fetchAylar(selectedYil) {
-    const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${selectedYil}`)
+    const { data } = await axiosInstance.get(`/locations/${locationType}/${selectedBolge}/${selectedYer}/${selectedYil}`)
     const mdata = await data
     setMonths(mdata['months'])
     setSelectedNumuneKodu(mdata['numune_adi'])
@@ -486,7 +486,7 @@ const DataEntry = (props) => {
 
   async function fetchYillar(e) {
     let yer = e
-    const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}/Sıcaklık/`)
+    const { data } = await axiosInstance.get(`/locations/${locationType}/${selectedBolge}/${yer}/Sıcaklık/`)
     setYillar(data.sort())
   }
 

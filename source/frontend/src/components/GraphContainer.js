@@ -36,7 +36,7 @@ const GraphContainer = (props) => {
       let yıllarArray = []
       const queries4 = queries[4].length > 1 ? queries[4][0] + '/' + queries[4][1] : queries[4][0]
       const { data } = await axiosInstance
-        .get(`http://127.0.0.1:8000/api/reading/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`)
+        .get(`/reading/${queries[1]}/${queries[2]}/${queries[3]}/${queries4}`)
         .catch((error) => console.log(error))
       setData(data)
       if (queries[3] === 'all') {
@@ -275,7 +275,7 @@ const GraphContainer = (props) => {
   async function csvIndir() {
     const queries4 = queries[4].length > 1 ? queries[4][0] + '/' + queries[4][1] : queries[4][0]
     await axiosInstance
-      .get(`http://127.0.0.1:8000/api/csv/${queries[1]}/${queries[2]}/${queries4}/`)
+      .get(`/csv/${queries[1]}/${queries[2]}/${queries4}/`)
       .then((res) => setCsvData(res.data))
       .then(() => csvLink?.current?.link.click())
       .catch((error) => alert(error))
@@ -284,7 +284,7 @@ const GraphContainer = (props) => {
     setiIsTahminiLoading(true)
     let tarihArray = []
     await axiosInstance
-      .get(`http://127.0.0.1:8000/api/arima/${props.locationType}/${queries[1]}/${queries[2]}/${queries[3]}/`)
+      .get(`/arima/${props.locationType}/${queries[1]}/${queries[2]}/${queries[3]}/`)
       .then((res) => {
         res.data.date.map((element) => {
           tarihArray.push(element.slice(5, 7))

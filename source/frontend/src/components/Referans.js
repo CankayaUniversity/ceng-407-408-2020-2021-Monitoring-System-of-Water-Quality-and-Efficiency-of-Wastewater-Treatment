@@ -71,7 +71,7 @@ function Referans() {
   }, [])
 
   async function fetchReferences(e) {
-    const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/referans/${selectedYonetmelikYili}/${e}`)
+    const { data } = await axiosInstance.get(`/referans/${selectedYonetmelikYili}/${e}`)
     setParametreOptions(data)
   }
 
@@ -126,7 +126,7 @@ function Referans() {
     setIsLoading(true)
     setShowAlert(true)
     axiosInstance
-      .post('http://127.0.0.1:8000/api/postreferans/', {
+      .post('/postreferans/', {
         ...parametreOptionsState,
         yonetmelik_yili: selectedYonetmelikYili,
         table_type: selectedSuTipi,

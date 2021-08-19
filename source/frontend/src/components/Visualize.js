@@ -37,19 +37,19 @@ const Visualize = (props) => {
   
   useEffect(() => {
     async function fetchLocations() {
-      const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}`)
+      const { data } = await axiosInstance.get(`/locations/${locationType}`)
       setBolgeAdlari(data.sort())
     }
     fetchLocations()
   }, [])
   async function fetchYer(bolge_adi) {
-    await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${bolge_adi}`).then((res) => {
+    await axiosInstance.get(`/locations/${locationType}/${bolge_adi}`).then((res) => {
       setYerAdlari(res.data.sort())
     })
   }
   async function fetchParameters(yer) {
     let parametreArray = []
-    const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${yer}`)
+    const { data } = await axiosInstance.get(`/locations/${locationType}/${selectedBolge}/${yer}`)
     data.map((parametre) => {
       parametreArray.push(parametre)
     })
@@ -57,7 +57,7 @@ const Visualize = (props) => {
   }
   async function fetchYillar(parametre) {
     const yilOptions = []
-    const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}/`)
+    const { data } = await axiosInstance.get(`/locations/${locationType}/${selectedBolge}/${selectedYer}/${parametre}/`)
     data.forEach((yil) => yilOptions.push({ name: yil, value: yil }))
     yilOptions.splice(0, 0, { name: 'Hepsi', value: 'all' })
     setYillar(yilOptions.sort())

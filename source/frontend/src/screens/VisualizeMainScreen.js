@@ -7,7 +7,7 @@ const VisualizeMainScreen = () => {
   const [locations, setLocations] = useState([])
   useEffect(() => {
     async function fetchLocations() {
-      const { data } = await axiosInstance.get(`http://127.0.0.1:8000/api/locations/`)
+      const { data } = await axiosInstance.get(`/locations/`)
       setLocations(data)
     }
     fetchLocations()
